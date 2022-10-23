@@ -47,7 +47,7 @@ sent_barplot_N <- function(N) {
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
     scale_y_continuous(expand = c(0, 0.001)) +
-    ggtitle("Mean Compound Sentiment by State") + 
+    ggtitle(paste("Mean Compound Sentiment by State (N > ", N, ')', sep = '')) + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
     theme_bw() +
@@ -65,8 +65,8 @@ sent_barplot_N <- function(N) {
 
 # read in the cleaned data
 source("stateNames.R")
-geotagged <- read.csv('data/geotagged_sentiment_cleaned.csv')
-
+# geotagged <- read.csv('data/geotagged_sentiment_cleaned.csv')
+geotagged <- read.csv('data/geotagged_sentiment_THIS_ONE.csv')
 
 
 

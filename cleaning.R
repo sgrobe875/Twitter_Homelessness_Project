@@ -38,7 +38,7 @@ source("stateNames.R")
 # get the subset of those in the format "stateName, USA" and fetch abbreviation from stateNames dataframe
 geotagged_subset1 <- merge(x = geotagged %>% filter(place_type == 'admin') %>% 
                      filter(substr(full_name, nchar(full_name)-2, nchar(full_name)) == 'USA'), 
-                   y = stateNames, by = "full_name", all.x = TRUE)
+                     y = stateNames, by = "full_name", all.x = TRUE)
 
 # reassign the abbreviations to the "state" column
 geotagged_subset1$state <- geotagged_subset1$abbrev

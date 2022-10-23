@@ -23,3 +23,7 @@ stateNames <- data.frame(c('Alabama, USA', 'AL'), c('Alaska, USA', 'AK'), c('Ari
 stateNames <- as.data.frame(t(stateNames))
 
 names(stateNames) <- c('full_name', 'abbrev')
+
+
+
+write.csv(stateNames, 'data/state_abbrevs.csv')
