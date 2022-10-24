@@ -91,7 +91,7 @@ sent_barplot_N <- function(N) {
 source("stateNames.R")
 
 # read in the file that includes the sentiment analysis results
-geotagged <- read.csv('data/geotagged_sentiment_THIS_ONE.csv')
+geotagged <- read.csv('data/geotagged_sentiment_only.csv')
 
 
 
