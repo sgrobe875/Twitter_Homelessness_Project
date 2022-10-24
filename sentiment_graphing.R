@@ -31,7 +31,7 @@ sent_barplot <- function() {
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
     scale_y_continuous(expand = c(0, 0)) +
-    ggtitle("Mean Compound Sentiment by State") + 
+    ggtitle("Mean Compound Sentiment by State (All Years)") + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
     theme_bw() +
@@ -71,13 +71,43 @@ sent_barplot_N <- function(N) {
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
     scale_y_continuous(expand = c(0, 0.001)) +
-    ggtitle(paste("Mean Compound Sentiment by State (N > ", N, ')', sep = '')) + 
+    ggtitle(paste("Mean Compound Sentiment by State (All Years, N > ", N, ')', sep = '')) + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=9))
 }
 
+
+
+
+
+sent_barplot_by_year <- function(yr) {
+  # filter by the inputted year
+  state_sent <- geotagged %>% filter(year == yr)
+  
+  # create a dataframe with state, year, and mean sentiment for that state
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  
+  # use stateNames to match the abbreviations to each state
+  state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+  
+  # remove duplicates so each state only appears once, and sort by mean sentiment (descending)
+  state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% select(state, mean_sent, year) %>% arrange(mean_sent)
+  
+  # convert state to a factor so the dataframe holds this ordering
+  state_sent <- within(state_sent, state <- factor(state, levels = factor(state_sent$state)))
+  
+  # plot 
+  ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
+    coord_flip() + 
+    scale_y_continuous(expand = c(0, 0)) +
+    ggtitle(paste("Mean Compound Sentiment by State (", as.character(yr), ")", sep='')) + 
+    xlab("State") + 
+    ylab("Mean Compound Sentiment") + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=9))
+}
 
 
 
@@ -111,11 +141,64 @@ sent_barplot()
 
 
 
-#### Sentiment by State for >= N tweets #############
+#### Sentiment by State for >= N tweets ##############
 
 sent_barplot_N(1000)
 sent_barplot_N(10000)
 
 
-#####################################################
+######################################################
+
+
+
+
+
+#### Sentiment by State by Year ######################
+
+sent_barplot_by_year(2010)
+sent_barplot_by_year(2011)
+sent_barplot_by_year(2012)
+sent_barplot_by_year(2013)
+sent_barplot_by_year(2014)
+sent_barplot_by_year(2015)
+sent_barplot_by_year(2016)
+sent_barplot_by_year(2017)
+sent_barplot_by_year(2018)
+
+
+
+######################################################
+
+
+
+
+
+
+
+
+
+
+### Create files to share sentiment results in different formats #######
+ 
+sentiment_by_state_by_year <- data.frame(matrix(ncol = 3, nrow = 0))
+
+years = 
+
+for (variable in vector) {
+  
+}
+
+colnames(df) <- c("col1", "col2", "col3")
+
+
+
+
+
+
+
+
+
+
+
+
 
