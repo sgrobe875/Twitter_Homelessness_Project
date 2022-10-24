@@ -248,6 +248,9 @@ sent_barplot_by_year(2018)
 sent_by_state('CA')
 sent_change_by_state('CA')
 
+sent_by_state('MA')
+sent_change_by_state('MA')
+
 
 ######################################################
 
@@ -297,7 +300,49 @@ write_csv(sentiment_by_state_by_year, "data/sentiment_by_state_by_year.csv")
 
 
 
+# File for changes in sentiment (all 50 states, 2011-2018)
+sentiment_change_by_state_by_year <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(sentiment_change_by_state_by_year) <- c("state", "year", "change")
 
+for (st in stateNames$abbrev) {
+  # filter by the inputted state
+  state_sent <- geotagged %>% filter(state == st)
+  
+  # only proceed if we have data recorded for that state/territory
+  if (nrow(state_sent) > 0) {
+    # create a dataframe with state, year, and mean sentiment for that state
+    state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
+      mutate(mean_sent = mean(sentiment))
+    
+    # use stateNames to match the abbreviations to each state
+    state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+    
+    # remove duplicates so each year only appears once
+    state_sent <- state_sent %>% distinct(year, .keep_all = TRUE) %>% select(state, mean_sent, year) 
+    
+    # convert year from string to integer
+    state_sent$year <- as.numeric(state_sent$year)
+    
+    # loop through and calculate differences; add to a dataframe
+    sent_changes <- data.frame(matrix(ncol = 3, nrow = 0))
+    
+    years <- c(2011:2018)
+    for (yr in years) {
+      curr_sent <- state_sent$mean_sent[state_sent$year == yr]     # sentiment for the year in question
+      past_sent <- state_sent$mean_sent[state_sent$year == yr-1]   # sentiment for prior year
+      diff <- curr_sent - past_sent
+      
+      row <- c(st, yr, diff)
+      sent_changes <- rbind(sent_changes, row)
+    }
+    
+    names(sent_changes) <- c('state', 'year', 'change')
+    sentiment_change_by_state_by_year <- rbind(sentiment_change_by_state_by_year, sent_changes)
+  }
+}
+
+
+write_csv(sentiment_change_by_state_by_year, "data/sentiment_change_by_state_by_year.csv")
 
 
 
