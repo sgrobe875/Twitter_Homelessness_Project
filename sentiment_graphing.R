@@ -179,16 +179,31 @@ sent_barplot_by_year(2018)
 
 
 ### Create files to share sentiment results in different formats #######
- 
+
+# empty dataframe to hold the results
 sentiment_by_state_by_year <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(sentiment_by_state_by_year) <- c("state", "mean_sent", "year")
 
-years = 
+years <- c(2010:2018)
 
-for (variable in vector) {
+for (yr in years) {
+  # filter by the inputted year
+  state_sent <- geotagged %>% filter(year == yr)
   
+  # create a dataframe with state, year, and mean sentiment for that state
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  
+  # use stateNames to match the abbreviations to each state
+  state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+  
+  # remove duplicates so each state only appears once, and sort by mean sentiment (descending)
+  state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% select(state, mean_sent, year) %>% arrange(mean_sent)
+  
+  # add to the existing dataframe
+  sentiment_by_state_by_year <- rbind(sentiment_by_state_by_year, state_sent)
 }
 
-colnames(df) <- c("col1", "col2", "col3")
+write_csv(sentiment_by_state_by_year, "data/sentiment_by_state_by_year.csv")
 
 
 
