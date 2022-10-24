@@ -112,6 +112,79 @@ sent_barplot_by_year <- function(yr) {
 
 
 
+sent_by_state <- function(st) { 
+  # filter by the inputted state
+  state_sent <- geotagged %>% filter(state == st)
+  
+  # create a dataframe with state, year, and mean sentiment for that state
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
+    mutate(mean_sent = mean(sentiment))
+  
+  # use stateNames to match the abbreviations to each state
+  state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+  
+  # remove duplicates so each year only appears once
+  state_sent <- state_sent %>% distinct(year, .keep_all = TRUE) %>% select(state, mean_sent, year) 
+  
+  # convert year from string to integer
+  state_sent$year <- as.numeric(state_sent$year)
+  
+  # plot 
+  ggplot(data = state_sent, mapping = aes(x = year, y = mean_sent)) + geom_col() +
+    ggtitle(paste("Mean Compound Sentiment Per Year (", st, ", 2010 - 2018)", sep='')) + 
+    xlab("Year") + 
+    ylab("Mean Compound Sentiment") + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=9))
+}
+
+
+
+sent_change_by_state <- function(st) {
+  # filter by the inputted state
+  state_sent <- geotagged %>% filter(state == st)
+  
+  # create a dataframe with state, year, and mean sentiment for that state
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
+    mutate(mean_sent = mean(sentiment))
+  
+  # use stateNames to match the abbreviations to each state
+  state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+  
+  # remove duplicates so each year only appears once
+  state_sent <- state_sent %>% distinct(year, .keep_all = TRUE) %>% select(state, mean_sent, year) 
+  
+  # convert year from string to integer
+  state_sent$year <- as.numeric(state_sent$year)
+  
+  # loop through and calculate differences; add to a dataframe
+  sent_changes <- data.frame(matrix(ncol = 2, nrow = 0))
+  
+  years <- c(2011:2018)
+  for (yr in years) {
+    curr_sent <- state_sent$mean_sent[state_sent$year == yr]     # sentiment for the year in question
+    past_sent <- state_sent$mean_sent[state_sent$year == yr-1]   # sentiment for prior year
+    diff <- curr_sent - past_sent
+    
+    row <- c(yr, diff)
+    sent_changes <- rbind(sent_changes, row)
+  }
+  
+  # fix column names
+  names(sent_changes) <- c('year','change')
+  
+  # plot 
+  ggplot(data = sent_changes, mapping = aes(x = year, y = change)) + geom_col() +
+    ggtitle(paste("Changes in Mean Compound Sentiment Per Year (", st, ", 2011 - 2018)", sep='')) + 
+    xlab("Year") + 
+    ylab("Mean Compound Sentiment") + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=9))
+}
+
+
+
+
 
 
 
@@ -168,6 +241,21 @@ sent_barplot_by_year(2018)
 
 
 ######################################################
+
+
+#### Sentiment per year for a specific state #########
+
+sent_by_state('CA')
+sent_change_by_state('CA')
+
+
+######################################################
+
+
+
+
+
+
 
 
 
