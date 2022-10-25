@@ -31,35 +31,59 @@ geotagged$date_posted <- as.Date(dates[,1])
 
 # plot the sentiment over all years and states with daily averages
 sentiment_daily <- function(st = NULL, yr = NULL) {
+  
   # group by date and find average sentiment
-  sent_by_date <- geotagged %>% group_by(date_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
-    distinct(date_posted, .keep_all = TRUE)
+  # sent_by_date <- geotagged %>% group_by(date_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
+  #   distinct(date_posted, .keep_all = TRUE)
   
   # set up plot title
   title <- 'Daily Mean Sentiment Over Time'
   
+  
+  ### filter the data according to function parameters ###
+  
   # filtering by only year (st = year)
   if (is.numeric(st)) {
-    sent_by_date <- sent_by_date %>% filter(year == as.character(st))
+    sent_by_date <- geotagged %>% filter(year == as.character(st)) %>%  # filter out the year
+      group_by(date_posted) %>%                                         # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                           # calculate mean for each group (month)
+      distinct(date_posted, .keep_all = TRUE) %>%                       # remove duplicates
+      select(date_posted, mean_sent, year, state)                       # extract useful columns (optional)
+    
     title <- paste(title, ' (', as.character(st), ')', sep='')
   }
   
   # no filtering (plotting all sentiment)
   else if (is.null(st)) {
-    st = 'dummy'
+    sent_by_date <- geotagged %>% group_by(date_posted) %>%    # no filtering needed, so just group by month
+      mutate(mean_sent = mean(sentiment)) %>%                  # calculate mean sentiment for each month
+      distinct(date_posted, .keep_all = TRUE) %>%              # remove duplicates
+      select(date_posted, mean_sent, year, state)              # extract useful columns (optional)
   }
   
   # filtering by only state (st = state)
   else if (is.null(yr)) {
-    sent_by_date <- sent_by_date %>% filter(state == st)
+    sent_by_date <- geotagged %>% filter(state == st) %>%         # filter out the state
+      group_by(date_posted) %>%                                   # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                     # calculate mean for each group (month)
+      distinct(date_posted, .keep_all = TRUE) %>%                 # remove duplicates
+      select(date_posted, mean_sent, year, state)                 # extract useful columns (optional)
+    
     title <- paste(title, ' (', st, ')', sep='')
   }
   
   # filtering by both (st = state, yr = year)
   else {
-    sent_by_date <- sent_by_date %>% filter(state == st) %>% filter(year == as.character(yr))
+    sent_by_date <- geotagged %>% filter(state == st) %>%         # filter out the state
+      filter(year == yr) %>%                                      # filter out the year
+      group_by(date_posted) %>%                                   # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                     # calculate mean for each group (month)
+      distinct(date_posted, .keep_all = TRUE) %>%                 # remove duplicates
+      select(date_posted, mean_sent, year, state)                 # extract useful columns (optional)
+    
     title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
   }
+
   
   # plot
   ggplot(data = sent_by_date, mapping = aes(x = date_posted, y = mean_sent)) + 
@@ -81,35 +105,58 @@ sentiment_monthly <- function(st = NULL, yr = NULL) {
   temp$month_posted <- paste(temp$month_posted, '-01', sep = '')
   temp$month_posted <- as.Date(temp$month_posted)
   
-  # group by each month and calculate mean sentiment
-  sent_by_date <- temp %>% group_by(month_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
-    distinct(month_posted, .keep_all = TRUE)
-  
   # set up plot title
   title <- 'Monthly Mean Sentiment Over Time'
   
+  
+  
+  ### filter the data according to function parameters ###
+  
   # filtering by only year (st = year)
   if (is.numeric(st)) {
-    sent_by_date <- sent_by_date %>% filter(year == as.character(st))
+    sent_by_date <- temp %>% filter(year == as.character(st)) %>%  # filter out the year
+      group_by(month_posted) %>%                                   # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                      # calculate mean for each group (month)
+      distinct(month_posted, .keep_all = TRUE) %>%                 # remove duplicates
+      select(month_posted, mean_sent, year, state)                 # extract useful columns (optional)
+
     title <- paste(title, ' (', as.character(st), ')', sep='')
   }
   
   # no filtering (plotting all sentiment)
   else if (is.null(st)) {
-    st = 'dummy'
+    # st = 'dummy'
+    sent_by_date <- temp %>% group_by(month_posted) %>%    # no filtering needed, so just group by month
+      mutate(mean_sent = mean(sentiment)) %>%              # calculate mean sentiment for each month
+      distinct(month_posted, .keep_all = TRUE) %>%         # remove duplicates
+      select(month_posted, mean_sent, year, state)         # extract useful columns (optional)
   }
   
   # filtering by only state (st = state)
   else if (is.null(yr)) {
-    sent_by_date <- sent_by_date %>% filter(state == st)
+    sent_by_date <- temp %>% filter(state == st) %>%               # filter out the state
+      group_by(month_posted) %>%                                   # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                      # calculate mean for each group (month)
+      distinct(month_posted, .keep_all = TRUE) %>%                 # remove duplicates
+      select(month_posted, mean_sent, year, state)                 # extract useful columns (optional)
+    
+    # sent_by_date <- sent_by_date %>% filter(state == st)
     title <- paste(title, ' (', st, ')', sep='')
   }
   
   # filtering by both (st = state, yr = year)
   else {
-    sent_by_date <- sent_by_date %>% filter(state == st) %>% filter(year == as.character(yr))
+    sent_by_date <- temp %>% filter(state == st) %>%               # filter out the state
+      filter(year == yr) %>%                                       # filter out the year
+      group_by(month_posted) %>%                                   # group by month
+      mutate(mean_sent = mean(sentiment)) %>%                      # calculate mean for each group (month)
+      distinct(month_posted, .keep_all = TRUE) %>%                 # remove duplicates
+      select(month_posted, mean_sent, year, state)                 # extract useful columns (optional)
+    
+    # sent_by_date <- sent_by_date %>% filter(state == st) %>% filter(year == as.character(yr))
     title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
   }
+  
   
   
   # plot
