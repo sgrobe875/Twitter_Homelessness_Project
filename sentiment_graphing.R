@@ -8,7 +8,7 @@ library(ggplot2)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-# Recommended to run this line to clear environment, especially if cleaning.R was recently run:
+# Recommended but not required to clear environment
 rm(list = ls(all.names = TRUE)) 
 
 
