@@ -41,5 +41,23 @@ colnames(tweet_counts_long) <- c("state", "norm_count", "year")
 
 
 # join sentiment and tweet counts data by year & state
+counts_and_sent <- merge(sent_state_year, tweet_counts_long, by = c('state', 'year'))
+
+
+
+
+#### Repeat with homelessness counts ####
+
+
+
+
+
+
+
+
+
+
+
+
 
 
