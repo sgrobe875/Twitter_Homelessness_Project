@@ -30,15 +30,41 @@ geotagged$date_posted <- as.Date(dates[,1])
 #### Plotting functions ###########################################
 
 # plot the sentiment over all years and states with daily averages
-all_sentiment_daily <- function() {
+sentiment_daily <- function(st = NULL, yr = NULL) {
   # group by date and find average sentiment
   sent_by_date <- geotagged %>% group_by(date_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
-    select(date_posted, mean_sent) %>% distinct(date_posted, .keep_all = TRUE)
-
+    distinct(date_posted, .keep_all = TRUE)
+  
+  # set up plot title
+  title <- 'Daily Mean Sentiment Over Time'
+  
+  # filtering by only year (st = year)
+  if (is.numeric(st)) {
+    sent_by_date <- sent_by_date %>% filter(year == as.character(st))
+    title <- paste(title, ' (', as.character(st), ')', sep='')
+  }
+  
+  # no filtering (plotting all sentiment)
+  else if (is.null(st)) {
+    st = 'dummy'
+  }
+  
+  # filtering by only state (st = state)
+  else if (is.null(yr)) {
+    sent_by_date <- sent_by_date %>% filter(state == st)
+    title <- paste(title, ' (', st, ')', sep='')
+  }
+  
+  # filtering by both (st = state, yr = year)
+  else {
+    sent_by_date <- sent_by_date %>% filter(state == st) %>% filter(year == as.character(yr))
+    title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
+  }
+  
   # plot
   ggplot(data = sent_by_date, mapping = aes(x = date_posted, y = mean_sent)) + 
     geom_line() + 
-    ggtitle('Daily Mean Sentiment Over Time') + 
+    ggtitle(title) + 
     xlab('Time') + 
     ylab('Compound Sentiment') + 
     theme_bw() +
@@ -47,7 +73,7 @@ all_sentiment_daily <- function() {
 
 
 # plot the sentiment over all years and states with monthly averages
-all_sentiment_monthly <- function() {
+sentiment_monthly <- function(st = NULL, yr = NULL) {
   # copy of main dataframe with only years and months
   temp <- geotagged %>% mutate(month_posted = format_ISO8601(date_posted, precision = "ym"))
   
@@ -57,12 +83,39 @@ all_sentiment_monthly <- function() {
   
   # group by each month and calculate mean sentiment
   sent_by_date <- temp %>% group_by(month_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
-    select(month_posted, mean_sent) %>% distinct(month_posted, .keep_all = TRUE)
+    distinct(month_posted, .keep_all = TRUE)
+  
+  # set up plot title
+  title <- 'Monthly Mean Sentiment Over Time'
+  
+  # filtering by only year (st = year)
+  if (is.numeric(st)) {
+    sent_by_date <- sent_by_date %>% filter(year == as.character(st))
+    title <- paste(title, ' (', as.character(st), ')', sep='')
+  }
+  
+  # no filtering (plotting all sentiment)
+  else if (is.null(st)) {
+    st = 'dummy'
+  }
+  
+  # filtering by only state (st = state)
+  else if (is.null(yr)) {
+    sent_by_date <- sent_by_date %>% filter(state == st)
+    title <- paste(title, ' (', st, ')', sep='')
+  }
+  
+  # filtering by both (st = state, yr = year)
+  else {
+    sent_by_date <- sent_by_date %>% filter(state == st) %>% filter(year == as.character(yr))
+    title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
+  }
+  
   
   # plot
   ggplot(data = sent_by_date, mapping = aes(x = month_posted, y = mean_sent)) + 
     geom_line() + 
-    ggtitle('Monthly Mean Sentiment Over Time') + 
+    ggtitle(title) + 
     xlab('Time') + 
     ylab('Compound Sentiment') + 
     theme_bw() +
@@ -71,16 +124,17 @@ all_sentiment_monthly <- function() {
 
 
 # plot the sentiment over all years and states with monthly averages
-all_sentiment_yearly <- function() {
+sentiment_yearly <- function() {
   # copy of main dataframe with only years and months
-  temp <- geotagged %>% mutate(year_posted = format_ISO8601(date_posted, precision = "y"))
+  temp <- data.frame(geotagged)
+  temp$year <- as.numeric(temp$year)
   
   # group by month and find average sentiment
-  sent_by_date <- temp %>% group_by(year_posted) %>% mutate(mean_sent = mean(sentiment)) %>% 
-    select(date_posted, mean_sent) %>% distinct(date_posted, .keep_all = TRUE)
+  sent_by_date <- temp %>% group_by(year) %>% mutate(mean_sent = mean(sentiment)) %>% 
+    select(year, mean_sent) %>% distinct(year, .keep_all = TRUE)
   
   # plot
-  ggplot(data = sent_by_date, mapping = aes(x = date_posted, y = mean_sent)) + 
+  ggplot(data = sent_by_date, mapping = aes(x = year, y = mean_sent)) + 
     geom_line() + 
     ggtitle('Yearly Mean Sentiment Over Time') + 
     xlab('Time') + 
@@ -92,15 +146,31 @@ all_sentiment_yearly <- function() {
 
 
 
+
+
+
+
 ###################################################################
 
 
 
 
-all_sentiment_daily()
+## Daily averages
+
+sentiment_daily()               # all sentiment
+sentiment_daily('CA')           # only California
+sentiment_daily(2017)           # only 2017
+sentiment_daily('CA', 2017)     # only California in 2017
 
 
 
+
+# Monthly averages
+
+sentiment_monthly()               # all sentiment
+sentiment_monthly('CA')           # only California
+sentiment_monthly(2017)           # only 2017
+sentiment_monthly('CA', 2017)     # only California in 2017
 
 
 
