@@ -26,7 +26,6 @@ names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016
 
 # rework tweet counts to get in long format
 tweet_counts_long <- data.frame(matrix(ncol = 3, nrow = 0))   # dataframe to hold long form data
-colnames(tweet_counts_long) <- c("state", "norm_count", "year") 
 
 for (row in seq(1,nrow(tweet_counts))) {
   st <- tweet_counts[row,'state']
