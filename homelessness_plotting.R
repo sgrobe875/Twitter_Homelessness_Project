@@ -1,8 +1,6 @@
 # import packages
 library(dplyr)
 library(ggplot2)
-# library(RColorBrewer)
-library(ggrepel)
 
 
 
@@ -10,12 +8,8 @@ library(ggrepel)
 # set working directory to the location of this file
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-
 # Recommended but not required to clear environment
 rm(list = ls(all.names = TRUE)) 
-
-
-
 
 # read in the data
 d <- read.csv('data/homelessness_rate_data.csv')
@@ -55,6 +49,17 @@ positive_sent <- d %>% filter(mean_sent > 0)
 zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text=element_text(size=11),
                     axis.title = element_text(size = 14), legend.title = element_text(size = 14),
                     legend.text = element_text(size=11))
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,20 +161,6 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   theme_bw() + 
   zoom_theme
 
-# Negative sentiment only, large colored points with state/year labels -- use with zoom function!
-ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
-                                           y = log10(tweets_norm), color = mean_sent)) + 
-  geom_point(alpha = 0.8, size = 13) + 
-  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
-            color = 'black') +
-  sent_color_palette + 
-  ggtitle(paste(title, 'for States with Mostly Negative Sentiment')) +
-  xlab(xlabel) + 
-  ylab(ylabel) + 
-  labs(color = legendtitle) + 
-  theme_bw() + 
-  zoom_theme
-
 # Negative sentiment only; state/year labels; regression line plus corr coeff -- use with zoom function!
 ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
   geom_text(data = negative_sent, 
@@ -180,6 +171,20 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  zoom_theme
+
+# Negative sentiment only, large colored points with state/year labels -- use with zoom function!
+ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
+                                           y = log10(tweets_norm), color = mean_sent)) + 
+  geom_point(alpha = 0.8, size = 13) + 
+  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
+            color = 'black') +
+  sent_color_palette + 
+  ggtitle(paste(title, 'for States with Mostly Negative Sentiment')) +
   xlab(xlabel) + 
   ylab(ylabel) + 
   labs(color = legendtitle) + 
@@ -234,6 +239,12 @@ positive_model$coefficients
 
 # correlation coefficient
 cor.test(log10(positive_sent$tweets_norm), log10(positive_sent$total_homeless_norm))
+
+
+
+
+
+
 
 
 
