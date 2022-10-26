@@ -286,3 +286,122 @@ negative_sent %>% filter(mean_sent > -0.4) %>%
 
 
 
+
+
+
+
+#### Try looking at these plots for specific states and/or years ####
+
+
+
+plot_filters <- function(st = NULL, yr = NULL)  {
+  # make a copy of the dataframe to be safe
+  temp <- data.frame(d)
+
+  # filter by year only
+  if (is.numeric(st)) {
+    temp <- temp %>% filter(year == st)
+    title <- paste(title, ' (', as.character(st), ')', sep='')
+  }
+  
+  # no filter (should be same as first plot above)
+  else if (is.null(st)) {
+    s <- 'dummy'    # do nothing
+  }
+  
+  # filter by state only
+  else if (is.null(yr)) {
+    temp <- temp %>% filter(state == st)
+    title <- paste(title, ' (', st, ')', sep='')
+  }
+  
+  # filter by both (this is silly tho because it'll always be a single point)
+  else {
+    temp <- temp %>% filter(state == st) %>% filter(year == yr)
+    title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
+  }
+  # make the plot
+  ggplot(data = temp, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
+    geom_point(alpha = 0.8, size = 2) + 
+    sent_color_palette + 
+    ggtitle(title) +
+    xlab(xlabel) + 
+    ylab(ylabel) + 
+    labs(color = legendtitle) + 
+    theme_bw() + 
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+          axis.title.y = element_text(size = 9.5))
+}
+
+
+
+
+
+
+
+
+plot_filters(2017)
+plot_filters('CA')
+
+
+
+
+
+
+
+
+
+
+
+
+#### Compare across all years #####################
+
+ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
+  geom_point(alpha = 0.8) + 
+  sent_color_palette + 
+  ggtitle(title) +
+  xlab(xlabel) + 
+  ylab(ylabel) + 
+  labs(color = legendtitle) + 
+  facet_grid(~ year) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
+  geom_point(alpha = 0.8) + 
+  sent_color_palette + 
+  ggtitle(title) +
+  xlab(xlabel) + 
+  ylab(ylabel) + 
+  labs(color = legendtitle) + 
+  facet_wrap(~ year) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
