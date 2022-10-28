@@ -1,6 +1,8 @@
 # import packages
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
+library(grid)
 
 
 
@@ -29,7 +31,7 @@ d <- read.csv('data/homelessness_rate_data.csv')
 # color mapping:             negative --> neutral --> positive
 redgreen<-colorRampPalette(c("#de1616","lightgray","darkblue"))
 # find the largest extent (magnitude) of sentiment and set that as limits in both directions for color consistency
-lims = max(abs(min(d$mean_sent)), abs(max(d$mean_sent)))
+lims = max(abs(min(d$mean_sent, na.rm = TRUE)), abs(max(d$mean_sent, na.rm = TRUE)))
 # build the palette from these parameters
 sent_color_palette <- scale_colour_gradientn(colours = redgreen(100), limit = c(-lims,lims))
 
@@ -91,11 +93,12 @@ ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), col
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
 
-# Positive sentiment only with regression line
+# Positive sentiment only with regression line and corr coeff
 d %>% filter(mean_sent > 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
   geom_point(alpha = 0.8, size = 2) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  annotate("text", x=log10(0.0015), y=log10(0.0015), label= "Correlation coefficient = 0.48826") + 
   sent_color_palette + 
   ggtitle(paste(title,'\nFor States with Mostly Positive Sentiment')) +
   xlab(xlabel) + 
@@ -136,7 +139,7 @@ d %>% filter(mean_sent < 0) %>%
 d %>% filter(mean_sent < 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) +
   geom_point(alpha = 0.8, size = 2) +
-  annotate("text", x=log10(0.00095), y=log10(0.00055), label= "Correlation coefficient = 0.56733") + 
+  annotate("text", x=log10(0.00095), y=log10(0.00055), label= "Correlation coefficient = -0.00106") + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette +
   ggtitle(paste(title, '\nFor States with Mostly Negative Sentiment')) +
@@ -167,7 +170,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = mean_sent, label = paste(state, '\n', as.character(year), sep = '')), 
             size = 3) + 
-  annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = 0.56733", size = 6) + 
+  annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = -0.00106", size = 6) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
@@ -180,8 +183,8 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
 # Negative sentiment only, large colored points with state/year labels -- use with zoom function!
 ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
                                            y = log10(tweets_norm), color = mean_sent)) + 
-  geom_point(alpha = 0.8, size = 13) + 
-  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
+  geom_point(alpha = 0.8, size = 14) + 
+  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3.3, 
             color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'for States with Mostly Negative Sentiment')) +
@@ -260,6 +263,9 @@ ggplot(data = d, mapping = aes(x = total_homeless_norm, y = mean_sent)) +
 ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = mean_sent)) + 
   geom_point(alpha = 0.5)
 
+ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(mean_sent))) + 
+  geom_point(alpha = 0.5)
+
 
 
 
@@ -269,14 +275,11 @@ ggplot(data = negative_sent, mapping = aes(x = total_homeless_norm, y = mean_sen
 ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = mean_sent)) + 
   geom_point(alpha = 0.5)
 
-# ignoring the potential outlier:
-negative_sent %>% filter(mean_sent > -0.4) %>% 
-  ggplot(mapping = aes(x = log10(total_homeless_norm), y = mean_sent)) + 
-  geom_point(alpha = 0.5)
 
-negative_sent %>% filter(mean_sent > -0.4) %>% 
-  ggplot(mapping = aes(x = total_homeless_norm, y = mean_sent)) + 
-  geom_point(alpha = 0.5)
+
+
+# check the correlation of these
+cor.test(log10(d$total_homeless_norm), log10(d$mean_sent))
 
 
 
@@ -333,15 +336,69 @@ plot_filters <- function(st = NULL, yr = NULL)  {
           axis.title.y = element_text(size = 9.5))
 }
 
+plot_filters_facet <- function(st = NULL, yr = NULL)  {
+  # make a copy of the dataframe to be safe
+  temp <- data.frame(d)
+  
+  # filter by year only
+  if (is.numeric(st)) {
+    temp <- temp %>% filter(year == st)
+    title <- paste(title, ' (', as.character(st), ')', sep='')
+  }
+  
+  # no filter (should be same as first plot above)
+  else if (is.null(st)) {
+    s <- 'dummy'    # do nothing
+  }
+  
+  # filter by state only
+  else if (is.null(yr)) {
+    temp <- temp %>% filter(state == st)
+    title <- paste(title, ' (', st, ')', sep='')
+  }
+  
+  # filter by both (this is silly tho because it'll always be a single point)
+  else {
+    temp <- temp %>% filter(state == st) %>% filter(year == yr)
+    title <- paste(title, ' (', st, ', ', as.character(yr), ')', sep='')
+  }
+  # make the plot
+  ggplot(data = temp, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = mean_sent)) + 
+    geom_point(alpha = 0.8, size = 2, show.legend = FALSE) + 
+    sent_color_palette + 
+    ggtitle(as.character(st)) +
+    xlab('Log10(Homelessness)') + 
+    ylab('Log10(Tweets)') + 
+    theme_bw() + 
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+          axis.title.y = element_text(size = 9.5))
+}
+
+facet_years <- function() {
+  p1 <- plot_filters_facet(2010)
+  p2 <- plot_filters_facet(2011)
+  p3 <- plot_filters_facet(2012)
+  p4 <- plot_filters_facet(2013)
+  p5 <- plot_filters_facet(2014)
+  p6 <- plot_filters_facet(2015)
+  p7 <- plot_filters_facet(2016)
+  p8 <- plot_filters_facet(2017)
+  
+  grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8,
+               top=textGrob("Volume of Tweets as a Function of Homelessness, 2010 - 2017", 
+                            gp=gpar(fontsize=18,font=8)))
+}
 
 
 
-
-
-
-
+plot_filters(2010)
+plot_filters(2015)
+plot_filters(2016)
 plot_filters(2017)
 plot_filters('CA')
+
+
+facet_years()
 
 
 
