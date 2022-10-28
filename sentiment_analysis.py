@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 from labMTsimple.storyLab import emotionFileReader, emotion, stopper, emotionV
 from importlib import reload
-
+import datetime
 
 
 # load in the tweet data
@@ -10,7 +10,6 @@ with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
     geotagged_tweets = pickle.load(pickled_tweets)
     
 pickled_tweets.close()
-
 
 # set up the analyzer
 labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
@@ -23,6 +22,11 @@ labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', 
 # Declare functions
 def group_by_state():
     ### group by state (over all years)
+    
+    e = datetime.datetime.now()
+
+    print("Beginning grouping")
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
     # get list of all unique states
     states = geotagged_tweets['state'].unique()
@@ -51,10 +55,13 @@ def group_by_state():
     del(state_tweets)
     
     print('Beginning sentiment analysis')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
     ### for state groups
 
-    for i in range(0, len(states_grouped)):
+    # for i in range(0, len(states_grouped)):
+    for i in range(0, 1):
         vec = emotion(states_grouped.iloc[i]['text'], labMT, shift=True, happsList=labMTvector)[1]
         raw_sent = emotion(states_grouped.iloc[i]['text'], labMT, shift=True, happsList=labMTvector)[0]
         temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
@@ -71,11 +78,17 @@ def group_by_state():
     del(states_grouped)
     
     print('Completed sentiment analysis for states')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
 
 
 def group_by_year():
     ### group by year (over all states)
+    
+    print('Beginning grouping')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
     # get list of all unique years
     years = geotagged_tweets['year'].unique()
@@ -104,6 +117,8 @@ def group_by_year():
     del(year_tweets)
     
     print('Beginning sentiment analysis for years')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
     ### for year groups
 
@@ -124,11 +139,17 @@ def group_by_year():
     del(years_grouped)
     
     print('Completed sentiment analysis for years')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
     
     
 def group_by_both():
     ### group by state AND year
+    
+    print('Beginning grouping')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
     states = geotagged_tweets['state'].unique()
     years = geotagged_tweets['year'].unique()
@@ -163,6 +184,8 @@ def group_by_both():
 
     
     print('Beginning sentiment analysis')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
     ### for year and state groups
     
@@ -183,14 +206,15 @@ def group_by_both():
     del(states_years_grouped)
     
     print('Completed sentiment analysis for grouping by both')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
 
     
 
 
 
-
-#### ONLY RUN ONE OF THESE AT A TIME ####
+#### RECOMMEND ONLY RUNNING ONE OF THESE AT A TIME ####
 group_by_state()
 # group_by_year()
 # group_by_both()
