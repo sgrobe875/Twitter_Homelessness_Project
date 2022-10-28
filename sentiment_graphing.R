@@ -1,6 +1,7 @@
 # import packages
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
 
 
 
@@ -16,13 +17,17 @@ rm(list = ls(all.names = TRUE))
 
 sent_barplot <- function() {
   # create a dataframe with state and mean sentiment for that state
-  state_sent <- geotagged %>% select(state, sentiment) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  state_sent <- geotagged %>% select(state, sentiment) %>% 
+                              group_by(state) %>% 
+                              mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   
   # use stateNames to match the abbreviations to each state
   state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
   
   # remove duplicates so each state only appears once, and sort by mean sentiment (descending)
-  state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% select(state, mean_sent) %>% arrange(mean_sent)
+  state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% 
+                               select(state, mean_sent) %>% 
+                               arrange(mean_sent)
   
   # convert state to a factor so the dataframe holds this ordering
   state_sent <- within(state_sent, state <- factor(state, levels = factor(state_sent$state)))
@@ -30,7 +35,6 @@ sent_barplot <- function() {
   # plot 
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
-    scale_y_continuous(expand = c(0, 0)) +
     ggtitle("Mean Compound Sentiment by State (All Years)") + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
@@ -62,7 +66,7 @@ sent_barplot_N <- function(N) {
   }
   
   # follow the same steps as in sent_barplot, but this time with the ignored states being removed
-  temp <- geotagged %>% select(state, sentiment) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  temp <- geotagged %>% select(state, sentiment) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   state_sent <- merge(temp, state_sent, by.x = "state", by.y = "state")
   state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% select(state, mean_sent) %>% arrange(mean_sent) 
   state_sent <- within(state_sent, state <- factor(state, levels = factor(state_sent$state)))
@@ -70,7 +74,6 @@ sent_barplot_N <- function(N) {
   # plot
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
-    scale_y_continuous(expand = c(0, 0.001)) +
     ggtitle(paste("Mean Compound Sentiment by State (All Years, N > ", N, ')', sep = '')) + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
@@ -87,7 +90,7 @@ sent_barplot_by_year <- function(yr) {
   state_sent <- geotagged %>% filter(year == yr)
   
   # create a dataframe with state, year, and mean sentiment for that state
-  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   
   # use stateNames to match the abbreviations to each state
   state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
@@ -101,7 +104,6 @@ sent_barplot_by_year <- function(yr) {
   # plot 
   ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
     coord_flip() + 
-    scale_y_continuous(expand = c(0, 0)) +
     ggtitle(paste("Mean Compound Sentiment by State (", as.character(yr), ")", sep='')) + 
     xlab("State") + 
     ylab("Mean Compound Sentiment") + 
@@ -111,6 +113,32 @@ sent_barplot_by_year <- function(yr) {
 
 
 
+sent_barplot_by_year_facet <- function(yr) {
+  # filter by the inputted year
+  state_sent <- geotagged %>% filter(year == yr)
+
+  # create a dataframe with state, year, and mean sentiment for that state
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment, na.rm = TRUE))
+
+  # use stateNames to match the abbreviations to each state
+  state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
+
+  # remove duplicates so each state only appears once, and sort by mean sentiment (descending)
+  state_sent <- state_sent %>% distinct(state, .keep_all = TRUE) %>% select(state, mean_sent, year) %>% arrange(mean_sent)
+
+  # convert state to a factor so the dataframe holds this ordering
+  state_sent <- within(state_sent, state <- factor(state, levels = factor(state_sent$state)))
+
+  # plot
+  ggplot(data = state_sent, mapping = aes(x = state, y = mean_sent)) + geom_col() +
+    coord_flip() +
+    ggtitle(paste(as.character(yr))) +
+    xlab('state') +
+    ylab('mean sentiment') +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text.y=element_blank())
+}
+
 
 sent_by_state <- function(st) { 
   # filter by the inputted state
@@ -118,7 +146,7 @@ sent_by_state <- function(st) {
   
   # create a dataframe with state, year, and mean sentiment for that state
   state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
-    mutate(mean_sent = mean(sentiment))
+    mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   
   # use stateNames to match the abbreviations to each state
   state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
@@ -146,7 +174,7 @@ sent_change_by_state <- function(st) {
   
   # create a dataframe with state, year, and mean sentiment for that state
   state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
-    mutate(mean_sent = mean(sentiment))
+    mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   
   # use stateNames to match the abbreviations to each state
   state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
@@ -184,6 +212,22 @@ sent_change_by_state <- function(st) {
 
 
 
+facet_year <- function() {
+  p1 <- sent_barplot_by_year_facet(2010)
+  p2 <- sent_barplot_by_year_facet(2011)
+  p3 <- sent_barplot_by_year_facet(2012)
+  p4 <- sent_barplot_by_year_facet(2013)
+  p5 <- sent_barplot_by_year_facet(2014)
+  p6 <- sent_barplot_by_year_facet(2015)
+  p7 <- sent_barplot_by_year_facet(2016)
+  p8 <- sent_barplot_by_year_facet(2017)
+  p9 <- sent_barplot_by_year_facet(2018)
+  
+  grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, top = 'Mean Compound Sentiment Per State, 2010 - 2018')
+}
+
+
+
 
 
 
@@ -194,8 +238,8 @@ sent_change_by_state <- function(st) {
 source("stateNames.R")
 
 # read in the file that includes the sentiment analysis results
-geotagged <- read.csv('data/geotagged_sentiment_only.csv')
-
+# geotagged <- read.csv('data/geotagged_sentiment_only.csv')
+geotagged <- read.csv('data/geotagged_sentiment_labMT_scaled.csv')
 
 
 
@@ -238,7 +282,7 @@ sent_barplot_by_year(2016)
 sent_barplot_by_year(2017)
 sent_barplot_by_year(2018)
 
-
+facet_year()
 
 ######################################################
 
@@ -294,7 +338,7 @@ for (yr in years) {
   sentiment_by_state_by_year <- rbind(sentiment_by_state_by_year, state_sent)
 }
 
-write_csv(sentiment_by_state_by_year, "data/sentiment_by_state_by_year.csv")
+write.csv(sentiment_by_state_by_year, "data/sentiment_by_state_by_year.csv")
 
 
 
@@ -342,7 +386,7 @@ for (st in stateNames$abbrev) {
 }
 
 
-write_csv(sentiment_change_by_state_by_year, "data/sentiment_change_by_state_by_year.csv")
+write.csv(sentiment_change_by_state_by_year, "data/sentiment_change_by_state_by_year.csv")
 
 
 
