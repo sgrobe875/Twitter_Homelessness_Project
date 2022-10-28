@@ -104,7 +104,7 @@ everything <- merge(total_sent_counts, unshelt_long, by = c('state', 'year'))
 
 
 # write this final master dataframe to a file to save it
-write_csv(everything, 'data/homelessness_rate_data.csv')
+write.csv(everything, 'data/homelessness_rate_data.csv')
 
 
 
