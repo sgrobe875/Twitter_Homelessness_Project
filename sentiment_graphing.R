@@ -326,7 +326,8 @@ for (yr in years) {
   state_sent <- geotagged %>% filter(year == yr)
   
   # create a dataframe with state, year, and mean sentiment for that state
-  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% mutate(mean_sent = mean(sentiment))
+  state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(state) %>% 
+    mutate(mean_sent = mean(sentiment, na.rm = TRUE))
   
   # use stateNames to match the abbreviations to each state
   state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
@@ -356,7 +357,7 @@ for (st in stateNames$abbrev) {
   if (nrow(state_sent) > 0) {
     # create a dataframe with state, year, and mean sentiment for that state
     state_sent <- state_sent %>% select(state, sentiment, year) %>% group_by(year) %>% 
-      mutate(mean_sent = mean(sentiment))
+      mutate(mean_sent = mean(sentiment, na.rm = TRUE))
     
     # use stateNames to match the abbreviations to each state
     state_sent <- merge(state_sent, stateNames, by.x = "state", by.y = "abbrev")
