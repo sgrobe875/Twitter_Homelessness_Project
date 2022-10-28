@@ -12,7 +12,7 @@ with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
 pickled_tweets.close()
 
 # set up the sentiment analyzer
-labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
+# abMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
 
 
 
@@ -47,25 +47,83 @@ states_grouped = {'state': states, 'text': all_tweets}
 states_grouped = pd.DataFrame(states_grouped)
 
 # delete the extra lists so we don't almost explode again
-del(states)
-del(all_tweets)
 del(state_tweets)
 
 
+print('Completed grouping by state')
 
 
 
+### group by year (over all states)
 
-# group by year (over all states)
+# get list of all unique years
+years = geotagged_tweets['year'].unique()
+
+all_tweets = []
+
+# loop through year list
+for yr in years:
+    # get df of all tweets from that year
+    temp = geotagged_tweets[geotagged_tweets['year'] == yr]
+    
+    # concatenate all these tweets into one large string
+    year_tweets = ''
+    for index in range(0, len(temp)):
+        year_tweets += temp.iloc[index]['text']
+        year_tweets += ' '  # add a space onto the end to avoid tweets merging together
+        
+    # add this year's tweets to list of all years' tweets
+    all_tweets.append(year_tweets)
+    
+# convert to dictionary and then to dataframe
+years_grouped = {'year': years, 'text': all_tweets}
+years_grouped = pd.DataFrame(years_grouped)
+
+# delete the extra lists so we don't almost explode again
+del(year_tweets)
+
+
+print('Completed grouping by year')
 
 
 
+### group by state AND year
+
+all_tweets = []
+states_column = []
+years_column = []
+
+# loop through all states
+for st in states:
+    temp_st = geotagged_tweets[geotagged_tweets['state'] == st]
+    
+    # within this state, loop through all years
+    for yr in years:
+        temp = temp_st[temp_st['year'] == yr]
+        
+        # concatenate all these tweets into one large string
+        year_tweets = ''
+        for index in range(0, len(temp)):
+            year_tweets += temp.iloc[index]['text']
+            year_tweets += ' '  # add a space onto the end to avoid tweets merging together
+        
+        # add this year's tweets to list of all years' tweets
+        all_tweets.append(year_tweets)
+        states_column.append(st)
+        years_column.append(yr)
 
 
-# group by state AND year
+# convert to dictionary and then to dataframe
+states_years_grouped = {'state': states_column, 'year': years_column, 'text': all_tweets}
+states_years_grouped = pd.DataFrame(states_years_grouped)
+
+del(years, states, all_tweets, states_column, years_column, year_tweets)
 
 
+print('Completed grouping by both')
 
+
+print('Beginning sentiment analysis!')
 
 
 
