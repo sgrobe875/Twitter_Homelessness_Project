@@ -11,6 +11,11 @@ with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
     
 pickled_tweets.close()
 
+
+# use a subset for debugging purposes
+geotagged_tweets = geotagged_tweets.iloc[0:5000]
+
+
 # set up the analyzer
 labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
 
@@ -36,12 +41,12 @@ def group_by_state():
     # loop through state list
     for st in states:
         # get df of all tweets from that state
-        temp = geotagged_tweets[geotagged_tweets['state'] == st]
+        temp_tweets = geotagged_tweets[geotagged_tweets['state'] == st]
         
         # concatenate all these tweets into one large string
         state_tweets = ''
-        for index in range(0, len(temp)):
-            state_tweets += temp.iloc[index]['text']
+        for index in range(0, len(temp_tweets)):
+            state_tweets += temp_tweets.iloc[index]['text']
             state_tweets += ' '  # add a space onto the end to avoid tweets merging together
             
         # add this state's tweets to list of all states' tweets
@@ -60,8 +65,7 @@ def group_by_state():
     
     ### for state groups
 
-    # for i in range(0, len(states_grouped)):
-    for i in range(0, 1):
+    for i in range(0, len(states_grouped)):
         vec = emotion(states_grouped.iloc[i]['text'], labMT, shift=True, happsList=labMTvector)[1]
         raw_sent = emotion(states_grouped.iloc[i]['text'], labMT, shift=True, happsList=labMTvector)[0]
         temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
