@@ -58,18 +58,13 @@ def get_frequencies(mega_string):
             
 
 def group_by_both(df):
-    ### group by state AND year
-    
-    print('Beginning grouping')
+    print('Beginning grouping by both')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
     
     states = df['state'].unique()
     years = df['year'].unique()
-
-    # all_tweets = []
-    # states_column = []
-    # years_column = []
     
     sentiment_column = []
     raw_sent_column = []
@@ -93,11 +88,7 @@ def group_by_both(df):
             del(temp_tweets)
             
             freqs = get_frequencies(year_tweets)
-            
-            # print("Got word frequencies")
-            # e = datetime.datetime.now()
-            # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-            
+                        
             del(year_tweets)
             
             this_group_sent = []
@@ -140,6 +131,133 @@ def group_by_both(df):
 
 
 
+def group_by_state(df):
+    print('Beginning grouping by state')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    states = df['state'].unique()
+
+    sentiment_column = []
+    raw_sent_column = []
+    
+    # loop through all states
+    for st in states:
+        temp_tweets = df[df['state'] == st]
+            
+        # concatenate all these tweets into one large string
+        state_tweets = ''
+        for index in range(0, len(temp_tweets)):
+            state_tweets += temp_tweets.iloc[index]['text']
+            state_tweets += ' '  # add a space onto the end to avoid tweets merging together
+
+        del(temp_tweets)
+        
+        freqs = get_frequencies(state_tweets)
+        
+        del(state_tweets)
+        
+        this_group_sent = []
+        this_group_raw = []
+        
+        for key in freqs.keys():
+            raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
+            temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
+            sentiment = emotionV(temp,labMTvector)
+            
+            this_group_sent.append(sentiment * freqs[key])
+            this_group_raw.append(sentiment * freqs[key]) 
+        
+        sentiment = sum(this_group_sent)/len(this_group_sent)
+        raw_sent = sum(this_group_raw)/len(this_group_raw)
+        sentiment_column.append(sentiment)
+        raw_sent_column.append(raw_sent)
+        
+        print('Completed:', st)
+        e = datetime.datetime.now()
+        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        print()
+    
+    # convert to dictionary and then to dataframe
+    state_grouped = {'state':states, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
+    state_grouped = pd.DataFrame(state_grouped)
+
+    
+    # save the results to a file to move to R
+    state_grouped.to_csv('data/state_sentiment.csv', index = False)
+    
+    del(state_grouped)
+    
+    print('Completed sentiment analysis for grouping by state')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+
+
+
+
+
+def group_by_year(df):
+    print('Beginning grouping by year')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    years = df['year'].unique()
+
+    sentiment_column = []
+    raw_sent_column = []
+    
+    # loop through all states
+    for yr in years:
+        temp_tweets = df[df['year'] == yr]
+            
+        # concatenate all these tweets into one large string
+        year_tweets = ''
+        for index in range(0, len(temp_tweets)):
+            year_tweets += temp_tweets.iloc[index]['text']
+            year_tweets += ' '  # add a space onto the end to avoid tweets merging together
+
+        del(temp_tweets)
+        
+        freqs = get_frequencies(year_tweets)
+        
+        del(year_tweets)
+        
+        this_group_sent = []
+        this_group_raw = []
+        
+        for key in freqs.keys():
+            raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
+            temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
+            sentiment = emotionV(temp,labMTvector)
+            
+            this_group_sent.append(sentiment * freqs[key])
+            this_group_raw.append(sentiment * freqs[key]) 
+        
+        sentiment = sum(this_group_sent)/len(this_group_sent)
+        raw_sent = sum(this_group_raw)/len(this_group_raw)
+        sentiment_column.append(sentiment)
+        raw_sent_column.append(raw_sent)
+        
+        print('Completed:', yr)
+        e = datetime.datetime.now()
+        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        print()
+    
+    # convert to dictionary and then to dataframe
+    year_grouped = {'year':years, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
+    year_grouped = pd.DataFrame(year_grouped)
+
+    
+    # save the results to a file to move to R
+    year_grouped.to_csv('data/year_sentiment.csv', index = False)
+    
+    del(year_grouped)
+    
+    print('Completed sentiment analysis for grouping by year')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
 
 
@@ -150,7 +268,8 @@ df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico
 
 
 group_by_both(df)
-
+group_by_year(df)
+group_by_state(df)
 
 
 
