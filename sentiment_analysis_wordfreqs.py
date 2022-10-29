@@ -66,6 +66,9 @@ def group_by_both(df):
     states = df['state'].unique()
     years = df['year'].unique()
     
+    # columns for the final dataframe
+    states_col = []
+    years_col = []
     sentiment_column = []
     raw_sent_column = []
     
@@ -76,6 +79,10 @@ def group_by_both(df):
 
         # loop through all years within states
         for yr in years:
+            # record the current state and year
+            states_col.append(st)
+            years_col.append(yr)
+            
             # get df of all tweets from that state and year
             temp_tweets = temp_st[temp_st['year'] == yr]
             
@@ -115,7 +122,7 @@ def group_by_both(df):
     del(temp_st)
     
     # convert to dictionary and then to dataframe
-    state_years_grouped = {'state':states, 'year': years, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
+    state_years_grouped = {'state':states_col, 'year': years_col, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
     state_years_grouped = pd.DataFrame(state_years_grouped)
 
     
@@ -268,8 +275,8 @@ df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico
 
 
 group_by_both(df)
-group_by_year(df)
-group_by_state(df)
+# group_by_year(df)
+# group_by_state(df)
 
 
 
