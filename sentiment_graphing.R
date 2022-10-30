@@ -45,11 +45,11 @@ year_barplot <- function() {
   df <- year_sent %>% arrange(sentiment)
   
   # convert year to a factor so the dataframe holds this ordering
-  df <- within(df, year <- factor(year, levels = factor(df$year)))
+  # df <- within(df, year <- factor(year, levels = factor(df$year)))
   
   # plot
   ggplot(data = df, mapping = aes(x = year, y = sentiment)) + geom_col() +
-    coord_flip() + 
+    # coord_flip() + 
     ggtitle("Mean Compound Sentiment by Year (All States)") + 
     xlab("Year") + 
     ylab("Mean Compound Sentiment") + 
