@@ -37,26 +37,6 @@ def words_of_tweet(tweet):
   return list_words  
 
 
-# # takes in the concatenated string of all tweets in the group
-# # returns dictionary of word frequencies for that mega string
-# def get_frequencies(mega_string):
-#     # get list of individual words
-#     words = words_of_tweet(mega_string)
-#     # create the dictionary
-#     word_frequencies = {}
-#     # loop through the list
-#     for word in words:
-#         # check if word is already in the dictionary
-#         try:
-#             # if it is, then increment the frequency
-#             word_frequencies[word] += 1
-#         except KeyError:
-#             # if it isn't, add it!
-#             word_frequencies[word] = 1
-            
-#     # return the final dictionary
-#     return word_frequencies
-
 
 # takes in the concatenated string of all tweets in the group
 # returns dictionary of word frequencies for that mega string
@@ -64,7 +44,6 @@ def get_frequencies(mega_string):
     # get list of individual words
     words = words_of_tweet(mega_string)
     word_frequencies = Counter(words)     ## This is where I changed the dictionary into a Counter, which is basically a dictionary
-    print(word_frequencies)
     return word_frequencies
             
 
@@ -112,16 +91,30 @@ def group_by_both(df):
             this_group_sent = []
             this_group_raw = []
             
-            for key in freqs.keys():
+            # need this line to avoid a ValueError in the for loop 
+            keys = list(freqs.keys())
+            
+            # loop through all keys in the dict (unique words in the group tweets)
+            for key in keys:
                 raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
                 temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
                 sentiment = emotionV(temp,labMTvector)
                 
-                this_group_sent.append(sentiment * freqs[key])
-                this_group_raw.append(raw_sent * freqs[key]) 
+                # negative sentiment means cannot be sentimentized, so let's remove it
+                if raw_sent < 0 or sentiment < 0:
+                    freqs.pop(key)
+                
+                # if it was successfully sentimentized, append to the list so we can calc the avg
+                else:
+                    this_group_sent.append(sentiment * freqs[key])
+                    this_group_raw.append(raw_sent * freqs[key]) 
             
-            sentiment = sum(this_group_sent)/len(this_group_sent)
-            raw_sent = sum(this_group_raw)/len(this_group_raw)
+            # get the total number of words in the mega_sting (must be done after the for loop!)
+            num_words = sum(freqs.values())
+            
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+            
             sentiment_column.append(sentiment)
             raw_sent_column.append(raw_sent)
             
@@ -145,8 +138,6 @@ def group_by_both(df):
     print('Completed sentiment analysis for grouping by both')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-
-
 
 
 def group_by_state(df):
@@ -179,16 +170,29 @@ def group_by_state(df):
         this_group_sent = []
         this_group_raw = []
         
-        for key in freqs.keys():
+        # need this line to avoid a ValueError in the for loop 
+        keys = list(freqs.keys())
+        
+        for key in keys:
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
             
-            this_group_sent.append(sentiment * freqs[key])
-            this_group_raw.append(raw_sent * freqs[key]) 
+            # negative sentiment means cannot be sentimentized, so let's remove it
+            if raw_sent < 0 or sentiment < 0:
+                freqs.pop(key)
+            
+            # if it was successfully sentimentized, append to the list so we can calc the avg
+            else:
+                this_group_sent.append(sentiment * freqs[key])
+                this_group_raw.append(raw_sent * freqs[key]) 
         
-        sentiment = sum(this_group_sent)/len(this_group_sent)
-        raw_sent = sum(this_group_raw)/len(this_group_raw)
+        # get the total number of words in the mega_sting (must be done after the for loop!)
+        num_words = sum(freqs.values())
+        
+        sentiment = sum(this_group_sent)/num_words
+        raw_sent = sum(this_group_raw)/num_words
+        
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
@@ -210,9 +214,6 @@ def group_by_state(df):
     print('Completed sentiment analysis for grouping by state')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-
-
-
 
 
 def group_by_year(df):
@@ -245,16 +246,30 @@ def group_by_year(df):
         this_group_sent = []
         this_group_raw = []
         
-        for key in freqs.keys():
+        # need this line to avoid a ValueError in the for loop 
+        keys = list(freqs.keys())
+        
+        for key in keys:
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
             
-            this_group_sent.append(sentiment * freqs[key])
-            this_group_raw.append(raw_sent * freqs[key]) 
+            # negative sentiment means cannot be sentimentized, so let's remove it
+            if raw_sent < 0 or sentiment < 0:
+                freqs.pop(key)
+            
+            # if it was successfully sentimentized, append to the list so we can calc the avg
+            else:
+                this_group_sent.append(sentiment * freqs[key])
+                this_group_raw.append(raw_sent * freqs[key]) 
+
         
-        sentiment = sum(this_group_sent)/len(this_group_sent)
-        raw_sent = sum(this_group_raw)/len(this_group_raw)
+        # get the total number of words in the mega_sting (must be done after the for loop!)
+        num_words = sum(freqs.values())
+        
+        sentiment = sum(this_group_sent)/num_words
+        raw_sent = sum(this_group_raw)/num_words
+        
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
@@ -279,6 +294,7 @@ def group_by_year(df):
 
 
 
+####################################
 
 
 
