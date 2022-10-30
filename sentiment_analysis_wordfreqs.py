@@ -6,6 +6,7 @@ import datetime
 from string import punctuation
 import nltk
 from nltk.corpus import stopwords
+from collections import Counter
 nltk.download('stopwords')
 stops = set(stopwords.words('english'))
 
@@ -36,24 +37,34 @@ def words_of_tweet(tweet):
   return list_words  
 
 
+# # takes in the concatenated string of all tweets in the group
+# # returns dictionary of word frequencies for that mega string
+# def get_frequencies(mega_string):
+#     # get list of individual words
+#     words = words_of_tweet(mega_string)
+#     # create the dictionary
+#     word_frequencies = {}
+#     # loop through the list
+#     for word in words:
+#         # check if word is already in the dictionary
+#         try:
+#             # if it is, then increment the frequency
+#             word_frequencies[word] += 1
+#         except KeyError:
+#             # if it isn't, add it!
+#             word_frequencies[word] = 1
+            
+#     # return the final dictionary
+#     return word_frequencies
+
+
 # takes in the concatenated string of all tweets in the group
 # returns dictionary of word frequencies for that mega string
 def get_frequencies(mega_string):
     # get list of individual words
     words = words_of_tweet(mega_string)
-    # create the dictionary
-    word_frequencies = {}
-    # loop through the list
-    for word in words:
-        # check if word is already in the dictionary
-        try:
-            # if it is, then increment the frequency
-            word_frequencies[word] += 1
-        except KeyError:
-            # if it isn't, add it!
-            word_frequencies[word] = 1
-            
-    # return the final dictionary
+    word_frequencies = Counter(words)     ## This is where I changed the dictionary into a Counter, which is basically a dictionary
+    print(word_frequencies)
     return word_frequencies
             
 
@@ -107,7 +118,7 @@ def group_by_both(df):
                 sentiment = emotionV(temp,labMTvector)
                 
                 this_group_sent.append(sentiment * freqs[key])
-                this_group_raw.append(sentiment * freqs[key]) 
+                this_group_raw.append(raw_sent * freqs[key]) 
             
             sentiment = sum(this_group_sent)/len(this_group_sent)
             raw_sent = sum(this_group_raw)/len(this_group_raw)
@@ -174,7 +185,7 @@ def group_by_state(df):
             sentiment = emotionV(temp,labMTvector)
             
             this_group_sent.append(sentiment * freqs[key])
-            this_group_raw.append(sentiment * freqs[key]) 
+            this_group_raw.append(raw_sent * freqs[key]) 
         
         sentiment = sum(this_group_sent)/len(this_group_sent)
         raw_sent = sum(this_group_raw)/len(this_group_raw)
@@ -240,7 +251,7 @@ def group_by_year(df):
             sentiment = emotionV(temp,labMTvector)
             
             this_group_sent.append(sentiment * freqs[key])
-            this_group_raw.append(sentiment * freqs[key]) 
+            this_group_raw.append(raw_sent * freqs[key]) 
         
         sentiment = sum(this_group_sent)/len(this_group_sent)
         raw_sent = sum(this_group_raw)/len(this_group_raw)
@@ -275,8 +286,8 @@ df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico
 
 
 group_by_both(df)
-# group_by_year(df)
-# group_by_state(df)
+group_by_year(df)
+group_by_state(df)
 
 
 
