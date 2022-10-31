@@ -3,6 +3,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 state_sent <- read.csv('data/state_sentiment.csv')
 year_sent <- read.csv('data/year_sentiment.csv')
 state_year_sent <- read.csv('data/state_year_sentiment.csv')
+month_sent <- read.csv('data/month_sentiment.csv')
+day_sent <- read.csv('data/day_sentiment.csv')
 
 
 
@@ -15,3 +17,9 @@ year_sent$sentiment <- year_sent$sentiment / 4
 
 state_year_sent$sentiment <- state_year_sent$sentiment - 5
 state_year_sent$sentiment <- state_year_sent$sentiment / 4
+
+month_sent$sentiment <- month_sent$sentiment - 5
+month_sent$sentiment <- month_sent$sentiment / 4
+
+day_sent$sentiment <- day_sent$sentiment - 5
+day_sent$sentiment <- day_sent$sentiment / 4
