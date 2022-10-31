@@ -28,6 +28,7 @@ labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', 
 
 #### Declare functions ####
 
+# takes in a string, performs preprocessing functions, and returns list of all words in the string
 def words_of_tweet(tweet):
   exclude = set(punctuation)  # Keep a set of "bad" characters.
   list_letters_noPunct = [char for char in tweet if char not in exclude]
@@ -43,20 +44,26 @@ def words_of_tweet(tweet):
 def get_frequencies(mega_string):
     # get list of individual words
     words = words_of_tweet(mega_string)
-    word_frequencies = Counter(words)     ## This is where I changed the dictionary into a Counter, which is basically a dictionary
+    # count how many times each word appears
+    word_frequencies = Counter(words)   
     return word_frequencies
             
 
+
+# takes in a dataframe including state, year, tweet data
+# returns the average sentiment for all tweets in each combination of state and year
 def group_by_both(df):
+    # print update
     print('Beginning grouping by both')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # get list of all unique states and years in the data set
     states = df['state'].unique()
     years = df['year'].unique()
     
-    # columns for the final dataframe
+    # initialize columns for the final dataframe
     states_col = []
     years_col = []
     sentiment_column = []
@@ -65,11 +72,12 @@ def group_by_both(df):
     
     # loop through all states
     for st in states:
+        # filter dataframe by the current state
         temp_st = df[df['state'] == st]
 
         # loop through all years within states
         for yr in years:
-            # record the current state and year
+            # record the current state and year to the column lists
             states_col.append(st)
             years_col.append(yr)
             
@@ -81,13 +89,16 @@ def group_by_both(df):
             for index in range(0, len(temp_tweets)):
                 year_tweets += temp_tweets.iloc[index]['text']
                 year_tweets += ' '  # add a space onto the end to avoid tweets merging together
-    
+            
+            # garbage collection
             del(temp_tweets)
             
+            # get word frequency dictionary
             freqs = get_frequencies(year_tweets)
                         
             del(year_tweets)
             
+            # lists to hold sentiments for this group (to be averaged later)
             this_group_sent = []
             this_group_raw = []
             
@@ -96,6 +107,7 @@ def group_by_both(df):
             
             # loop through all keys in the dict (unique words in the group tweets)
             for key in keys:
+                # run the sentiment analysis on each of these wrods
                 raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
                 temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
                 sentiment = emotionV(temp,labMTvector)
@@ -106,18 +118,22 @@ def group_by_both(df):
                 
                 # if it was successfully sentimentized, append to the list so we can calc the avg
                 else:
+                    # when appending, multiply the sentiment by how many times that word appears
                     this_group_sent.append(sentiment * freqs[key])
                     this_group_raw.append(raw_sent * freqs[key]) 
             
             # get the total number of words in the mega_sting (must be done after the for loop!)
             num_words = sum(freqs.values())
             
+            # divide total sentiment by number of words in the mega string
             sentiment = sum(this_group_sent)/num_words
             raw_sent = sum(this_group_raw)/num_words
             
+            # add these averages to the dataframe column lists
             sentiment_column.append(sentiment)
             raw_sent_column.append(raw_sent)
             
+            # print an update
             print('Completed:', st, yr)
             e = datetime.datetime.now()
             print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
@@ -140,19 +156,26 @@ def group_by_both(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
 
+
+# takes in a dataframe including state and tweet data
+# returns the average sentiment (across all years) for each state
 def group_by_state(df):
+    # print update
     print('Beginning grouping by state')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # get list of all unique states in the data set
     states = df['state'].unique()
 
+    # initialize dataframe column lists
     sentiment_column = []
     raw_sent_column = []
     
     # loop through all states
     for st in states:
+        # filter by the current state
         temp_tweets = df[df['state'] == st]
             
         # concatenate all these tweets into one large string
@@ -161,19 +184,24 @@ def group_by_state(df):
             state_tweets += temp_tweets.iloc[index]['text']
             state_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
+        # garbage collection
         del(temp_tweets)
         
+        # get dictionary of frequency for each word in the mega string
         freqs = get_frequencies(state_tweets)
         
         del(state_tweets)
         
+        # lists to hold the sentiments of each word (which will be averaged over)
         this_group_sent = []
         this_group_raw = []
         
         # need this line to avoid a ValueError in the for loop 
         keys = list(freqs.keys())
         
+        # loop through all unique words in the mega string
         for key in keys:
+            # perform the sentiment analysis on each word
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
@@ -184,18 +212,22 @@ def group_by_state(df):
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
+                # multiply sentiment by how many times that word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
         
         # get the total number of words in the mega_sting (must be done after the for loop!)
         num_words = sum(freqs.values())
         
+        # calculate the average sentiment per word
         sentiment = sum(this_group_sent)/num_words
         raw_sent = sum(this_group_raw)/num_words
         
+        # add to the dataframe sentiment columns
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
+        # print update
         print('Completed:', st)
         e = datetime.datetime.now()
         print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
@@ -216,19 +248,26 @@ def group_by_state(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 
 
+
+# takes in a dataframe including year and tweet data
+# returns the average sentiment (across all states) for each year
 def group_by_year(df):
+    # print update
     print('Beginning grouping by year')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # get list of all unique years 
     years = df['year'].unique()
 
+    # initialize dataframe column lists
     sentiment_column = []
     raw_sent_column = []
     
-    # loop through all states
+    # loop through all years
     for yr in years:
+        # filter by the current year
         temp_tweets = df[df['year'] == yr]
             
         # concatenate all these tweets into one large string
@@ -237,19 +276,24 @@ def group_by_year(df):
             year_tweets += temp_tweets.iloc[index]['text']
             year_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
+        # garbage collection
         del(temp_tweets)
         
+        # get the frequency of each word in the mega string
         freqs = get_frequencies(year_tweets)
         
         del(year_tweets)
         
+        # lists to hold the sentiments to be averaged
         this_group_sent = []
         this_group_raw = []
         
         # need this line to avoid a ValueError in the for loop 
         keys = list(freqs.keys())
         
+        # loop through each unique word in the mega string
         for key in keys:
+            # perform the sentiment analysis on the individual word
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
@@ -260,6 +304,7 @@ def group_by_year(df):
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
+                # multiply the sentiment by the number of times the word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
 
@@ -267,22 +312,24 @@ def group_by_year(df):
         # get the total number of words in the mega_sting (must be done after the for loop!)
         num_words = sum(freqs.values())
         
+        # calculate average sentiment per word
         sentiment = sum(this_group_sent)/num_words
         raw_sent = sum(this_group_raw)/num_words
         
+        # add to the column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
+        # print update
         print('Completed:', yr)
         e = datetime.datetime.now()
         print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
         print()
     
-    # convert to dictionary and then to dataframe
+    # convert to dictionary and then to dataframe using column lists
     year_grouped = {'year':years, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
     year_grouped = pd.DataFrame(year_grouped)
 
-    
     # save the results to a file to move to R
     year_grouped.to_csv('data/year_sentiment.csv', index = False)
     
@@ -294,6 +341,8 @@ def group_by_year(df):
 
 
 
+# takes in a list of strings giving the date and time tweets were posted
+# returns a list of months the tweets were posted in the format: YYYY-MM
 def get_months(date_time_list):
     return_list = []
     for string in date_time_list:
@@ -307,6 +356,9 @@ def get_months(date_time_list):
     return return_list
 
 
+
+# takes in a list of strings giving the date and time tweets were posted
+# returns a list of days the tweets were posted in the format: YYYY-MM-DD
 def get_days(date_time_list):
     return_list = []
     for string in date_time_list:
@@ -319,25 +371,32 @@ def get_days(date_time_list):
     return return_list
 
 
+
+# takes in a dataframe including tweet text and when the tweet was posted
+# returns the average sentiment for each month of each year
 def group_by_month(df):
-    # begin by building the month column
+    # begin by building the month column with the get_months function
     print('Building month column')          
-            
+    
+    # call get_months with the entire 'created_at' column
     df['month'] = get_months(list(df['created_at']))
     
-    # group by month
+    # print update
     print('Beginning grouping by month')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # get list of all unique year-month combos
     months = df['month'].unique()
 
+    # initialize dataframe column lsits
     sentiment_column = []
     raw_sent_column = []
     
-    # loop through all states
+    # loop through all months
     for m in months:
+        # filter by the current month
         temp_tweets = df[df['month'] == m]
             
         # concatenate all these tweets into one large string
@@ -346,19 +405,24 @@ def group_by_month(df):
             month_tweets += temp_tweets.iloc[index]['text']
             month_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
+        # garbage collection
         del(temp_tweets)
         
+        # get the frequency of each word in the mega string
         freqs = get_frequencies(month_tweets)
         
         del(month_tweets)
         
+        # lists of sentiments to be averaged over
         this_group_sent = []
         this_group_raw = []
         
         # need this line to avoid a ValueError in the for loop 
         keys = list(freqs.keys())
         
+        # loop through each unique word in the mega string
         for key in keys:
+            # calculate the sentiment for the individual word
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
@@ -369,6 +433,7 @@ def group_by_month(df):
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
+                # multiply sentiment by how many times the word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
 
@@ -376,9 +441,11 @@ def group_by_month(df):
         # get the total number of words in the mega_sting (must be done after the for loop!)
         num_words = sum(freqs.values())
         
+        # calculate the average sentiment per word
         sentiment = sum(this_group_sent)/num_words
         raw_sent = sum(this_group_raw)/num_words
         
+        # add to the dataframe column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
@@ -403,25 +470,31 @@ def group_by_month(df):
 
 
 
+# takes in a dataframe including tweet text and when the tweet was posted
+# returns the average sentiment for each day of each year
 def group_by_day(df):
     # begin by building the day column
     print('Building day column')
-            
+    
+    # call the get_days function with the entire 'created_at' column
     df['day'] = get_days(list(df['created_at']))
     
-    # group by day
+    # print update
     print('Beginning grouping by day')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # get the list of all unique days
     days = df['day'].unique()
-
+    
+    # initialize lists to use as columns in the final dataframe
     sentiment_column = []
     raw_sent_column = []
     
-    # loop through all states
+    # loop through all days
     for d in days:
+        # filter by the current day
         temp_tweets = df[df['day'] == d]
             
         # concatenate all these tweets into one large string
@@ -430,19 +503,24 @@ def group_by_day(df):
             day_tweets += temp_tweets.iloc[index]['text']
             day_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
+        # garbage collection
         del(temp_tweets)
         
+        # get the frequency for each unique word
         freqs = get_frequencies(day_tweets)
         
         del(day_tweets)
         
+        # initialize lists for averaging the sentiment
         this_group_sent = []
         this_group_raw = []
         
         # need this line to avoid a ValueError in the for loop 
         keys = list(freqs.keys())
         
+        # loop through each unique word in the mega string
         for key in keys:
+            # calculate the sentiment for the individual word
             raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
             temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
             sentiment = emotionV(temp,labMTvector)
@@ -453,6 +531,7 @@ def group_by_day(df):
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
+                # multiply the sentiment by the number of times the word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
 
@@ -460,9 +539,11 @@ def group_by_day(df):
         # get the total number of words in the mega_sting (must be done after the for loop!)
         num_words = sum(freqs.values())
         
+        # calculate the average sentiment per word
         sentiment = sum(this_group_sent)/num_words
         raw_sent = sum(this_group_raw)/num_words
         
+        # add to the dataframe column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
@@ -487,16 +568,24 @@ def group_by_day(df):
 
 
 
+
+
+
 ####################################
 
 
 
+
+
+
+# filter out some unneeded values 
 df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "")])
 
-group_by_month(df)
-group_by_day(df)
 
+## Uncomment the following lines as needed!
 
+# group_by_month(df)
+# group_by_day(df)
 # group_by_both(df)
 # group_by_year(df)
 # group_by_state(df)
