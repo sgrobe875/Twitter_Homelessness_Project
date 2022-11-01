@@ -98,7 +98,7 @@ d %>% filter(sentiment > 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
-  # annotate("text", x=log10(0.0015), y=log10(0.0015), label= "Correlation coefficient = 0.48826") + 
+  annotate("text", x=log10(0.001), y=log10(0.0015), label= "Correlation coefficient = 0.24012") + 
   sent_color_palette + 
   ggtitle(paste(title,'\nFor States with Mostly Positive Sentiment')) +
   xlab(xlabel) + 
@@ -139,7 +139,7 @@ d %>% filter(sentiment < 0) %>%
 d %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
-  # annotate("text", x=log10(0.00095), y=log10(0.00055), label= "Correlation coefficient = -0.00106") + 
+  annotate("text", x=log10(0.00095), y=log10(0.00055), label= "Correlation coefficient = 0.34367") + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette +
   ggtitle(paste(title, '\nFor States with Mostly Negative Sentiment')) +
@@ -170,7 +170,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
             size = 3) + 
-  # annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = -0.00106", size = 6) + 
+  annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = 0.34367", size = 6) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
@@ -183,8 +183,8 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
 # Negative sentiment only, large colored points with state/year labels -- use with zoom function!
 ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
                                            y = log10(tweets_norm), color = sentiment)) + 
-  geom_point(alpha = 0.8, size = 14) + 
-  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3.3, 
+  geom_point(alpha = 0.8, size = 13.5) + 
+  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
             color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'for States with Mostly Negative Sentiment')) +
@@ -200,7 +200,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
-            size = 3.5, nudge_x = log10(1.03), nudge_y = log10(1.11), color = 'black') + 
+            size = 3.3, nudge_x = log10(1.03), nudge_y = log10(1.11), color = 'black') + 
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
   xlab(xlabel) + 
