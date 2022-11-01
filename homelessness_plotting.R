@@ -170,7 +170,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
             size = 3) + 
-  # annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = -0.00106", size = 6) + 
+  annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = 0.34367", size = 6) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
