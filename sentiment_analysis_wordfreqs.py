@@ -12,10 +12,15 @@ stops = set(stopwords.words('english'))
 
 
 
-# load in the tweet data
-with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
-    geotagged_tweets = pickle.load(pickled_tweets)
-pickled_tweets.close()
+# # load in the tweet data
+# with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
+#     geotagged_tweets = pickle.load(pickled_tweets)
+# pickled_tweets.close()
+
+geotagged_tweets = pd.read_csv('data/all_geotagged_tweets.csv')
+
+
+
 
 # set up the analyzer
 labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
@@ -346,12 +351,15 @@ def group_by_year(df):
 def get_months(date_time_list):
     return_list = []
     for string in date_time_list:
-        # split string into date and time
-        date_time_split = string.split('T')
-        # extract just the date
-        date = date_time_split[0]
-        # year-month = first 7 characters in string
-        return_list.append(date[0:7])
+        try:
+            # split string into date and time
+            date_time_split = string.split('T')
+            # extract just the date
+            date = date_time_split[0]
+            # year-month = first 7 characters in string
+            return_list.append(date[0:7])
+        except:
+            return_list.append('NA')
         
     return return_list
 
@@ -362,11 +370,14 @@ def get_months(date_time_list):
 def get_days(date_time_list):
     return_list = []
     for string in date_time_list:
-        # split string into date and time
-        date_time_split = string.split('T')
-        # extract just the date
-        date = date_time_split[0]
-        return_list.append(date)
+        try:
+            # split string into date and time
+            date_time_split = string.split('T')
+            # extract just the date
+            date = date_time_split[0]
+            return_list.append(date)
+        except:
+            return_list.append('NA')
         
     return return_list
 
@@ -584,11 +595,11 @@ df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico
 
 ## Uncomment the following lines as needed!
 
-# group_by_month(df)
-# group_by_day(df)
-# group_by_both(df)
-# group_by_year(df)
-# group_by_state(df)
+group_by_month(df)
+group_by_day(df)
+group_by_both(df)
+group_by_year(df)
+group_by_state(df)
 
 
 
