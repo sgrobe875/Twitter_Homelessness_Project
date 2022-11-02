@@ -27,6 +27,7 @@ geotagged_tweets['Unnamed: 0'] = geotagged_tweets['Unnamed: 0'].apply(str)
 geotagged_tweets['id'] = geotagged_tweets['id'].apply(str)
 geotagged_tweets['in_reply_to_user_id'] = geotagged_tweets['in_reply_to_user_id'].apply(str)
 geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
+geotagged_tweets['text'] = geotagged_tweets['text'].apply(str)
 
 
 
@@ -601,7 +602,7 @@ def group_by_day(df):
 df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "")])
 
 
-## Uncomment the following lines as needed!
+## Comment/uncomment the following lines as needed!
 
 group_by_month(df)
 group_by_day(df)
