@@ -17,8 +17,16 @@ stops = set(stopwords.words('english'))
 #     geotagged_tweets = pickle.load(pickled_tweets)
 # pickled_tweets.close()
 
+
+# read in the csv
 geotagged_tweets = pd.read_csv('data/all_geotagged_tweets.csv')
 
+# some cols have mixed data types; convert all to strings
+geotagged_tweets['year'] = geotagged_tweets['year'].apply(str)
+geotagged_tweets['Unnamed: 0'] = geotagged_tweets['Unnamed: 0'].apply(str)
+geotagged_tweets['id'] = geotagged_tweets['id'].apply(str)
+geotagged_tweets['in_reply_to_user_id'] = geotagged_tweets['in_reply_to_user_id'].apply(str)
+geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
 
 
 
