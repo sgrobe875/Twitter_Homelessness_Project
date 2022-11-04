@@ -19,20 +19,15 @@ stops = set(stopwords.words('english'))
 
 
 # read in the csv
-geotagged_tweets = pd.read_csv('data/all_geotagged_tweets.csv')
+geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
 
-# some cols have mixed data types; convert all to strings
-geotagged_tweets['year'] = geotagged_tweets['year'].apply(str)
-geotagged_tweets['Unnamed: 0'] = geotagged_tweets['Unnamed: 0'].apply(str)
-geotagged_tweets['id'] = geotagged_tweets['id'].apply(str)
-geotagged_tweets['in_reply_to_user_id'] = geotagged_tweets['in_reply_to_user_id'].apply(str)
-geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
-geotagged_tweets['text'] = geotagged_tweets['text'].apply(str)
 
 
 
 # set up the analyzer
 labMT,labMTvector,labMTwordList = emotionFileReader(stopval=0.0,lang='english', returnVector=True)
+
+
 
 
 
@@ -140,8 +135,12 @@ def group_by_both(df):
             num_words = sum(freqs.values())
             
             # divide total sentiment by number of words in the mega string
-            sentiment = sum(this_group_sent)/num_words
-            raw_sent = sum(this_group_raw)/num_words
+            try:
+                sentiment = sum(this_group_sent)/num_words
+                raw_sent = sum(this_group_raw)/num_words
+            except ZeroDivisionError:
+                sentiment = 0
+                raw_sent = 0
             
             # add these averages to the dataframe column lists
             sentiment_column.append(sentiment)
@@ -599,14 +598,14 @@ def group_by_day(df):
 
 
 # filter out some unneeded values 
-df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "")])
+df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "Unknown")])
 
 
 ## Comment/uncomment the following lines as needed!
 
 # group_by_month(df)
 # group_by_day(df)
-# group_by_both(df)
+group_by_both(df)
 group_by_year(df)
 group_by_state(df)
 

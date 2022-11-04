@@ -81,7 +81,7 @@ for i in range(len(geotagged_tweets_copy)):
                     geotagged_tweets_copy.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
                     
         else:
-            geotagged_tweets_copy.at[i, 'state'] = ''
+            geotagged_tweets_copy.at[i, 'state'] = 'Unknown'
     
 
     
@@ -110,7 +110,7 @@ for i in range(len(geotagged_tweets_copy)):
     
     # this is a little brute force-y, but oh well:
     if geotagged_tweets_copy.loc[i]['year'] == 'nan' or geotagged_tweets_copy.loc[i]['year'] == '[]':
-        geotagged_tweets_copy.at[i, 'year'] = ''
+        geotagged_tweets_copy.at[i, 'year'] = 'Unknown'
 
 
 
