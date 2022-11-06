@@ -227,7 +227,7 @@ sent_barplot_by_year(2017)
 sent_barplot_by_year(2018)
 sent_barplot_by_year(2019)
 
-png(filename="figures/facet_year.png", width=550, height=700)
+png(filename="figures/sentiment_facet_year.png", width=550, height=700)
 p <- facet_year()
 p
 dev.off()
