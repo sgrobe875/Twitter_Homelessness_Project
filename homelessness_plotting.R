@@ -69,7 +69,8 @@ zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text
 
 
 # All sentiment
-ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+png(filename="figures/all_sentiment.png", width=600, height=350)
+p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   sent_color_palette + 
   ggtitle(title) +
@@ -79,26 +80,38 @@ ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/all_sentiment.png", width=600, height=350)
+p
+dev.off()
+
+
 
 # Positive sentiment only
-d %>% filter(sentiment > 0) %>% 
-ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
-  geom_point(alpha = 0.8, size = 2) + 
-  sent_color_palette + 
-  ggtitle(paste(title, '\nFor States with Mostly Positive Sentiment')) +
-  xlab(xlabel) + 
-  ylab(ylabel) + 
-  labs(color = legendtitle) + 
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
+p <- d %>% filter(sentiment > 0) %>% 
+  ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+    geom_point(alpha = 0.8, size = 2) + 
+    sent_color_palette + 
+    ggtitle(paste(title, '\nFor States with Mostly Positive Sentiment')) +
+    xlab(xlabel) + 
+    ylab(ylabel) + 
+    labs(color = legendtitle) + 
+    theme_bw() + 
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+          axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/positive_sentiment.png", width=700, height=450)
+p
+dev.off()
 
 # Positive sentiment only with regression line and corr coeff
-d %>% filter(sentiment > 0) %>% 
+p <- d %>% filter(sentiment > 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
-  annotate("text", x=log10(0.001), y=log10(0.0015), label= "Correlation coefficient = 0.24012") + 
+  annotate("text", x=log10(0.0008), y=log10(0.0015), label= "Correlation coefficient = 0.24012") + 
   sent_color_palette + 
   ggtitle(paste(title,'\nFor States with Mostly Positive Sentiment')) +
   xlab(xlabel) + 
@@ -107,9 +120,14 @@ d %>% filter(sentiment > 0) %>%
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/positive_sentiment_regression.png", width=700, height=450)
+p
+dev.off()
 
 # Negative sentiment only
-d %>% filter(sentiment < 0) %>% 
+p <- d %>% filter(sentiment < 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   sent_color_palette + 
@@ -120,6 +138,11 @@ d %>% filter(sentiment < 0) %>%
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/negative_sentiment.png", width=700, height=450)
+p
+dev.off()
 
 # Negative sentiment only with regression line
 d %>% filter(sentiment < 0) %>%
@@ -136,10 +159,10 @@ d %>% filter(sentiment < 0) %>%
         axis.title.y = element_text(size = 9.5))
 
 # Negative sentiment only with regression line plus corr coeff textbox
-d %>% filter(sentiment < 0) %>%
+p <- d %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
-  annotate("text", x=log10(0.00095), y=log10(0.00055), label= "Correlation coefficient = 0.34367") + 
+  annotate("text", x=log10(0.00085), y=log10(0.0002), label= "Correlation coefficient = 0.34367") + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette +
   ggtitle(paste(title, '\nFor States with Mostly Negative Sentiment')) +
@@ -149,9 +172,14 @@ d %>% filter(sentiment < 0) %>%
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/negative_sentiment_regression.png", width=700, height=450)
+p
+dev.off()
 
 # Negative sentiment only where points are state/year labels -- use with zoom function!
-ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
@@ -163,14 +191,19 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   labs(color = legendtitle) + 
   theme_bw() + 
   zoom_theme
+print(p)
+
+png(filename="figures/negative_state_labels.png", width=1500, height=1000)
+p
+dev.off()
 
 # Negative sentiment only; state/year labels; regression line plus corr coeff -- use with zoom function!
-ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
             size = 3) + 
-  annotate("text", x=log10(0.0008), y=log10(0.00055), label= "Correlation coefficient = 0.34367", size = 6) + 
+  annotate("text", x=log10(0.0008), y=log10(0.0002), label= "Correlation coefficient = 0.34367", size = 6) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
@@ -179,9 +212,14 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   labs(color = legendtitle) + 
   theme_bw() + 
   zoom_theme
+print(p)
+
+png(filename="figures/negative_state_labels_regression.png", width=1500, height=1000)
+p
+dev.off()
 
 # Negative sentiment only, large colored points with state/year labels -- use with zoom function!
-ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), 
                                            y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 13.5) + 
   geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
@@ -193,9 +231,14 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm),
   labs(color = legendtitle) + 
   theme_bw() + 
   zoom_theme
+print(p)
+
+png(filename="figures/negative_large_points.png", width=1500, height=1000)
+p
+dev.off()
 
 # Negative sentiment; colored points with offset state/year labels -- use with zoom function!
-ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 3) + 
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm),
@@ -208,6 +251,11 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
   labs(color = legendtitle) + 
   theme_bw() + 
   zoom_theme
+print(p)
+
+png(filename="figures/negative_offset_labels.png", width=1300, height=800)
+p
+dev.off()
 
 
 
@@ -220,8 +268,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = l
 
 
 
-
-#### looking closer at the relationship for negative sentiment
+ #### looking closer at the relationship for negative sentiment
 
 negative_model <- lm(log10(negative_sent$tweets_norm) ~ log10(negative_sent$total_homeless_norm))
 
@@ -413,7 +460,7 @@ facet_years()
 
 #### Compare across all years #####################
 
-ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8) + 
   sent_color_palette + 
   ggtitle(title) +
@@ -424,9 +471,11 @@ ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
 
 
-ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+
+p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8) + 
   sent_color_palette + 
   ggtitle(title) +
@@ -437,8 +486,11 @@ ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
 
-
+png(filename="figures/homelessness_facet_year.png", width=800, height=800)
+p
+dev.off()
 
 
 
