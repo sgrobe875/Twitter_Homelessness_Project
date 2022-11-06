@@ -187,7 +187,7 @@ facet_year <- function() {
 
 #### Barplot of Sentiment by State ###################
 
-png(filename="figures/state_sentiment.png", width=600, height=500)
+png(filename="figures/state_sentiment.png", width=600, height=600)
 p <- state_barplot()
 p
 dev.off()
