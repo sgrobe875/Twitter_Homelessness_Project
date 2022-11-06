@@ -42,10 +42,10 @@ state_barplot <- function() {
 
 year_barplot <- function() {
   # sort by mean sentiment (descending)
-  df <- year_sent %>% arrange(sentiment)
+  df <- year_sent %>% arrange(year, desc = TRUE)
   
   # convert year to a factor so the dataframe holds this ordering
-  # df <- within(df, year <- factor(year, levels = factor(df$year)))
+  df <- within(df, year <- factor(year, levels = factor(df$year)))
   
   # plot
   ggplot(data = df, mapping = aes(x = year, y = sentiment)) + geom_col() +
@@ -105,9 +105,14 @@ sent_by_state <- function(st) {
   # filter by the inputted state
   df <- state_year_sent %>% filter(state == st)
   
+  df <- df %>% arrange(year, desc = TRUE)
+  
+  # convert year to a factor so the dataframe holds this ordering
+  df <- within(df, year <- factor(year, levels = factor(df$year)))
+  
   # plot 
   ggplot(data = df, mapping = aes(x = year, y = sentiment)) + geom_col() +
-    ggtitle(paste("Mean Compound Sentiment Per Year (", st, ", 2010 - 2018)", sep='')) + 
+    ggtitle(paste("Mean Compound Sentiment Per Year (", st, ", 2010 - 2019)", sep='')) + 
     xlab("Year") + 
     ylab("Mean Compound Sentiment") + 
     theme_bw() +
@@ -119,12 +124,13 @@ sent_by_state <- function(st) {
 sent_change_by_state <- function(st) {
   # filter by the inputted state
   df <- state_year_sent %>% filter(state == st)
+  df <- df %>% arrange(year, desc = FALSE)
   
   # loop through and calculate differences; add to a dataframe
   sent_changes <- data.frame(matrix(ncol = 2, nrow = 0))
   
   # loop through all years (except 2010, since we need prior data)
-  years <- c(2011:2018)
+  years <- c(2011:2019)
   for (yr in years) {
     curr_sent <- df$sentiment[df$year == yr]     # sentiment for the year in question
     past_sent <- df$sentiment[df$year == yr-1]   # sentiment for prior year
@@ -137,10 +143,15 @@ sent_change_by_state <- function(st) {
   
   # fix column names
   names(sent_changes) <- c('year','change')
+
+  sent_changes <- sent_changes %>% arrange(year, desc = TRUE)
+  
+  # convert year to a factor so the dataframe holds this ordering
+  sent_changes <- within(sent_changes, year <- factor(year, levels = factor(df$year)))
   
   # plot 
   ggplot(data = sent_changes, mapping = aes(x = year, y = change)) + geom_col() +
-    ggtitle(paste("Changes in Mean Compound Sentiment Per Year (", st, ", 2011 - 2018)", sep='')) + 
+    ggtitle(paste("Changes in Mean Compound Sentiment Per Year (", st, ", 2011 - 2019)", sep='')) + 
     xlab("Year") + 
     ylab("Mean Compound Sentiment") + 
     theme_bw() +
@@ -150,17 +161,18 @@ sent_change_by_state <- function(st) {
 
 
 facet_year <- function() {
-  p1 <- sent_barplot_by_year_facet(2010)
-  p2 <- sent_barplot_by_year_facet(2011)
-  p3 <- sent_barplot_by_year_facet(2012)
-  p4 <- sent_barplot_by_year_facet(2013)
-  p5 <- sent_barplot_by_year_facet(2014)
-  p6 <- sent_barplot_by_year_facet(2015)
-  p7 <- sent_barplot_by_year_facet(2016)
-  p8 <- sent_barplot_by_year_facet(2017)
-  p9 <- sent_barplot_by_year_facet(2018)
+  p0 <- sent_barplot_by_year_facet(2010)
+  p1 <- sent_barplot_by_year_facet(2011)
+  p2 <- sent_barplot_by_year_facet(2012)
+  p3 <- sent_barplot_by_year_facet(2013)
+  p4 <- sent_barplot_by_year_facet(2014)
+  p5 <- sent_barplot_by_year_facet(2015)
+  p6 <- sent_barplot_by_year_facet(2016)
+  p7 <- sent_barplot_by_year_facet(2017)
+  p8 <- sent_barplot_by_year_facet(2018)
+  p9 <- sent_barplot_by_year_facet(2019)
   
-  grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=3, 
+  grid.arrange(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=4, 
                top=textGrob('Mean Compound Sentiment Per State, 2010 - 2018', gp=gpar(fontsize=20,font=8)))
 }
 
@@ -206,6 +218,7 @@ sent_barplot_by_year(2015)
 sent_barplot_by_year(2016)
 sent_barplot_by_year(2017)
 sent_barplot_by_year(2018)
+sent_barplot_by_year(2019)
 
 facet_year()
 
