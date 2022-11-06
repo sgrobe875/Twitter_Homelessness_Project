@@ -83,6 +83,13 @@ sentiment_yearly <- function() {
 
 ## Daily averages
 
+png(filename="figures/daily_sentiment.png", width=600, height=400)
+p <- sentiment_daily()
+p
+dev.off()
+
+
+
 sentiment_daily()               # all sentiment
 # sentiment_daily('CA')           # only California
 # sentiment_daily(2017)           # only 2017
@@ -93,6 +100,11 @@ sentiment_daily()               # all sentiment
 
 # Monthly averages
 
+png(filename="figures/monthly_sentiment.png", width=600, height=400)
+p <- sentiment_monthly()
+p
+dev.off()
+
 sentiment_monthly()               # all sentiment
 # sentiment_monthly('CA')           # only California
 # sentiment_monthly(2017)           # only 2017
@@ -101,6 +113,11 @@ sentiment_monthly()               # all sentiment
 
 
 # Yearly averages
+
+png(filename="figures/yearly_sentiment_line.png", width=600, height=400)
+p <- sentiment_yearly()
+p
+dev.off()
 
 sentiment_yearly()
 
