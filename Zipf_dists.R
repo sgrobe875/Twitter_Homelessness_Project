@@ -36,7 +36,7 @@ calc_and_plot_Zipf <- function(dataframe, columnName, title) {
   
   
   # pretty plot:
-  plotTitle <- "Size-Rank Plot for Word Frequencies"
+  plotTitle <- "Zipf Distribution"
   if (!missing(title)) {
     plotTitle <- paste(plotTitle, " (", title, ")", sep='')
   } 
@@ -83,7 +83,7 @@ plot_Zipf <- function(dataframe, columnName, title) {
   columnNo <- which(colnames(dataframe) == columnName)
 
   # pretty plot:
-  plotTitle <- "Size-Rank Plot for Word Frequencies"
+  plotTitle <- "Zipf Distribution"
   if (!missing(title)) {
     plotTitle <- paste(plotTitle, " (", title, ")", sep='')
   } 
@@ -103,7 +103,7 @@ plot_Zipf_with_linreg <- function(dataframe, columnName, title) {
   columnNo <- which(colnames(dataframe) == columnName)
   
   # pretty plot:
-  plotTitle <- "Size-Rank Plot for Word Frequencies"
+  plotTitle <- "Zipf Distribution"
   if (!missing(title)) {
     plotTitle <- paste(plotTitle, " (", title, ")", sep='')
   } 
