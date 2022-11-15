@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 rm(list = ls(all.names = TRUE)) 
 
 # read in the data
-d <- read.csv('data/homelessness_rate_data.csv')
+source('rescale_sentiment.R')
 
 
 
@@ -31,7 +31,7 @@ d <- read.csv('data/homelessness_rate_data.csv')
 # color mapping:             negative --> neutral --> positive
 color_scale<-colorRampPalette(c("#de1616","lightgray","darkblue"))
 # find the largest extent (magnitude) of sentiment and set that as limits in both directions for color consistency
-lims = max(abs(min(d$sentiment, na.rm = TRUE)), abs(max(d$sentiment, na.rm = TRUE)))
+lims = max(abs(min(homelessness_tweetcounts$sentiment, na.rm = TRUE)), abs(max(homelessness_tweetcounts$sentiment, na.rm = TRUE)))
 # build the palette from these parameters
 sent_color_palette <- scale_colour_gradientn(colours = color_scale(100), limit = c(-lims,lims))
 
@@ -44,8 +44,8 @@ legendtitle <- 'Average\nSentiment'
 
 
 # subsets of the data by sentiment
-negative_sent <- d %>% filter(sentiment < 0)
-positive_sent <- d %>% filter(sentiment > 0)
+negative_sent <- homelessness_tweetcounts %>% filter(sentiment < 0)
+positive_sent <- homelessness_tweetcounts %>% filter(sentiment > 0)
 
 # font sizes for plots that need to be zoomed
 zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text=element_text(size=11),
@@ -69,8 +69,8 @@ zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text
 
 
 # All sentiment
-png(filename="figures/all_sentiment.png", width=600, height=350)
-p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = homelessness_tweetcounts, 
+            mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   sent_color_palette + 
   ggtitle(title) +
@@ -89,7 +89,7 @@ dev.off()
 
 
 # Positive sentiment only
-p <- d %>% filter(sentiment > 0) %>% 
+p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
     geom_point(alpha = 0.8, size = 2) + 
     sent_color_palette + 
@@ -107,7 +107,7 @@ p
 dev.off()
 
 # Positive sentiment only with regression line and corr coeff
-p <- d %>% filter(sentiment > 0) %>% 
+p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
@@ -127,7 +127,7 @@ p
 dev.off()
 
 # Negative sentiment only
-p <- d %>% filter(sentiment < 0) %>% 
+p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>% 
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   sent_color_palette + 
@@ -145,7 +145,7 @@ p
 dev.off()
 
 # Negative sentiment only with regression line
-d %>% filter(sentiment < 0) %>%
+homelessness_tweetcounts %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
@@ -159,7 +159,7 @@ d %>% filter(sentiment < 0) %>%
         axis.title.y = element_text(size = 9.5))
 
 # Negative sentiment only with regression line plus corr coeff textbox
-p <- d %>% filter(sentiment < 0) %>%
+p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
   annotate("text", x=log10(0.00085), y=log10(0.0002), label= "Correlation coefficient = 0.34367") + 
@@ -304,13 +304,13 @@ cor.test(log10(positive_sent$tweets_norm), log10(positive_sent$total_homeless_no
 
 #### TODO: PLOT AVERAGE SENTIMENT BY HOMELESSNESS
 
-ggplot(data = d, mapping = aes(x = total_homeless_norm, y = sentiment)) + 
+ggplot(data = homelessness_tweetcounts, mapping = aes(x = total_homeless_norm, y = sentiment)) + 
   geom_point(alpha = 0.5)
 
-ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = sentiment)) + 
+ggplot(data = homelessness_tweetcounts, mapping = aes(x = log10(total_homeless_norm), y = sentiment)) + 
   geom_point(alpha = 0.5)
 
-ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(sentiment))) + 
+ggplot(data = homelessness_tweetcounts, mapping = aes(x = log10(total_homeless_norm), y = log10(sentiment))) + 
   geom_point(alpha = 0.5)
 
 
@@ -326,7 +326,7 @@ ggplot(data = negative_sent, mapping = aes(x = log10(total_homeless_norm), y = s
 
 
 # check the correlation of these
-cor.test(log10(d$total_homeless_norm), log10(d$sentiment))
+cor.test(log10(homelessness_tweetcounts$total_homeless_norm), log10(homelessness_tweetcounts$sentiment))
 
 
 
@@ -346,7 +346,7 @@ cor.test(log10(d$total_homeless_norm), log10(d$sentiment))
 
 plot_filters <- function(st = NULL, yr = NULL)  {
   # make a copy of the dataframe to be safe
-  temp <- data.frame(d)
+  temp <- data.frame(homelessness_tweetcounts)
 
   # filter by year only
   if (is.numeric(st)) {
@@ -385,7 +385,7 @@ plot_filters <- function(st = NULL, yr = NULL)  {
 
 plot_filters_facet <- function(st = NULL, yr = NULL)  {
   # make a copy of the dataframe to be safe
-  temp <- data.frame(d)
+  temp <- data.frame(homelessness_tweetcounts)
   
   # filter by year only
   if (is.numeric(st)) {
@@ -460,7 +460,7 @@ facet_years()
 
 #### Compare across all years #####################
 
-p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = homelessness_tweetcounts, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8) + 
   sent_color_palette + 
   ggtitle(title) +
@@ -475,7 +475,7 @@ print(p)
 
 
 
-p <- ggplot(data = d, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+p <- ggplot(data = homelessness_tweetcounts, mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8) + 
   sent_color_palette + 
   ggtitle(title) +
