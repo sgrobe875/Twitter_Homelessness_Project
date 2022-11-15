@@ -1,3 +1,5 @@
+library(dplyr)
+
 # editing the labMT sentiment to range from -1 to 1
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 state_sent <- read.csv('data/state_sentiment.csv')
@@ -23,3 +25,12 @@ month_sent$sentiment <- month_sent$sentiment / 4
 
 day_sent$sentiment <- day_sent$sentiment - 5
 day_sent$sentiment <- day_sent$sentiment / 4
+
+
+
+# read in the other relevant data files
+homelessness_tweetcounts <- read.csv('data/homelessness_rate_data.csv')
+homelessness_tweetcounts <- homelessness_tweetcounts %>% select(-X)
+
+all_data <- read.csv("data/state_year_all_data.csv")
+all_data <- all_data %>% select(-X)
