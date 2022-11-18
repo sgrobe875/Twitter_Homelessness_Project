@@ -268,7 +268,7 @@ dev.off()
 
 
 
- #### looking closer at the relationship for negative sentiment
+#### looking closer at the relationship for negative sentiment
 
 negative_model <- lm(log10(negative_sent$tweets_norm) ~ log10(negative_sent$total_homeless_norm))
 
@@ -442,7 +442,9 @@ plot_filters(2010)
 plot_filters(2015)
 plot_filters(2016)
 plot_filters(2017)
+
 plot_filters('CA')
+plot_filters('MA')
 
 
 facet_years()
