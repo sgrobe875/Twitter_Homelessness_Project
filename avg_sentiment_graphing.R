@@ -187,7 +187,7 @@ facet_year <- function() {
 
 #### Barplot of Sentiment by State ###################
 
-png(filename="figures/state_sentiment.png", width=600, height=600)
+png(filename="figures/sentiment/state_sentiment.png", width=600, height=600)
 p <- state_barplot()
 p
 dev.off()
@@ -201,7 +201,7 @@ print(p)
 
 #### Barplot of Sentiment by Year ####################
 
-png(filename="figures/yearly_sentiment_bar.png", width=600, height=500)
+png(filename="figures/sentiment/yearly_sentiment_bar.png", width=600, height=500)
 p <- year_barplot()
 p
 dev.off()
@@ -227,7 +227,7 @@ sent_barplot_by_year(2017)
 sent_barplot_by_year(2018)
 sent_barplot_by_year(2019)
 
-png(filename="figures/sentiment_facet_year.png", width=550, height=700)
+png(filename="figures/sentiment/sentiment_facet_year.png", width=550, height=700)
 p <- facet_year()
 p
 dev.off()
