@@ -38,14 +38,16 @@ sent_color_palette <- scale_colour_gradientn(colours = color_scale(100), limit =
 
 # create variables for title and labels, since most plots will use the same ones
 title <- 'Volume of Tweets as a Function of Unsheltered Homelessness'
+title_percents <- 'Percentage of Yearly Tweets as a Function of Unsheltered Homelessness'
 xlabel <- 'Log10(Unsheltered Homelessness Per Capita)'
 ylabel <- 'Log10(Number of Geotagged Tweets Per Capita Containing "Homeless")'
+ylabel_percents <- 'Log10(Percentage of All Tweets Containing "Homeless")'
 legendtitle <- 'Average\nSentiment'
 
 
 # subsets of the data by sentiment
-negative_sent <- homelessness_tweetcounts %>% filter(sentiment < 0)
-positive_sent <- homelessness_tweetcounts %>% filter(sentiment > 0)
+negative_sent <- all_data %>% filter(sentiment < 0)
+positive_sent <- all_data %>% filter(sentiment > 0)
 
 # font sizes for plots that need to be zoomed
 zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text=element_text(size=11),
@@ -68,7 +70,9 @@ zoom_theme <- theme(plot.title = element_text(hjust = 0.5, size = 18), axis.text
 #### Build the plots! ###########################################################
 
 
-# All sentiment
+### All sentiment ###
+
+# per capita tweets
 p <- ggplot(data = homelessness_tweetcounts, 
             mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
@@ -82,39 +86,85 @@ p <- ggplot(data = homelessness_tweetcounts,
         axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/unshelt_homeless/all_sentiment.png", width=700, height=450)
+png(filename="figures/unshelt_homeless/all_sentiment_percapita.png", width=600, height=350)
 p
 dev.off()
 
 
-
-# Positive sentiment only
-p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>% 
-  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
-    geom_point(alpha = 0.8, size = 2) + 
-    sent_color_palette + 
-    ggtitle(paste(title, '\nFor States with Mostly Positive Sentiment')) +
-    xlab(xlabel) + 
-    ylab(ylabel) + 
-    labs(color = legendtitle) + 
-    theme_bw() + 
-    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-          axis.title.y = element_text(size = 9.5))
+# percentage tweets
+p <- ggplot(data = all_data, 
+            mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  sent_color_palette + 
+  ggtitle(title_percents) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/unshelt_homeless/positive_sentiment.png", width=700, height=450)
+png(filename="figures/unshelt_homeless/all_sentiment_percentage.png", width=600, height=350)
 p
 dev.off()
 
-# Positive sentiment only with regression line and corr coeff
-test <- cor.test(log10(positive_sent$unshelt_homeless_norm), 
-                 log10(positive_sent$tweets_norm))
+
+
+
+
+### Positive sentiment only ###
+
+# per capita tweets
+p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>% 
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  sent_color_palette + 
+  ggtitle(paste(title, '\nFor States with Mostly Positive Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/unshelt_homeless/positive_sentiment_percapita.png", width=700, height=450)
+p
+dev.off()
+
+# percentage tweets
+p <- all_data %>% filter(sentiment > 0) %>%
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  sent_color_palette + 
+  ggtitle(paste(title_percents, '\nFor States with Mostly Positive Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/unshelt_homeless/positive_sentiment_percentage.png", width=600, height=350)
+p
+dev.off()
+
+
+
+
+
+### Positive sentiment only with regression line and corr coeff ###
+
+# per capita tweets
+test <- cor.test(log10(positive_sent$unshelt_homeless_norm), log10(positive_sent$tweets_norm))
 p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>% 
   ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
-  annotate("text", x=log10(0.00003), y=log10(0.0015), 
-           label= paste("Correlation coefficient =",format(round(test$estimate,5)))) + 
+  annotate("text", x=log10(0.00004), y=log10(0.0015), 
+           label= paste("Correlation coefficient =",format(round(test$estimate, 5)))) + 
   sent_color_palette + 
   ggtitle(paste(title,'\nFor States with Mostly Positive Sentiment')) +
   xlab(xlabel) + 
@@ -125,11 +175,38 @@ p <- homelessness_tweetcounts %>% filter(sentiment > 0) %>%
         axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/unshelt_homeless/positive_sentiment_regression.png", width=700, height=450)
+png(filename="figures/unshelt_homeless/positive_sentiment_regression_percapita.png", width=700, height=450)
 p
 dev.off()
 
-# Negative sentiment only
+# percentage tweets
+test <- cor.test(log10(positive_sent$unshelt_homeless_norm), log10(positive_sent$tweet_percent))
+p <- all_data %>% filter(sentiment > 0) %>% 
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  annotate("text", x=log10(0.00004), y=log10(0.2), 
+           label= paste("Correlation coefficient =",format(round(test$estimate, 5)))) + 
+  sent_color_palette + 
+  ggtitle(paste(title_percents,'\nFor States with Mostly Positive Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/unshelt_homeless/positive_sentiment_regression_percentage.png", width=700, height=450)
+p
+dev.off()
+
+
+
+
+### Negative sentiment only ###
+
+# per capita tweets
 p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>% 
   ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 2) + 
@@ -143,11 +220,35 @@ p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>%
         axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_sentiment.png", width=700, height=450)
+png(filename="figures/unshelt_homeless/negative_sentiment_percapita.png", width=700, height=450)
 p
 dev.off()
 
-# Negative sentiment only with regression line
+# percentage tweets
+p <- all_data %>% filter(sentiment < 0) %>% 
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  sent_color_palette + 
+  ggtitle(paste(title_percents, '\nFor States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_sentiment_percentage.png", width=700, height=450)
+p
+dev.off()
+
+
+
+
+
+### Negative sentiment only with regression line ###
+
+# per capita tweets
 homelessness_tweetcounts %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
@@ -161,14 +262,33 @@ homelessness_tweetcounts %>% filter(sentiment < 0) %>%
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
 
-# Negative sentiment only with regression line plus corr coeff textbox
-test <- cor.test(log10(negative_sent$unshelt_homeless_norm), 
-                 log10(negative_sent$tweets_norm))
+# percentage tweets
+all_data %>% filter(sentiment < 0) %>%
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) +
+  geom_point(alpha = 0.8, size = 2) +
+  geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  sent_color_palette +
+  ggtitle(paste(title_percents, '\nFor States with Mostly Negative Sentiment')) +
+  xlab(xlabel) +
+  ylab(ylabel_percents) +
+  labs(color = legendtitle) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+
+
+### Negative sentiment only with regression line plus corr coeff textbox ###
+
+# per capita tweets
+test <- cor.test(log10(negative_sent$unshelt_homeless_norm), log10(negative_sent$tweets_norm))
 p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>%
   ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) +
   geom_point(alpha = 0.8, size = 2) +
   annotate("text", x=log10(0.00006), y=log10(0.0002), 
-           label= paste("Correlation coefficient =",format(round(test$estimate,5)))) + 
+           label= paste("Correlation coefficient =", format(round(test$estimate,5)))) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette +
   ggtitle(paste(title, '\nFor States with Mostly Negative Sentiment')) +
@@ -180,11 +300,40 @@ p <- homelessness_tweetcounts %>% filter(sentiment < 0) %>%
         axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_sentiment_regression.png", width=700, height=450)
+png(filename="figures/unshelt_homeless/negative_sentiment_regression_percapita.png", width=700, height=450)
 p
 dev.off()
 
-# Negative sentiment only where points are state/year labels -- use with zoom function!
+
+# percentage tweets
+test <- cor.test(log10(negative_sent$unshelt_homeless_norm), log10(negative_sent$tweet_percent))
+p <- all_data %>% filter(sentiment < 0) %>%
+  ggplot(mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) +
+  geom_point(alpha = 0.8, size = 2) +
+  annotate("text", x=log10(0.00006), y=log10(0.08), 
+           label= paste("Correlation coefficient =", format(round(test$estimate,5)))) + 
+  geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  sent_color_palette +
+  ggtitle(paste(title_percents, '\nFor States with Mostly Negative Sentiment')) +
+  xlab(xlabel) +
+  ylab(ylabel_percents) +
+  labs(color = legendtitle) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_sentiment_regression_percentage.png", width=700, height=450)
+p
+dev.off()
+
+
+
+
+
+### Negative sentiment only where points are state/year labels -- use with zoom function! ###
+
+# per capita tweets
 p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm),
@@ -199,20 +348,44 @@ p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm)
   zoom_theme
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_state_labels.png", width=1500, height=1000)
+png(filename="figures/unshelt_homeless/negative_state_labels_percapita.png", width=1500, height=1000)
 p
 dev.off()
 
-# Negative sentiment only; state/year labels; regression line plus corr coeff -- use with zoom function!
-test <- cor.test(log10(negative_sent$unshelt_homeless_norm), 
-                 log10(negative_sent$tweets_norm))
+
+# percentage tweets
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_text(data = negative_sent, 
+            mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent),
+                          color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
+            size = 3) + 
+  sent_color_palette + 
+  ggtitle(paste(title_percents, 'For States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  zoom_theme
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_state_labels_percentage.png", width=1500, height=1000)
+p
+dev.off()
+
+
+
+
+### Negative sentiment only; state/year labels; regression line plus corr coeff -- use with zoom function! ###
+
+# per capita tweets
+test <- cor.test(log10(negative_sent$unshelt_homeless_norm), log10(negative_sent$tweets_norm))
 p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_text(data = negative_sent, 
             mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm),
                           color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
             size = 3) + 
   annotate("text", x=log10(0.00004), y=log10(0.0002), 
-           label= paste("Correlation coefficient =", format(round(test$estimate,5))), size = 6) + 
+           label= paste("Correlation coefficient =",format(round(test$estimate,5))), size = 6) + 
   geom_smooth(method = 'lm', se = FALSE, color = 'black') +
   sent_color_palette + 
   ggtitle(paste(title, 'For States with Mostly Negative Sentiment')) +
@@ -223,13 +396,43 @@ p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm)
   zoom_theme
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_state_labels_regression.png", width=1500, height=1000)
+png(filename="figures/unshelt_homeless/negative_state_labels_regression_percapita.png", width=1500, height=1000)
 p
 dev.off()
 
-# Negative sentiment only, large colored points with state/year labels -- use with zoom function!
+# percentage tweets
+test <- cor.test(log10(negative_sent$unshelt_homeless_norm), log10(negative_sent$tweet_percent))
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_text(data = negative_sent, 
+            mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent),
+                          color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
+            size = 3) + 
+  annotate("text", x=log10(0.00004), y=log10(0.08), 
+           label= paste("Correlation coefficient =",format(round(test$estimate,5))), size = 6) + 
+  geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  sent_color_palette + 
+  ggtitle(paste(title_percents, 'For States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  zoom_theme
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_state_labels_regression_percentage.png", width=1500, height=1000)
+p
+dev.off()
+
+
+
+
+
+
+### Negative sentiment only, large colored points with state/year labels -- use with zoom function! ###
+
+# per capita tweets
 p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), 
-                                           y = log10(tweets_norm), color = sentiment)) + 
+                                                y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 13.5) + 
   geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
             color = 'black') +
@@ -242,11 +445,36 @@ p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm)
   zoom_theme
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_large_points.png", width=1500, height=1000)
+png(filename="figures/unshelt_homeless/negative_large_points_percapita.png", width=1500, height=1000)
 p
 dev.off()
 
-# Negative sentiment; colored points with offset state/year labels -- use with zoom function!
+# percentage tweets
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), 
+                                                y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 13.5) + 
+  geom_text(label = paste(negative_sent$state, '\n', as.character(negative_sent$year), sep = ''), size = 3, 
+            color = 'black') +
+  sent_color_palette + 
+  ggtitle(paste(title_percents, 'for States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  zoom_theme
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_large_points_percentage.png", width=1500, height=1000)
+p
+dev.off()
+
+
+
+
+
+### Negative sentiment; colored points with offset state/year labels -- use with zoom function! ###
+
+# per capita tweets
 p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweets_norm), color = sentiment)) + 
   geom_point(alpha = 0.8, size = 3) + 
   geom_text(data = negative_sent, 
@@ -262,7 +490,27 @@ p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm)
   zoom_theme
 print(p)
 
-png(filename="figures/unshelt_homeless/negative_offset_labels.png", width=1300, height=800)
+png(filename="figures/unshelt_homeless/negative_offset_labels_percapita.png", width=1300, height=800)
+p
+dev.off()
+
+# percentage tweets
+p <- ggplot(data = negative_sent, mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent), color = sentiment)) + 
+  geom_point(alpha = 0.8, size = 3) + 
+  geom_text(data = negative_sent, 
+            mapping = aes(x = log10(unshelt_homeless_norm), y = log10(tweet_percent),
+                          color = sentiment, label = paste(state, '\n', as.character(year), sep = '')), 
+            size = 3.3, nudge_x = log10(1.03), nudge_y = log10(1.11), color = 'black') + 
+  sent_color_palette + 
+  ggtitle(paste(title_percents, 'For States with Mostly Negative Sentiment')) +
+  xlab(xlabel) + 
+  ylab(ylabel_percents) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  zoom_theme
+print(p)
+
+png(filename="figures/unshelt_homeless/negative_offset_labels_percentage.png", width=1300, height=800)
 p
 dev.off()
 
@@ -340,7 +588,7 @@ cor.test(log10(homelessness_tweetcounts$unshelt_homeless_norm), log10(homelessne
 
 
 # Not really anything interesting....
-
+# Don't think I'll go any further with these
 
 
 
@@ -356,7 +604,7 @@ cor.test(log10(homelessness_tweetcounts$unshelt_homeless_norm), log10(homelessne
 plot_filters <- function(st = NULL, yr = NULL)  {
   # make a copy of the dataframe to be safe
   temp <- data.frame(homelessness_tweetcounts)
-
+  
   # filter by year only
   if (is.numeric(st)) {
     temp <- temp %>% filter(year == st)
@@ -502,8 +750,6 @@ print(p)
 png(filename="figures/unshelt_homeless/homelessness_facet_year.png", width=800, height=800)
 p
 dev.off()
-
-
 
 
 
