@@ -137,3 +137,51 @@ write.csv(joined, "data/state_year_all_data.csv")
 
 
 
+
+
+#### Obtaining tweet counts and percents ####
+
+# read in cleaned tweet data
+tweets <- read.csv('data/geotagged_cleaned.csv')
+
+# record the number of tweets in each unique state/year pair
+counts <- tweets %>% group_by(state, year) %>% count
+
+# join to the all_data dataframe 
+dat <- merge(all_data, counts, by = c('state','year'))
+
+# rename the column
+names(dat)[8] <- 'tweet_count'
+
+
+
+# get the total number of tweets in a year
+total_tweets <- tweets %>% group_by(year) %>% count
+
+# join to dat
+dat <- merge(dat, total_tweets, by = 'year')
+
+# rename column
+names(dat)[9] <- 'total_tweets'
+
+# create column for percentages
+dat <- dat %>% mutate(tweet_percent = tweet_count/total_tweets)
+
+# double check our work
+for (yr in unlist(c(dat %>% distinct(year)))) {
+  curr <- dat %>% filter(year == yr)
+  print(yr)
+  print(sum(curr$tweet_percent))
+}
+# pretty close! presumably the only differences are to tweets posted at unknown locations
+# these differences are small anyway, so they don't really matter
+
+# clean up the dataframe
+dat <- dat %>% select(-total_tweets)
+
+# rewrite to file
+write.csv(dat, "data/state_year_all_data.csv")
+
+
+
+
