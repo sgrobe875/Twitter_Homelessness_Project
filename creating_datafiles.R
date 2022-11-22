@@ -23,8 +23,8 @@ d <- read.csv('data/homelessness_rate_data.csv')
 ### Rework homelessness data into long format and write to file ###
 
 # read in normalized tweet counts
-tweet_counts <- read.csv("data/normalized_tweet_counts_by_state_by_year.csv")
-names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018')
+tweet_counts <- read.csv("data/percapita_tweets.csv")
+names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019')
 
 
 # rework tweet counts to get in long format
@@ -52,7 +52,7 @@ counts_and_sent <- merge(state_year_sent, tweet_counts_long, by = c('state', 'ye
 
 # make one df for total homelessness and one for unsheltered homelessness
 total_homeless <- read.csv('data/normalized_total.csv')
-names(total_homeless) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017')
+names(total_homeless) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019')
 
 unsheltered_homeless <- read.csv('data/normalized_unsheltered.csv')
 names(unsheltered_homeless) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017')
@@ -102,12 +102,12 @@ colnames(unshelt_long) <- c("state", "unshelt_homeless_norm", "year")
 # join each of these to the prior one
 total_sent_counts <- merge(counts_and_sent, total_long, by = c('state', 'year'))
 
-everything <- merge(total_sent_counts, unshelt_long, by = c('state', 'year'))
+# everything <- merge(total_sent_counts, unshelt_long, by = c('state', 'year'))
 
 
 
 # write this final master dataframe to a file to save it
-write.csv(everything, 'data/homelessness_rate_data.csv')
+write.csv(total_sent_counts, 'data/homelessness_rate_data.csv')
 
 
 
@@ -119,12 +119,12 @@ write.csv(everything, 'data/homelessness_rate_data.csv')
 #### Synthesize homelessness and sentiment data ####
 
 # join state_year_sent and d on composite key of state, year
-joined <- merge(state_year_sent, d, by = c('state', 'year'))  
+joined <- merge(state_year_sent, total_sent_counts, by = c('state', 'year'))  
 
 # clean up bc R hates joins
-joined <- joined %>% select(state, year, tweets_norm, total_homeless_norm, unshelt_homeless_norm,
+joined <- joined %>% select(state, year, tweets_norm, total_homeless_norm,
                             raw_sent.x, sentiment.x)
-names(joined) <- c('state','year','tweets_norm','total_homeless_norm','unshelt_homeless_norm',
+names(joined) <- c('state','year','tweets_norm','total_homeless_norm',
                    'raw_sent', 'sentiment')
 
 # write to csv
@@ -148,10 +148,10 @@ tweets <- read.csv('data/geotagged_cleaned.csv')
 counts <- tweets %>% group_by(state, year) %>% count
 
 # join to the all_data dataframe 
-dat <- merge(all_data, counts, by = c('state','year'))
+dat <- merge(counts_and_sent, counts, by = c('state','year'))
 
 # rename the column
-names(dat)[8] <- 'tweet_count'
+names(dat)[6] <- 'tweet_count'
 
 
 
@@ -162,7 +162,7 @@ total_tweets <- tweets %>% group_by(year) %>% count
 dat <- merge(dat, total_tweets, by = 'year')
 
 # rename column
-names(dat)[9] <- 'total_tweets'
+names(dat)[7] <- 'total_tweets'
 
 # create column for percentages
 dat <- dat %>% mutate(tweet_percent = tweet_count/total_tweets)
