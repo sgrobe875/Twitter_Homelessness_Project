@@ -411,4 +411,68 @@ dev.off()
 
 
 
+#### Playing with the data ####
+
+
+
+# overlaying multiple distributions - THIS IS UGLY AND INCOMPLETE  
+p <- all_data %>% mutate(total_homeless_norm = total_homeless_norm / max(total_homeless_norm)) %>% 
+  mutate(tweets_norm = tweets_norm / max(tweets_norm)) %>% 
+  ggplot() +
+  geom_density(mapping = aes(x = log10(total_homeless_norm)), color = 'black', fill = 'red', alpha = 0.3) + 
+  geom_density(mapping = aes(x = log10(tweets_norm)), color = 'black', fill = 'blue', alpha = 0.3) + 
+  ggtitle('Distribution of Log Tweet Counts per State/Year Pair') + 
+  xlab('Log10(Number of Tweets)') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+
+
+
+
+
+# overlaid distributions for homelessness by year
+ggplot() + 
+  geom_density(data = all_data %>% filter(year == 2010), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'red', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2011), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'orange', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2012), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'yellow', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2013), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'green', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2014), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'blue', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2015), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'purple', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2016), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'gray', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2017), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'brown', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2018), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'magenta', alpha = 0.2) +
+  geom_density(data = all_data %>% filter(year == 2019), mapping = aes(x = total_homeless_norm),
+               color = 'black', fill = 'cyan', alpha = 0.2) +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
