@@ -254,6 +254,90 @@ sent_change_by_state('MA')
 
 
 
+### Change in tweet volume vs. change in sentiment
+
+# scatterplot
+p <- ggplot(data = changes, aes(x = tweet_norm_changes, y = sent_change)) + 
+  geom_point(alpha = 0.5) +
+  ggtitle('Change in Sentiment as a Function of Change in Tweet Volume') +
+  xlab('Change in Per Capita Tweets') +
+  ylab('Change in Sentiment') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/sentiment/sentiment_change_by_tweet_change.png", width=700, height=500)
+p
+dev.off()
+
+
+
+# scatterplot + linreg + corr coeff
+test <- cor.test(changes$tweet_norm_changes, changes$sent_change)
+p <- ggplot(data = changes, aes(x = tweet_norm_changes, y = sent_change)) + 
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = 'lm', se = FALSE, color = 'red') +
+  annotate("text", x= -0.0002, y=0.43, 
+           label= paste("Correlation coefficient =",format(round(test$estimate, 5)))) + 
+  ggtitle('Change in Sentiment as a Function of Change in Tweet Volume') +
+  xlab('Change in Per Capita Tweets') +
+  ylab('Change in Sentiment') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/sentiment/sentiment_change_by_tweet_change_linreg.png", width=700, height=500)
+p
+dev.off()
+
+
+# check the linear model for the above
+mod <- lm(changes$sent_change ~ changes$tweet_norm_changes)
+
+
+
+
+
+
+### Change in homelessness volume vs. change in sentiment
+
+# scatterplot
+p <- ggplot(data = changes, aes(x = total_homeless_change, y = sent_change)) + 
+  geom_point(alpha = 0.5) +
+  ggtitle('Change in Sentiment as a Function of Change in Total Homelessness') +
+  xlab('Change in Per Capita Total Homelessness') +
+  ylab('Change in Sentiment') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/sentiment/sentiment_change_by_homeless_change.png", width=700, height=500)
+p
+dev.off()
+
+
+
+# scatterplot + linreg + corr coeff
+test <- cor.test(changes$total_homeless_change, changes$sent_change)
+p <- ggplot(data = changes, aes(x = total_homeless_change, y = sent_change)) + 
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = 'lm', se = FALSE, color = 'red') +
+  annotate("text", x= -0.0008, y=0.43, 
+           label= paste("Correlation coefficient =",format(round(test$estimate, 5)))) + 
+  ggtitle('Change in Sentiment as a Function of Change in Total Homelessness') +
+  xlab('Change in Per Capita Total Homelessness') +
+  ylab('Change in Sentiment') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/sentiment/sentiment_change_by_homeless_change_linreg.png", width=700, height=500)
+p
+dev.off()
 
 
 
