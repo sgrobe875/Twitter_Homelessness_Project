@@ -83,7 +83,7 @@ sentiment_yearly <- function() {
 
 ## Daily averages
 
-png(filename="figures/timeseries/daily_sentiment.png", width=600, height=400)
+png(filename="figures/sentiment/daily_sentiment.png", width=600, height=400)
 p <- sentiment_daily()
 p
 dev.off()
@@ -100,7 +100,7 @@ sentiment_daily()               # all sentiment
 
 # Monthly averages
 
-png(filename="figures/timeseries/monthly_sentiment.png", width=600, height=400)
+png(filename="figures/sentiment/monthly_sentiment.png", width=600, height=400)
 p <- sentiment_monthly()
 p
 dev.off()
@@ -114,7 +114,7 @@ sentiment_monthly()               # all sentiment
 
 # Yearly averages
 
-png(filename="figures/timeseries/yearly_sentiment_line.png", width=600, height=400)
+png(filename="figures/sentiment/yearly_sentiment_line.png", width=600, height=400)
 p <- sentiment_yearly()
 p
 dev.off()
@@ -134,7 +134,7 @@ p <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
 print(p)
 
-png(filename="figures/timeseries/yearly_sentchange.png", width=600, height=400)
+png(filename="figures/sentiment/yearly_sentchange.png", width=600, height=400)
 p
 dev.off()
 
