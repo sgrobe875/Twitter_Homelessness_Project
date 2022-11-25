@@ -406,7 +406,7 @@ dev.off()
 
 
 # change in per capita total homelessness
-ggplot(data = changes, aes(x = total_homeless_change)) + 
+p <- ggplot(data = changes, aes(x = total_homeless_change)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Per Capita Homelessness\nper State/Year Pair') + 
   xlab('Homelessness Change') + 
@@ -414,11 +414,16 @@ ggplot(data = changes, aes(x = total_homeless_change)) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/total_homeless_change_dens.png", width=600, height=450)
+p
+dev.off()
 
 
 
 # change in per capita tweets
-ggplot(data = changes, aes(x = tweet_norm_changes)) + 
+p <- ggplot(data = changes, aes(x = tweet_norm_changes)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Per Capita Tweets\nper State/Year Pair') + 
   xlab('Tweet Volume Change') + 
@@ -426,11 +431,15 @@ ggplot(data = changes, aes(x = tweet_norm_changes)) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
 
+png(filename="figures/eda/tweets_norm_change_dens.png", width=600, height=450)
+p
+dev.off()
 
 
 # change in sentiment
-ggplot(data = changes, aes(x = sent_change)) + 
+p <- ggplot(data = changes, aes(x = sent_change)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair') + 
   xlab('Sentiment Change') + 
@@ -438,10 +447,11 @@ ggplot(data = changes, aes(x = sent_change)) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+print(p)
 
-
-
-
+png(filename="figures/eda/sentiment_change_dens.png", width=600, height=450)
+p
+dev.off()
 
 
 
@@ -514,7 +524,7 @@ for (st in states) {
   
   print(p)
   
-  f = paste("figures/eda/changes_homlessness_tweets_", st, ".png", sep = "")
+  f = paste("figures/eda/changes_homeless_tweets_", st, ".png", sep = "")
   png(filename=f, width=700, height=450)
   print(p)
   dev.off()
@@ -571,7 +581,7 @@ p <- all_data %>% mutate(total_homeless_norm = total_homeless_norm / max(total_h
         axis.title.y = element_text(size = 9.5))
 print(p)
 
-png(filename="figures/eda/compare_homelessness_tweets.png", width=700, height=450)
+png(filename="figures/eda/compare_homeless_tweets.png", width=700, height=450)
 p
 dev.off()
 
