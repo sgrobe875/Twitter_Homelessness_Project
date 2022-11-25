@@ -408,6 +408,44 @@ dev.off()
 
 
 
+# normed tweet counts and homelessness counts per state
+# ggplot() + 
+#   geom_histogram(data = all_data %>% filter(state == 'CA'), mapping = aes(x = tweets_norm),
+#                fill = 'darkblue', alpha = 0.8) +
+#   geom_histogram(data = homeless_changes %>% filter(state == 'CA'), mapping = aes(x = total_homeless_change),
+#                fill = 'lightblue', alpha = 0.8) +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+
+
+
+
+
+
+
+ggplot(data = homeless_changes %>% filter(state == 'CA') %>% within(year <- factor(year, levels = year))) +
+  geom_col(mapping = aes(x = year, y = tweet_norm_changes),
+           fill = 'darkblue', color = 'darkblue', alpha = 0.8) +
+  geom_col(mapping = aes(x = year, y = total_homeless_change),
+               fill = 'lightblue', color = 'lightblue', alpha = 0.8) +
+  geom_hline(yintercept = 0) +
+  xlab('Year') + 
+  ylab('Change From Prior Year') + 
+  labs(color = 'screaming') +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+
+
+
+
+
+
+
 
 
 
