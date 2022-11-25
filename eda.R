@@ -405,6 +405,40 @@ p
 dev.off()
 
 
+# change in per capita total homelessness
+ggplot(data = changes, aes(x = total_homeless_change)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Per Capita Homelessness\nper State/Year Pair') + 
+  xlab('Homelessness Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+# change in per capita tweets
+ggplot(data = changes, aes(x = tweet_norm_changes)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Per Capita Tweets\nper State/Year Pair') + 
+  xlab('Tweet Volume Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+
+
+# change in sentiment
+ggplot(data = changes, aes(x = sent_change)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair') + 
+  xlab('Sentiment Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
 
 
 
