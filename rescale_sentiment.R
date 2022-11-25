@@ -134,3 +134,8 @@ state_year_sentchanges <- state_year_sentchanges %>% select(-X)
 
 rm(curr, prev, st, st_col, states, tweet_norm_changes, years, yr, yr_col)
 
+
+
+changes <- merge(homeless_changes, state_year_sentchanges, by = c('state','year'))
+changes <- changes %>% select(state, year, total_homeless_change, tweet_norm_changes, sent_change)
+
