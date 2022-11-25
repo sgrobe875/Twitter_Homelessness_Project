@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(grid)
+library(reshape2)
 
 
 
@@ -402,6 +403,50 @@ print(p)
 png(filename="figures/eda/sentiment_dens.png", width=600, height=450)
 p
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+#### Box plots of variable distributions ####
+
+
+# all log variables
+temp <- all_data %>% mutate(state_year = paste(state, year)) %>% 
+  select(-state, -year, -sentiment, -raw_sent)
+temp <- temp[, c('state_year','tweet_count','tweet_percent','total_homeless_norm','tweets_norm')]
+names(temp) <- c('state_year','Number of Tweets','Percentage of Tweets',
+                 'Per Capita Homelessness','Per Capita Tweets')
+data_long <- melt(temp)
+p <- ggplot(data_long, aes(x = variable, y = log10(value))) + 
+  geom_boxplot(fill = 'lightgray') +
+  ggtitle('Distributions of Variables') + 
+  xlab('') +
+  ylab('Log10(Variable)') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/boxplot_all.png", width=800, height=450)
+p
+dev.off()
+  
+rm(temp)
+
+
+
+
+
+
+
+
 
 
 
