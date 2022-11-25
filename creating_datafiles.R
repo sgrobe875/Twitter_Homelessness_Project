@@ -195,3 +195,84 @@ write.csv(dat, "data/state_year_all_data.csv")
 
 
 
+
+
+
+### Changes in sentiment
+
+# for each state/year pair
+years <- seq(2011,2019)
+states <- unlist(all_data %>% distinct(state))
+yr_col <- c()
+st_col <- c()
+sent_change <- c()
+for (st in states) {
+  for (yr in years) {
+    prev <- all_data$sentiment[all_data$state == st & all_data$year == yr - 1]
+    curr <- all_data$sentiment[all_data$state == st & all_data$year == yr]
+    
+    yr_col <- append(yr_col, yr)
+    st_col <- append(st_col, st)
+    sent_change <- append(sent_change, curr - prev)
+  }
+}
+
+sentiment_changes <- data.frame(st_col, yr_col, sent_change)
+names(sentiment_changes) <- c('state','year','sent_change')
+
+write.csv(sentiment_changes, 'data/state_year_sentchanges.csv')
+
+
+
+# for each year
+years <- seq(2011,2019)
+yr_col <- c()
+sent_change <- c()
+for (yr in years) {
+  prev <- year_sent$sentiment[year_sent$year == yr - 1]
+  curr <- year_sent$sentiment[year_sent$year == yr]
+  
+  yr_col <- append(yr_col, yr)
+  sent_change <- append(sent_change, curr - prev)
+}
+
+sentiment_changes <- data.frame(yr_col, sent_change)
+names(sentiment_changes) <- c('year','sent_change')
+
+write.csv(sentiment_changes, 'data/year_sentchanges.csv')
+
+
+
+
+# for each month
+month_sent$month <- as.Date(paste(month_sent$month, '-01', sep=''))
+month_sent <- month_sent %>% arrange(month, desc = TRUE)
+m_col <- c()
+sent_change <- c()
+for (i in seq(2,nrow(month_sent))) {
+  prev <- month_sent[i-1, 'sentiment']
+  curr <- month_sent[i, 'sentiment']
+  
+  m_col <- append(m_col, month_sent[i, 'month'])
+  sent_change <- append(sent_change, curr - prev)
+}
+
+
+sentiment_changes <- data.frame(m_col, sent_change)
+names(sentiment_changes) <- c('month','sent_change')
+
+write.csv(sentiment_changes, 'data/monthly_sentchanges.csv')
+
+
+
+
+
+
+
+
+
+
+
+
+
+

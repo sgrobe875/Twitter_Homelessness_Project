@@ -112,6 +112,23 @@ rm(c, col, long_row, og_names, r, row)
 
 
 
+# read in (and manipulate) sentiment change data
+month_sentchanges <- read.csv('data/monthly_sentchanges.csv')
+month_sentchanges <- month_sentchanges %>% select(-X)
+month_sentchanges$month <- substr(month_sentchanges$month,1,7)
+month_sentchanges <- within(month_sentchanges, month <- factor(month, levels = month_sentchanges$month))
 
+
+
+
+year_sentchanges <- read.csv('data/year_sentchanges.csv')
+year_sentchanges <- year_sentchanges %>% select(-X)
+year_sentchanges <- within(year_sentchanges, year <- factor(year, levels = year_sentchanges$year))
+
+
+
+
+state_year_sentchanges <- read.csv('data/state_year_sentchanges.csv')
+state_year_sentchanges <- state_year_sentchanges %>% select(-X)
 
 
