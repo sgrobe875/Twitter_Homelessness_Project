@@ -179,6 +179,16 @@ for (yr in unlist(c(dat %>% distinct(year)))) {
 # clean up the dataframe
 dat <- dat %>% select(-total_tweets)
 
+# add total_homeless_norm column
+dat <- merge(dat, homelessness_tweetcounts, by = c('state', 'year'))
+dat <- dat %>% select(state,year,sentiment.x, raw_sent.x, tweets_norm.x, tweet_count, 
+                      tweet_percent, total_homeless_norm)
+
+# clean up
+names(dat) <- c('state','year','sentiment','raw_sent','tweets_norm',
+                'tweet_count','tweet_percent','total_homeless_norm')
+
+
 # rewrite to file
 write.csv(dat, "data/state_year_all_data.csv")
 

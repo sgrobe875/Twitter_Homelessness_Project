@@ -67,10 +67,37 @@ homeless_changes <- df_long
 rm(df_long)
 
 
+homeless_changes$total_homeless_change <- as.numeric(homeless_changes$total_homeless_change)
+
+
+# join with tweet counts
+homeless_changes <- merge(homeless_changes, homelessness_tweetcounts, by = c('state','year'))
+
+
+years <- seq(2011,2019)
+states <- unlist(all_data %>% distinct(state))
+
+tweet_norm_changes <- c()
+yr_col <- c()
+st_col <- c()
+
+for (st in states) {
+  for (yr in years) {
+    prev <- all_data$tweets_norm[all_data$state == st & all_data$year == yr-1]
+    curr <- all_data$tweets_norm[all_data$state == st & all_data$year == yr]
+    
+    tweet_norm_changes <- append(tweet_norm_changes, curr - prev)
+    yr_col <- append(yr_col, yr)
+    st_col <- append(st_col, st)
+  }
+}
+
+temp <- data.frame(st_col, yr_col, tweet_norm_changes)
+names(temp) <- c('state','year','tweet_norm_changes')
 
 
 
-
+homeless_changes <- merge(homeless_changes, temp, by = c('state','year'))
 
 
 # percent_twitter_activity <- read.csv('data/percents_of_total_twitter_activity.csv')
