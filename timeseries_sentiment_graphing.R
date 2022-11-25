@@ -124,3 +124,31 @@ sentiment_yearly()
 
 
 
+# Change in sentiment per year
+p <- ggplot() + 
+  geom_col(data = year_sentchanges, aes(x = year, y = sent_change)) +
+  ggtitle('Change in Sentiment From Prior Year For All Tweets Containing "Homeless"') +
+  xlab('Year') +
+  ylab('Change in Sentiment') +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+print(p)
+
+png(filename="figures/timeseries/yearly_sentchange.png", width=600, height=400)
+p
+dev.off()
+
+
+
+# change in sentiment per month - this one isn't actually super helpful tho
+ggplot() + 
+  geom_col(data = month_sentchanges, aes(x = month, y = sent_change)) +
+  ggtitle('Change in Sentiment From Prior Month For All Tweets Containing "Homeless"') +
+  xlab('Month') +
+  ylab('Change in Sentiment') +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+
+
+
+
