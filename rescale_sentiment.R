@@ -132,3 +132,5 @@ state_year_sentchanges <- read.csv('data/state_year_sentchanges.csv')
 state_year_sentchanges <- state_year_sentchanges %>% select(-X)
 
 
+rm(curr, prev, st, st_col, states, tweet_norm_changes, years, yr, yr_col)
+
