@@ -4,6 +4,7 @@ library(ggplot2)
 library(stringr)
 library(tidyverse)
 library(lubridate)
+library(scales)
 
 
 
@@ -148,6 +149,30 @@ ggplot() +
   ylab('Change in Sentiment') +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+
+
+
+
+
+#### Boxplot of state sentiment per year
+
+
+p <- ggplot(all_data, aes(x = year, y = sentiment, group = year)) + 
+  geom_boxplot(fill = 'lightgray') +
+  scale_x_continuous(breaks = pretty_breaks(n = 10)) +
+  xlab('Year') + 
+  ylab('Sentiment') + 
+  ggtitle('Statewide Sentiment Per Year') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 15), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+print(p)
+
+png(filename="figures/sentiment/boxplot_per_year.png", width=600, height=400)
+p
+dev.off()
+
 
 
 
