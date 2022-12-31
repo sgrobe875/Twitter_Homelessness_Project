@@ -11,35 +11,51 @@ import pandas as pd
 
 
 # read in the original data file of tweets
-geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
+# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
 
+sample = "TeSTINg tweet so i can @username make sUre thi's work\"s! what? @another_username else. can} i& put* here$"
 
-
+# list of acceptable characters (what we DON'T want filtered out)
+acceptable = ['a','b','c','d','e','f','g','h','i','j','k','l','m',   # letters
+              'n','o','p','q','r','s','t','u','v','w','x','y','z',
+              '0','1','2','3','4','5','6','7','8','9',               # numbers
+              ' ']                                                   # space
 
 
 #### TEXT PREPROCESSING ######################################################
 
-#  set all characters in tweet to lowercase
-
-# first filter out usernames (any substring starting with @ and ending in a space)
-
-# filter out any character that isn't a-z or 0-9:
-
 # loop through every tweet in the data set
 
-# create an empty string new_tweet to hold the filtered tweet
+#  set all characters in tweet to lowercase
+new_tweet = sample.lower()
 
+# first filter out usernames (any substring starting with @ and ending in a space)
+while new_tweet.rfind('@') > -1:
+    username_start = new_tweet.rfind('@')
+    i = 1
+    username_end = username_start + i
+    # find the end of the username
+    while  new_tweet[username_end] != ' ' and username_end < len(sample):
+        i += 1
+        username_end = username_start + i
+    # remove the username
+    new_tweet = new_tweet[:username_start] + new_tweet[username_end+1:]
+        
 # loop through every character in the tweet
+filtered_tweet = ''
+for char in new_tweet:
+    # if character is a-z, 0-9, or a space, append it to filtered_tweet (otherwise ignore)
+    if char in acceptable:
+        filtered_tweet += char
 
-# if character is a-z, 0-9, or a space, append it to new_tweet
-
-# after looping through all characters, overwrite the tweet with the 
-# contents of new_tweet
+    # after looping through all characters, overwrite the tweet with the 
+    # contents of filtered_tweet
 
 # write the preprocessed data set to a file
 
 
-
+print(sample)
+print(filtered_tweet)
 
 
 
