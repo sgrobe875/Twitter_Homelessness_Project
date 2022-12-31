@@ -7,18 +7,19 @@
 
 # imports
 import pandas as pd
+import datetime
 
 
 
 # read in the original data file of tweets
-# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
+geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
 
-sample = "TeSTINg tweet so i can @username make sUre thi's work\"s! what? @another_username else. can} i& put* here$"
-sample += ' str8 gtfo bby https://google.com/testing/this_is_a_url/ you &amp; I '
-sample += '#Homeless #HashtagCheck #ImTryingMyBest'
+# sample = "TeSTINg tweet so i can @username make sUre thi's work\"s! what? @another_username else. can} i& put* here$"
+# sample += ' str8 gtfo bby https://google.com/testing/this_is_a_url/ you &amp; I '
+# sample += '#Homeless #HashtagCheck #ImTryingMyBest'
 
 
-sample = 'I\'m trying...my best. Right-now. right/left' 
+# sample = 'I\'m trying...my best. Right-now. right/left' 
 
 
 
@@ -46,85 +47,111 @@ slang = {'foh': 'fuck outta here', 'gtfo': 'get the fuck out', 'str8': 'straight
 
 #### TEXT PREPROCESSING ######################################################
 
+# print update
+print('Beginning text preprocessing')
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+
 # loop through every tweet in the data set
+for row in range(len(geotagged_tweets)):
+    new_tweet = str(geotagged_tweets.iloc[row]['text'])
 
-# split hashtags by camelcase
-new_tweet = sample
-# search for pound symbol
-while new_tweet.rfind('#') > -1:
-    # isolate the hashtag
-    hash_start = new_tweet.rfind('#')
-    hash_end = hash_start + 1
-    while new_tweet[hash_end] != ' ' and hash_end < len(new_tweet)-1:
-        hash_end += 1
-        
-    fixed_hash = new_tweet[hash_start+1:hash_end+1]
+    # split hashtags by camelcase
     
-    for i in range(1, len(fixed_hash)-1):
-        # if uppercase letter
-        if fixed_hash[i] in letters_upper:
-            before = fixed_hash[i-1]
-            after = fixed_hash[i+1]
-            # if lowercase on either side of the uppercase letter
-            if before in letters and after in letters:
-                # add in a space before the capital
-                fixed_hash = fixed_hash[:i] + ' ' + fixed_hash[i:]
+    # search for pound symbol
+    while new_tweet.rfind('#') > -1:
+        # isolate the hashtag
+        hash_start = new_tweet.rfind('#')
+        hash_end = hash_start + 1
+        if hash_start < len(new_tweet)-1:
+            while new_tweet[hash_end] != ' ' and hash_end < len(new_tweet)-1:
+                hash_end += 1
                 
-    # replace the fixed hash in new_tweet
-    new_tweet = new_tweet[:hash_start] + fixed_hash + new_tweet[hash_end+1:]
+            fixed_hash = new_tweet[hash_start+1:hash_end+1]
+        
+            for i in range(1, len(fixed_hash)-1):
+                # if uppercase letter
+                if fixed_hash[i] in letters_upper:
+                    before = fixed_hash[i-1]
+                    after = fixed_hash[i+1]
+                    # if lowercase on either side of the uppercase letter
+                    if before in letters and after in letters:
+                        # add in a space before the capital
+                        fixed_hash = fixed_hash[:i] + ' ' + fixed_hash[i:]
                     
-
-#  set all characters in tweet to lowercase
-new_tweet = new_tweet.lower()
-
-# first filter out usernames (any substring starting with @ and ending in a space)
-while new_tweet.rfind('@') > -1:
-    username_start = new_tweet.rfind('@')
-    i = 1
-    username_end = username_start + 1
-    # find the end of the username
-    while  new_tweet[username_end] != ' ' and username_end < len(new_tweet):
-        username_end += 1
-    # remove the username
-    new_tweet = new_tweet[:username_start] + new_tweet[username_end+1:]
-        
-# links! filter out anything with the substring http (so this includes https!)
-while new_tweet.rfind('http') > -1:
-    start = new_tweet.rfind('http')
-    end = start + 1
-    while end < len(new_tweet) and new_tweet[end] != ' ':
-        end += 1
-        
-    new_tweet = new_tweet[:start] + new_tweet[end+1:]
+            # replace the fixed hash in new_tweet
+            new_tweet = new_tweet[:hash_start] + fixed_hash + new_tweet[hash_end+1:]
+            
+        else:
+            new_tweet = new_tweet[:-1]
+                        
     
-# loop through and search for items in the slang dictionary, replace as needed
-for key in slang.keys():
-    while new_tweet.rfind(key) > -1:
-        start = new_tweet.rfind(key)   
-        end = start + len(key)
-        new_tweet = new_tweet[:start] + slang[key] + new_tweet[end:]
+    #  set all characters in tweet to lowercase
+    new_tweet = new_tweet.lower()
     
-# loop through every character in the tweet
-filtered_tweet = ''
-prev = ''
-for char in new_tweet:
-    # if character is a-z, 0-9, or a space, append it to filtered_tweet (otherwise ignore)
-    if char in acceptable:
-        # note that this causes some excess spaces, but fixes issue from ellipses, hyphens, etc.
-        if (prev == '.' and char != ' ') or prev == '-' or prev == '/':
-            filtered_tweet += ' '
-        filtered_tweet += char
-    prev = char
+    # first filter out usernames (any substring starting with @ and ending in a space)
+    while new_tweet.rfind('@') > -1:
+        username_start = new_tweet.rfind('@')
+        i = 1
+        username_end = username_start + 1
+        # find the end of the username
+        if username_start < len(new_tweet)-1:
+            while  new_tweet[username_end] != ' ' and username_end < len(new_tweet)-1:
+                username_end += 1
+            # remove the username
+            new_tweet = new_tweet[:username_start] + new_tweet[username_end+1:]
+        else: 
+            new_tweet = new_tweet[:-1]
+            
+    # links! filter out anything with the substring http (so this includes https!)
+    while new_tweet.rfind('http') > -1:
+        start = new_tweet.rfind('http')
+        end = start + 1
+        while end < len(new_tweet) and new_tweet[end] != ' ':
+            end += 1
+            
+        new_tweet = new_tweet[:start] + new_tweet[end+1:]
         
+    # loop through and search for items in the slang dictionary, replace as needed
+    for key in slang.keys():
+        while new_tweet.rfind(key) > -1:
+            start = new_tweet.rfind(key)   
+            end = start + len(key)
+            new_tweet = new_tweet[:start] + slang[key] + new_tweet[end:]
         
-# after looping through all characters, overwrite the tweet with the 
-# contents of filtered_tweet
-
+    # loop through every character in the tweet
+    filtered_tweet = ''
+    prev = ''
+    for char in new_tweet:
+        # if character is a-z, 0-9, or a space, append it to filtered_tweet (otherwise ignore)
+        if char in acceptable:
+            # note that this causes some excess spaces, but fixes issue from ellipses, hyphens, etc.
+            if (prev == '.' and char != ' ') or prev == '-' or prev == '/':
+                filtered_tweet += ' '
+            filtered_tweet += char
+        prev = char
+            
+        
+    # after looping through all characters, overwrite the tweet with the 
+    # contents of filtered_tweet
+    geotagged_tweets.iloc[row]['text'] = filtered_tweet
+    
+    # print update every 100,000 tweets
+    if row > 0 and row % 100000 == 0:  
+        print('Completed row ' + str(row) + ' out of ' + str(len(geotagged_tweets)))
+        e = datetime.datetime.now()
+        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        print()
+    
 # write the preprocessed data set to a file
+geotagged_tweets.to_csv('data/geotagged_processed.csv', index=False)
 
+print('Completed all ' + str(len(geotagged_tweets)) + ' rows!')
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
 
-print(sample)
-print(filtered_tweet)
 
 
 
@@ -144,7 +171,8 @@ print(filtered_tweet)
 
 # Filter out retweets
 
-# start by searching for the substring "rt @"
+# start by searching for the substring "rt @" - naybe move this up, add a column 
+# to the dataframe of boolean values for whether or not the tweet is a retweet
 
 # save only the substring that comes before this (if it's a QRT, there will be
 # content, but if not I think it will just be empty?)
