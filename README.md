@@ -10,4 +10,4 @@
 - Any and all of the graphing/plotting R files 
   - Note that unshelt_homelessness_plotting.R is no longer compatible with the available data, which is fine
   for the purposes of this project
-- hypthothesis_testing.R
+- hypothesis_testing.R
