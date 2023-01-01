@@ -8,6 +8,7 @@
 # imports
 import pandas as pd
 import datetime
+from collections import Counter
 
 
 
@@ -53,6 +54,8 @@ e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
+retweets = []
+
 # loop through every tweet in the data set
 for row in range(len(geotagged_tweets)):
     new_tweet = str(geotagged_tweets.iloc[row]['text'])
@@ -89,6 +92,20 @@ for row in range(len(geotagged_tweets)):
     
     #  set all characters in tweet to lowercase
     new_tweet = new_tweet.lower()
+    
+    # check if retweet
+    if new_tweet.rfind('rt @') > -1:
+        # if it is, append either RT or QRT
+        if new_tweet.rfind('rt @') == 0:
+            retweets.append('RT')
+        else:
+            retweets.append('QRT')
+        # remove everything that is being retweeted (aka, the text that is not unique to this user)
+        new_tweet = new_tweet[:new_tweet.rfind('rt @')]
+        
+    # if not a retweet, append no and do nothing else
+    else:
+        retweets.append('No')
     
     # first filter out usernames (any substring starting with @ and ending in a space)
     while new_tweet.rfind('@') > -1:
@@ -144,12 +161,26 @@ for row in range(len(geotagged_tweets)):
         print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
         print()
     
+    
+# add the retweets as a column to the dataframe
+geotagged_tweets['retweet_type'] = retweets
+
+    
 # write the preprocessed data set to a file
 geotagged_tweets.to_csv('data/geotagged_processed.csv', index=False)
 
 print('Completed all ' + str(len(geotagged_tweets)) + ' rows!')
 e = datetime.datetime.now()
-print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+retweet_counter = Counter(retweets)
+print('Table of retweet counts')
+print()
+print('Type            |    Count  |  Percent')
+print('----------------+-----------+------------')
+print('Simple retweets |  %7d  |  %6.2f%%' % (retweet_counter['RT'], retweet_counter['RT'] / len(geotagged_tweets) * 100))
+print('Quote retweets  |  %7d  |  %6.2f%%' % (retweet_counter['QRT'], retweet_counter['QRT'] / len(geotagged_tweets) * 100))
+print('Not a retweet   |  %7d  |  %6.2f%%' % (retweet_counter['No'], retweet_counter['No'] / len(geotagged_tweets) * 100))
 print()
 
 
@@ -157,37 +188,24 @@ print()
 
 
 
-#### BUILDING SUBSETS ########################################################
-
-# Data set of just user data (detach the tweet data)
-
-
-
-
-# Data set of just tweet data (detach the user data)
-
-
-
-
-# Filter out retweets
-
-# start by searching for the substring "rt @" - naybe move this up, add a column 
-# to the dataframe of boolean values for whether or not the tweet is a retweet
-
-# save only the substring that comes before this (if it's a QRT, there will be
-# content, but if not I think it will just be empty?)
-
-# also loop through and check for any identical tweets in the data set:
-    
-# first sort tweets by when they were posted (date & time)
-
-# if two identical tweets are found, remove whichever tweet was posted later
-
-# write a file of the end result: all unique tweets
-
 # NOTE: the above *should* handle all retweets, I think, but definitely keep
 # brainstorming other things we could be missing here
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+### I don't think these are possible with how the data are currently set up, but ###
+### still leaving these notes here for future reference                          ###
 
 
 
