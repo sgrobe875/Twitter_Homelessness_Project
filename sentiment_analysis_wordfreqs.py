@@ -19,8 +19,8 @@ stops = set(stopwords.words('english'))
 
 
 # read in the csv
-geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
-
+# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
+geotagged_tweets = pd.read_csv('data/geotagged_processed.csv', dtype=str)
 
 
 
@@ -603,8 +603,8 @@ df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico
 
 ## Comment/uncomment the following lines as needed!
 
-# group_by_month(df)
-# group_by_day(df)
+group_by_month(df)
+group_by_day(df)
 group_by_both(df)
 group_by_year(df)
 group_by_state(df)
