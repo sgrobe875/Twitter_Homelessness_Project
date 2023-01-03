@@ -7,6 +7,8 @@ from string import punctuation
 import nltk
 from nltk.corpus import stopwords
 from collections import Counter
+import warnings
+warnings.filterwarnings("ignore")
 nltk.download('stopwords')
 stops = set(stopwords.words('english'))
 
@@ -66,7 +68,6 @@ def group_by_both(df):
     print('Beginning grouping by both')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-    print()
     
     # get list of all unique states and years in the data set
     states = df['state'].unique()
@@ -96,7 +97,7 @@ def group_by_both(df):
             # concatenate all these tweets into one large string
             year_tweets = ''
             for index in range(0, len(temp_tweets)):
-                year_tweets += temp_tweets.iloc[index]['text']
+                year_tweets += str(temp_tweets.iloc[index]['text'])
                 year_tweets += ' '  # add a space onto the end to avoid tweets merging together
             
             # garbage collection
@@ -147,10 +148,10 @@ def group_by_both(df):
             raw_sent_column.append(raw_sent)
             
             # print an update
-            print('Completed:', st, yr)
-            e = datetime.datetime.now()
-            print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-            print()
+            # print('Completed:', st, yr)
+            # e = datetime.datetime.now()
+            # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+            # print()
                 
     del(temp_st)
     
@@ -160,13 +161,16 @@ def group_by_both(df):
 
     
     # save the results to a file to move to R
-    state_years_grouped.to_csv('data/state_year_sentiment.csv', index = False)
+    # state_years_grouped.to_csv('data/state_year_sentiment.csv', index = False)
     
-    del(state_years_grouped)
+    # del(state_years_grouped)
     
     print('Completed sentiment analysis for grouping by both')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return state_years_grouped
 
 
 
@@ -177,7 +181,6 @@ def group_by_state(df):
     print('Beginning grouping by state')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-    print()
     
     # get list of all unique states in the data set
     states = df['state'].unique()
@@ -194,7 +197,7 @@ def group_by_state(df):
         # concatenate all these tweets into one large string
         state_tweets = ''
         for index in range(0, len(temp_tweets)):
-            state_tweets += temp_tweets.iloc[index]['text']
+            state_tweets += str(temp_tweets.iloc[index]['text'])
             state_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
         # garbage collection
@@ -233,18 +236,22 @@ def group_by_state(df):
         num_words = sum(freqs.values())
         
         # calculate the average sentiment per word
-        sentiment = sum(this_group_sent)/num_words
-        raw_sent = sum(this_group_raw)/num_words
+        try:
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+        except ZeroDivisionError:
+            sentiment = 0
+            raw_sent = 0
         
         # add to the dataframe sentiment columns
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
         # print update
-        print('Completed:', st)
-        e = datetime.datetime.now()
-        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-        print()
+        # print('Completed:', st)
+        # e = datetime.datetime.now()
+        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        # print()
     
     # convert to dictionary and then to dataframe
     state_grouped = {'state':states, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
@@ -252,13 +259,16 @@ def group_by_state(df):
 
     
     # save the results to a file to move to R
-    state_grouped.to_csv('data/state_sentiment.csv', index = False)
+    # state_grouped.to_csv('data/state_sentiment.csv', index = False)
     
-    del(state_grouped)
+    # del(state_grouped)
     
     print('Completed sentiment analysis for grouping by state')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return state_grouped
 
 
 
@@ -269,7 +279,6 @@ def group_by_year(df):
     print('Beginning grouping by year')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-    print()
     
     # get list of all unique years 
     years = df['year'].unique()
@@ -286,7 +295,7 @@ def group_by_year(df):
         # concatenate all these tweets into one large string
         year_tweets = ''
         for index in range(0, len(temp_tweets)):
-            year_tweets += temp_tweets.iloc[index]['text']
+            year_tweets += str(temp_tweets.iloc[index]['text'])
             year_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
         # garbage collection
@@ -326,31 +335,38 @@ def group_by_year(df):
         num_words = sum(freqs.values())
         
         # calculate average sentiment per word
-        sentiment = sum(this_group_sent)/num_words
-        raw_sent = sum(this_group_raw)/num_words
-        
+        try:
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+        except ZeroDivisionError:
+            sentiment = 0
+            raw_sent = 0
+    
         # add to the column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
         # print update
-        print('Completed:', yr)
-        e = datetime.datetime.now()
-        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-        print()
+        # print('Completed:', yr)
+        # e = datetime.datetime.now()
+        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        # print()
     
     # convert to dictionary and then to dataframe using column lists
     year_grouped = {'year':years, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
     year_grouped = pd.DataFrame(year_grouped)
 
     # save the results to a file to move to R
-    year_grouped.to_csv('data/year_sentiment.csv', index = False)
+    # year_grouped.to_csv('data/year_sentiment.csv', index = False)
     
-    del(year_grouped)
+    # del(year_grouped)
     
     print('Completed sentiment analysis for grouping by year')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return year_grouped
 
 
 
@@ -395,7 +411,8 @@ def get_days(date_time_list):
 # returns the average sentiment for each month of each year
 def group_by_month(df):
     # begin by building the month column with the get_months function
-    print('Building month column')          
+    # print('Building month column')        
+    # print()
     
     # call get_months with the entire 'created_at' column
     df['month'] = get_months(list(df['created_at']))
@@ -404,8 +421,7 @@ def group_by_month(df):
     print('Beginning grouping by month')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-    print()
-    
+
     # get list of all unique year-month combos
     months = df['month'].unique()
 
@@ -421,7 +437,7 @@ def group_by_month(df):
         # concatenate all these tweets into one large string
         month_tweets = ''
         for index in range(0, len(temp_tweets)):
-            month_tweets += temp_tweets.iloc[index]['text']
+            month_tweets += str(temp_tweets.iloc[index]['text'])
             month_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
         # garbage collection
@@ -461,17 +477,21 @@ def group_by_month(df):
         num_words = sum(freqs.values())
         
         # calculate the average sentiment per word
-        sentiment = sum(this_group_sent)/num_words
-        raw_sent = sum(this_group_raw)/num_words
+        try:
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+        except ZeroDivisionError:
+            sentiment = 0
+            raw_sent = 0
         
         # add to the dataframe column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
-        print('Completed:', m)
-        e = datetime.datetime.now()
-        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-        print()
+        # print('Completed:', m)
+        # e = datetime.datetime.now()
+        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        # print()
     
     # convert to dictionary and then to dataframe
     month_grouped = {'month':months, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
@@ -479,13 +499,16 @@ def group_by_month(df):
 
     
     # save the results to a file to move to R
-    month_grouped.to_csv('data/month_sentiment.csv', index = False)
+    # month_grouped.to_csv('data/month_sentiment.csv', index = False)
     
-    del(month_grouped)
+    # del(month_grouped)
     
     print('Completed sentiment analysis for grouping by month')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return month_grouped
 
 
 
@@ -493,7 +516,8 @@ def group_by_month(df):
 # returns the average sentiment for each day of each year
 def group_by_day(df):
     # begin by building the day column
-    print('Building day column')
+    # print('Building day column')
+    # print()
     
     # call the get_days function with the entire 'created_at' column
     df['day'] = get_days(list(df['created_at']))
@@ -502,7 +526,6 @@ def group_by_day(df):
     print('Beginning grouping by day')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-    print()
     
     # get the list of all unique days
     days = df['day'].unique()
@@ -519,7 +542,7 @@ def group_by_day(df):
         # concatenate all these tweets into one large string
         day_tweets = ''
         for index in range(0, len(temp_tweets)):
-            day_tweets += temp_tweets.iloc[index]['text']
+            day_tweets += str(temp_tweets.iloc[index]['text'])
             day_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
         # garbage collection
@@ -559,17 +582,21 @@ def group_by_day(df):
         num_words = sum(freqs.values())
         
         # calculate the average sentiment per word
-        sentiment = sum(this_group_sent)/num_words
-        raw_sent = sum(this_group_raw)/num_words
+        try:
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+        except ZeroDivisionError:
+            sentiment = 0
+            raw_sent = 0
         
         # add to the dataframe column list
         sentiment_column.append(sentiment)
         raw_sent_column.append(raw_sent)
         
-        print('Completed:', d)
-        e = datetime.datetime.now()
-        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-        print()
+        # print('Completed:', d)
+        # e = datetime.datetime.now()
+        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        # print()
     
     # convert to dictionary and then to dataframe
     day_grouped = {'day':days, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
@@ -577,13 +604,16 @@ def group_by_day(df):
 
     
     # save the results to a file to move to R
-    day_grouped.to_csv('data/day_sentiment.csv', index = False)
+    # day_grouped.to_csv('data/day_sentiment.csv', index = False)
     
-    del(day_grouped)
+    # del(day_grouped)
     
     print('Completed sentiment analysis for grouping by day')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return day_grouped
 
 
 
@@ -600,20 +630,119 @@ def group_by_day(df):
 # filter out some unneeded values 
 df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "Unknown")])
 
+# filter by retweet type
+unique = df[df['retweet_type'] == 'No']   # only unique tweets
+qrts = df[df['retweet_type'] == 'QRT']    # only quote retweets
+rts = df[df['retweet_type'] == 'RT']      # only simple retweets
+
+
+print()
+
+
 
 ## Comment/uncomment the following lines as needed!
 
-group_by_month(df)
-group_by_day(df)
-group_by_both(df)
-group_by_year(df)
-group_by_state(df)
+
+
+# First do for total data set
+print('Beginning total data set\n')
+
+month_grouped = group_by_month(df)
+month_grouped.to_csv('data/month_sentiment.csv', index = False)
+del(month_grouped)
+
+day_grouped = group_by_day(df)
+day_grouped.to_csv('data/day_sentiment.csv', index = False)
+del(day_grouped)
+
+state_years_grouped = group_by_both(df)
+state_years_grouped.to_csv('data/state_year_sentiment.csv', index = False)
+del(state_years_grouped)
+
+year_grouped = group_by_year(df)
+year_grouped.to_csv('data/year_sentiment.csv', index = False)
+del(year_grouped)
+
+state_grouped = group_by_state(df)
+state_grouped.to_csv('data/state_sentiment.csv', index = False)
+del(state_grouped)
+
+    
+    
+    
+# For QRTs only:
+print('Beginning QRTs\n')
+    
+month_grouped = group_by_month(qrts)
+month_grouped.to_csv('data/month_sentiment_qrt.csv', index = False)
+del(month_grouped)
+
+day_grouped = group_by_day(qrts)
+day_grouped.to_csv('data/day_sentiment_qrt.csv', index = False)
+del(day_grouped)
+
+state_years_grouped = group_by_both(qrts)
+state_years_grouped.to_csv('data/state_year_sentiment_qrt.csv', index = False)
+del(state_years_grouped)
+
+year_grouped = group_by_year(qrts)
+year_grouped.to_csv('data/year_sentiment_qrt.csv', index = False)
+del(year_grouped)
+
+state_grouped = group_by_state(qrts)
+state_grouped.to_csv('data/state_sentiment_qrt.csv', index = False)
+del(state_grouped)
+    
+
+    
+    
+# For RTs only:
+print('Beginning RTs\n')
+    
+month_grouped = group_by_month(rts)
+month_grouped.to_csv('data/month_sentiment_rt.csv', index = False)
+del(month_grouped)
+
+day_grouped = group_by_day(rts)
+day_grouped.to_csv('data/day_sentiment_rt.csv', index = False)
+del(day_grouped)
+
+state_years_grouped = group_by_both(rts)
+state_years_grouped.to_csv('data/state_year_sentiment_rt.csv', index = False)
+del(state_years_grouped)
+
+year_grouped = group_by_year(rts)
+year_grouped.to_csv('data/year_sentiment_rt.csv', index = False)
+del(year_grouped)
+
+state_grouped = group_by_state(rts)
+state_grouped.to_csv('data/state_sentiment_rt.csv', index = False)
+del(state_grouped)
 
 
 
 
+# For unique tweets:
+print('Beginning unique tweets only\n')
+    
+month_grouped = group_by_month(unique)
+month_grouped.to_csv('data/month_sentiment_unique.csv', index = False)
+del(month_grouped)
 
+day_grouped = group_by_day(unique)
+day_grouped.to_csv('data/day_sentiment_unique.csv', index = False)
+del(day_grouped)
 
+state_years_grouped = group_by_both(unique)
+state_years_grouped.to_csv('data/state_year_sentiment_unique.csv', index = False)
+del(state_years_grouped)
 
+year_grouped = group_by_year(unique)
+year_grouped.to_csv('data/year_sentiment_unique.csv', index = False)
+del(year_grouped)
+
+state_grouped = group_by_state(unique)
+state_grouped.to_csv('data/state_sentiment_unique.csv', index = False)
+del(state_grouped)
 
 
