@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import datetime
+from collections import Counter
 
 
 
@@ -44,23 +45,32 @@ geotagged_tweets_copy = geotagged_tweets.copy()
 
 # read in state abbreviations dataframe
 state_abbrevs = pd.read_csv('data/state_abbrevs.csv')
+
+# get list of state two letter abbreviations
 states = state_abbrevs['abbrev'].tolist()
 
-
+# ensure that all entries in the state column of the tweet dataframe are strings
 geotagged_tweets_copy['state'] = geotagged_tweets_copy['state'].apply(str)
 
+
+# sanity check
 print('Before:')
 print(geotagged_tweets_copy['state'].unique())
 print()
+
 
 # First try just taking the last two letters, since that looks like it'll fix it
 # in a lot cases
 for i in range(len(geotagged_tweets_copy)):
     if len(geotagged_tweets_copy.loc[i]['state']) > 2:
         test = geotagged_tweets_copy.loc[i]['state'][-2:]
+        # if last two letters match a state abbreviation, set the state to just
+        # being those two letters
         if (test in states):
             geotagged_tweets_copy.at[i, 'state'] = test
 
+
+# sanity check
 print('After Step 1:')
 print(geotagged_tweets_copy['state'].unique())
 print()
@@ -70,13 +80,15 @@ print()
 
 
     
-    
+# now get list of all "state, USA" formats
 names = state_abbrevs['full_name'].tolist()
 for i in range(len(geotagged_tweets_copy)):
+    # check if the state value matches any of our state, USA entries
     if len(geotagged_tweets_copy.loc[i]['state']) > 2:
         curr = geotagged_tweets_copy.loc[i]['state']
         if (curr in names):
             for j in range(len(state_abbrevs)):
+                # if it does, set to the corresponding abbrev from the data frame
                 if state_abbrevs.loc[j]['full_name'] == curr:
                     geotagged_tweets_copy.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
                     
@@ -85,7 +97,7 @@ for i in range(len(geotagged_tweets_copy)):
     
 
     
-    
+# guess what! more sanity checks!
 print('After Step 2:')
 print(geotagged_tweets_copy['state'].unique())
 print()
@@ -94,6 +106,31 @@ print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
 
+
+# Now work on the unknowns to see what else we can fix!
+l = []
+for i in range(len(geotagged_tweets_copy)):
+    # only move forward with those that have unknown states
+    if geotagged_tweets_copy.iloc[i]['state'] == 'Unknown':
+        geo = geotagged_tweets_copy.iloc[i]['geo']
+        
+        # if geo isn't a dictionary yet, make it one
+        try:
+            geo = geo.replace("'",'"')
+            geo = json.loads(geo)
+            
+        # if it's already a dictionary, don't do anything
+        except (AttributeError, json.JSONDecodeError):
+            pass
+        
+        try:
+            l.append(geo['full_name'])
+        except:
+            l.append('none')
+
+c = Counter(l)
+for k in c.keys():
+    print(k, ': ', c[k], sep='')
 
 
 
@@ -125,7 +162,7 @@ print()
     
     
     
-geotagged_tweets_copy.to_csv('data/geotagged_cleaned.csv')
+# geotagged_tweets_copy.to_csv('data/geotagged_cleaned.csv')
     
 
 
