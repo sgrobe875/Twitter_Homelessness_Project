@@ -108,7 +108,12 @@ print()
 
 
 # Now work on the unknowns to see what else we can fix!
-l = []
+
+with open('data/states_expanded.json','r') as f:
+    more_states = json.load(f)
+    
+locations = list(more_states.keys())
+
 for i in range(len(geotagged_tweets_copy)):
     # only move forward with those that have unknown states
     if geotagged_tweets_copy.iloc[i]['state'] == 'Unknown':
@@ -123,38 +128,25 @@ for i in range(len(geotagged_tweets_copy)):
         except (AttributeError, json.JSONDecodeError):
             pass
         
+        
         try:
-            l.append(geo['full_name'])
+            # get the full name data, if it exists
+            curr = geo['full_name']
+            
+            # loop through and look for a connection to the JSON data            
+            for loc in locations:
+                if loc in curr:
+                    # if found, overwrite to the corresponding state
+                    geotagged_tweets_copy.at[i, 'state'] = more_states[loc]
+                    break
+                
+        # if full name doesn't exist, move on and do nothing               
         except:
-            l.append('none')
-
-c = Counter(l)
-print(len(c.keys()))
-
-with open('data/states_expanded.json','r') as f:
-    more_states = json.load(f)
-    
-locations = list(more_states.keys())
-
-
-for loc in locations:
-    for i in range(len(l)):
-        if loc in l[i]:
-            l[i] = more_states[loc]
-
-
-
-
+            pass
+        
         
 
 
-c = Counter(l)
-keys = list(c.keys())
-for i in range(50):
-    k = keys[i]
-    print(k, ': ', c[k], sep='')
-    
-print(len(c.keys()))
 
 
 
@@ -186,8 +178,7 @@ print()
     
     
     
-# geotagged_tweets_copy.to_csv('data/geotagged_cleaned.csv')
-    
+geotagged_tweets_copy.to_csv('data/geotagged_cleaned.csv')
 
 
 print('Done!')
