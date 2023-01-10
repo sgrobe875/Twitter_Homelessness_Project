@@ -129,8 +129,32 @@ for i in range(len(geotagged_tweets_copy)):
             l.append('none')
 
 c = Counter(l)
-for k in c.keys():
+print(len(c.keys()))
+
+with open('data/states_expanded.json','r') as f:
+    more_states = json.load(f)
+    
+locations = list(more_states.keys())
+
+
+for loc in locations:
+    for i in range(len(l)):
+        if loc in l[i]:
+            l[i] = more_states[loc]
+
+
+
+
+        
+
+
+c = Counter(l)
+keys = list(c.keys())
+for i in range(50):
+    k = keys[i]
     print(k, ': ', c[k], sep='')
+    
+print(len(c.keys()))
 
 
 
