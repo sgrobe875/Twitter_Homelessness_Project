@@ -1,7 +1,5 @@
 import pandas as pd
-import pickle
 from labMTsimple.storyLab import emotionFileReader, emotion, stopper, emotionV
-from importlib import reload
 import datetime
 from string import punctuation
 import nltk
@@ -14,15 +12,7 @@ stops = set(stopwords.words('english'))
 
 
 
-# # load in the tweet data
-# with open('data/sentiment/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
-#     geotagged_tweets = pickle.load(pickled_tweets)
-# pickled_tweets.close()
-
-
-# read in the csv
-# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
-# geotagged_tweets = pd.read_csv('data/geotagged_processed.csv', dtype=str)
+# load in the preprocessed tweet data
 geotagged_tweets = pd.read_csv('data/tweets_processed.csv', dtype=str)
 
 # rename some columns
