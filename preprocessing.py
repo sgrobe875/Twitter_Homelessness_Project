@@ -1,34 +1,184 @@
-# Twitter/Homelessness project
-# Data preprocessing
-
-
-# NOTE: This script should be run AFTER cleaning.py (but before the sentiment analysis!)
-
-
-# imports
 import pandas as pd
+import json
 import datetime
 from collections import Counter
+import warnings
+warnings.filterwarnings("ignore")
+
+
+print('Beginning cleaning')
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
 
 
 
-# read in the original data file of tweets
-# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
-geotagged_tweets = pd.read_csv('data/tweets_cleaned.csv', dtype=str)
-geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
-
-# for debugging
-# geotagged_tweets = geotagged_tweets.iloc[:1000][:]
+def read_geotagged_data(filepath):
+    geotagged_tweets = pd.read_csv(filepath, engine = 'c', encoding = 'latin1')
+    return geotagged_tweets
 
 
 
-# sample = "TeSTINg tweet so i can @username make sUre thi's work\"s! what? @another_username else. can} i& put* here$"
-# sample += ' str8 gtfo bby https://google.com/testing/this_is_a_url/ you &amp; I '
-# sample += '#Homeless #HashtagCheck #ImTryingMyBest'
+
+# read in the data
+geotagged_tweets = read_geotagged_data('data/tweets.csv')
 
 
-# sample = 'I\'m trying...my best. Right-now. right/left' 
 
+### DATAFRAME CLEANING #####################################################################
+
+
+
+# remove the "place_" prefix from location-related columns
+cols = list(geotagged_tweets.columns)
+for col in cols:
+    if 'place_' in col:
+        geotagged_tweets.rename(columns={col: col[6:]}, inplace=True)
+
+# initialize columns (to be filled in in a moment!)
+geotagged_tweets['state'] = ''
+geotagged_tweets['year'] = ''
+
+
+# read in state abbreviations dataframe
+state_abbrevs = pd.read_csv('data/state_abbrevs.csv')
+
+# get list of state two letter abbreviations
+states = state_abbrevs['abbrev'].tolist()
+
+# ensure that all entries in the state column of the tweet dataframe are strings
+geotagged_tweets['full_name'] = geotagged_tweets['full_name'].apply(str)
+
+
+# sanity check
+print('Before:')
+print(geotagged_tweets['state'].unique())
+print()
+
+
+for i in range(len(geotagged_tweets)):
+    test = geotagged_tweets.loc[i]['full_name'][-5:-3]
+    # if last two letters match a state abbreviation, set the state to just
+    # being those two letters
+    if (test in states):
+        geotagged_tweets.at[i, 'state'] = test
+
+
+# sanity check
+print('After Step 1:')
+print(geotagged_tweets['state'].unique())
+print()
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+
+
+names = state_abbrevs['full_name'].tolist()
+for i in range(len(geotagged_tweets)):
+    # check if the state value matches any of our state, USA entries
+    # but only check those that haven't been fixed yet!
+    if len(geotagged_tweets.loc[i]['state']) < 2:
+        curr = geotagged_tweets.loc[i]['full_name'][2:-2]
+        if (curr in names):
+            for j in range(len(state_abbrevs)):
+                # if it does, set to the corresponding abbrev from the data frame
+                if state_abbrevs.loc[j]['full_name'] == curr:
+                    geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
+                    
+        else:
+            geotagged_tweets.at[i, 'state'] = 'Unknown'
+
+
+    
+# guess what! more sanity checks!
+print('After Step 2:')
+print(geotagged_tweets['state'].unique())
+print()
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+
+
+
+# Now work on the unknowns to see what else we can fix!
+
+with open('data/states_expanded.json','r') as f:
+    more_states = json.load(f)
+    
+locations = list(more_states.keys())
+
+for i in range(len(geotagged_tweets)):
+    # only move forward with those that have unknown states
+    if geotagged_tweets.iloc[i]['state'] == 'Unknown':
+        geo = geotagged_tweets.iloc[i]['geo']
+        
+        # if geo isn't a dictionary yet, make it one
+        try:
+            geo = geo.replace("'",'"')
+            geo = json.loads(geo)
+            
+        # if it's already a dictionary, don't do anything
+        except (AttributeError, json.JSONDecodeError):
+            pass
+        
+        
+        try:
+            # get the full name data, if it exists
+            curr = geo['full_name']
+            
+            # loop through and look for a connection to the JSON data            
+            for loc in locations:
+                if loc in curr:
+                    # if found, overwrite to the corresponding state
+                    geotagged_tweets.at[i, 'state'] = more_states[loc]
+                    break
+                
+        # if full name doesn't exist, move on and do nothing               
+        except:
+            pass
+        
+
+
+print('Before fixing years:')
+print(geotagged_tweets['year'].unique())
+print()
+
+
+# force all values to strings
+geotagged_tweets['tweet_created_at'] = geotagged_tweets['tweet_created_at'].apply(str)
+
+# loop through all tweets
+for i in range(len(geotagged_tweets)):
+    # check that they are in the proper format for this (i.e., they contain a date)
+    if '-' in geotagged_tweets.loc[i]['tweet_created_at']:
+        # set year to equal the first 4 characters (which is the 4 digit year within the date)
+        geotagged_tweets.at[i, 'year'] = geotagged_tweets.loc[i]['tweet_created_at'][:4]
+    # if not, then we can't set the year
+    else:
+        geotagged_tweets.at[i, 'year'] = 'Unknown'
+
+
+
+
+print('After fixing years:')
+print(geotagged_tweets['year'].unique())
+print()
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+
+
+
+print('Cleaning done! Beginning text preprocessing')
+e = datetime.datetime.now()
+print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+print()
+
+
+
+
+
+### TEXT PREPROCESSING #########################################################################
 
 
 
@@ -100,20 +250,6 @@ for row in range(len(geotagged_tweets)):
     #  set all characters in tweet to lowercase
     new_tweet = new_tweet.lower()
     
-    # check if retweet
-    # if new_tweet.rfind('rt @') > -1:
-    #     # if it is, append either RT or QRT
-    #     if new_tweet.rfind('rt @') == 0:
-    #         retweets.append('RT')
-    #     else:
-    #         retweets.append('QRT')
-    #     # remove everything that is being retweeted (aka, the text that is not unique to this user)
-    #     new_tweet = new_tweet[:new_tweet.rfind('rt @')]
-        
-    # # if not a retweet, append no and do nothing else
-    # else:
-    #     retweets.append('No')
-    
     
     # Check for retweets
     start = geotagged_tweets.iloc[row]['referenced_tweets'].find('type')
@@ -125,9 +261,7 @@ for row in range(len(geotagged_tweets)):
         retweets.append('unique')
         
         
-    
-    
-    
+
     # first filter out usernames (any substring starting with @ and ending in a space)
     while new_tweet.rfind('@') > -1:
         username_start = new_tweet.rfind('@')
@@ -188,66 +322,22 @@ geotagged_tweets['tweet_type'] = retweets
 
     
 # write the preprocessed data set to a file
-# geotagged_tweets.to_csv('data/geotagged_processed.csv', index=False)
 geotagged_tweets.to_csv('data/tweets_processed.csv', index=False)
 
+# print a final update
 print('Completed all ' + str(len(geotagged_tweets)) + ' rows!')
 e = datetime.datetime.now()
 print("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 retweet_counter = Counter(retweets)
 print(retweet_counter)
-# print('Table of retweet counts')
-# print()
-# print('Type            |    Count  |  Percent')
-# print('----------------+-----------+----------')
-# print('Simple retweets |  %7d  |  %6.2f%%' % (retweet_counter['RT'], retweet_counter['RT'] / len(geotagged_tweets) * 100))
-# print('Quote retweets  |  %7d  |  %6.2f%%' % (retweet_counter['QRT'], retweet_counter['QRT'] / len(geotagged_tweets) * 100))
-# print('Not a retweet   |  %7d  |  %6.2f%%' % (retweet_counter['Uniquqe'], retweet_counter['unique'] / len(geotagged_tweets) * 100))
-# print()
 
 
 
 
-
-
-# NOTE: the above *should* handle all retweets, I think, but definitely keep
-# brainstorming other things we could be missing here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### I don't think these are possible with how the data are currently set up, but ###
-### still leaving these notes here for future reference                          ###
-
-
-
-# Count retweets
-
-# essentially same procedure as above, but include some kind of a counter
-# variable that increments as retweets are found
-
-
-
-
-
-# Ambitious and potentially not useful: number of retweets in first XX days
-# since tweet was posted (e.g., first 2 days, first 5 days, first 10 days)
-
-# Again, pretty much same as above, but now we need to count days
-
+print()
+print()
+print('Cleaning and preprocessing is now complete.')
 
 
 
