@@ -15,14 +15,19 @@ stops = set(stopwords.words('english'))
 
 
 # # load in the tweet data
-# with open('data/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
+# with open('data/sentiment/geotagged_tweets_df.pkl', 'rb') as pickled_tweets:
 #     geotagged_tweets = pickle.load(pickled_tweets)
 # pickled_tweets.close()
 
 
 # read in the csv
 # geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
-geotagged_tweets = pd.read_csv('data/geotagged_processed.csv', dtype=str)
+# geotagged_tweets = pd.read_csv('data/geotagged_processed.csv', dtype=str)
+geotagged_tweets = pd.read_csv('data/tweets_processed.csv', dtype=str)
+
+# rename some columns
+geotagged_tweets.rename(columns={'tweet_text': 'text'}, inplace=True)
+geotagged_tweets.rename(columns={'tweet_created_at': 'created_at'}, inplace=True)
 
 
 
@@ -161,7 +166,7 @@ def group_by_both(df):
 
     
     # save the results to a file to move to R
-    # state_years_grouped.to_csv('data/state_year_sentiment.csv', index = False)
+    # state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
     
     # del(state_years_grouped)
     
@@ -259,7 +264,7 @@ def group_by_state(df):
 
     
     # save the results to a file to move to R
-    # state_grouped.to_csv('data/state_sentiment.csv', index = False)
+    # state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
     
     # del(state_grouped)
     
@@ -357,7 +362,7 @@ def group_by_year(df):
     year_grouped = pd.DataFrame(year_grouped)
 
     # save the results to a file to move to R
-    # year_grouped.to_csv('data/year_sentiment.csv', index = False)
+    # year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
     
     # del(year_grouped)
     
@@ -499,7 +504,7 @@ def group_by_month(df):
 
     
     # save the results to a file to move to R
-    # month_grouped.to_csv('data/month_sentiment.csv', index = False)
+    # month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
     
     # del(month_grouped)
     
@@ -604,7 +609,7 @@ def group_by_day(df):
 
     
     # save the results to a file to move to R
-    # day_grouped.to_csv('data/day_sentiment.csv', index = False)
+    # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
     
     # del(day_grouped)
     
@@ -628,12 +633,12 @@ def group_by_day(df):
 
 
 # filter out some unneeded values 
-df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "Puerto Rico") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "Unknown")])
+df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "GU") & (geotagged_tweets["state"]!= "AS") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "Unknown")])
 
 # filter by retweet type
-unique = df[df['retweet_type'] == 'No']   # only unique tweets
-qrts = df[df['retweet_type'] == 'QRT']    # only quote retweets
-rts = df[df['retweet_type'] == 'RT']      # only simple retweets
+unique = df[df['tweet_type'] == 'unique']           # only unique tweets
+qrts = df[df['tweet_type'] == 'quoted']             # only quote retweets
+replies = df[df['tweet_type'] == 'replied_to']      # only reply tweets
 
 
 print()
@@ -647,24 +652,24 @@ print()
 # First do for total data set
 print('Beginning total data set\n')
 
-month_grouped = group_by_month(df)
-month_grouped.to_csv('data/month_sentiment.csv', index = False)
-del(month_grouped)
+# month_grouped = group_by_month(df)
+# month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
+# del(month_grouped)
 
-day_grouped = group_by_day(df)
-day_grouped.to_csv('data/day_sentiment.csv', index = False)
-del(day_grouped)
+# day_grouped = group_by_day(df)
+# day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+# del(day_grouped)
 
 state_years_grouped = group_by_both(df)
-state_years_grouped.to_csv('data/state_year_sentiment.csv', index = False)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
 del(state_years_grouped)
 
 year_grouped = group_by_year(df)
-year_grouped.to_csv('data/year_sentiment.csv', index = False)
+year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
 del(year_grouped)
 
 state_grouped = group_by_state(df)
-state_grouped.to_csv('data/state_sentiment.csv', index = False)
+state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
 del(state_grouped)
 
     
@@ -674,49 +679,49 @@ del(state_grouped)
 print('Beginning QRTs\n')
     
 month_grouped = group_by_month(qrts)
-month_grouped.to_csv('data/month_sentiment_qrt.csv', index = False)
+month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
 del(month_grouped)
 
-day_grouped = group_by_day(qrts)
-day_grouped.to_csv('data/day_sentiment_qrt.csv', index = False)
-del(day_grouped)
+# day_grouped = group_by_day(qrts)
+# day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
+# del(day_grouped)
 
 state_years_grouped = group_by_both(qrts)
-state_years_grouped.to_csv('data/state_year_sentiment_qrt.csv', index = False)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
 del(state_years_grouped)
 
 year_grouped = group_by_year(qrts)
-year_grouped.to_csv('data/year_sentiment_qrt.csv', index = False)
+year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
 del(year_grouped)
 
 state_grouped = group_by_state(qrts)
-state_grouped.to_csv('data/state_sentiment_qrt.csv', index = False)
+state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
 del(state_grouped)
     
 
     
     
 # For RTs only:
-print('Beginning RTs\n')
+print('Beginning replies\n')
     
-month_grouped = group_by_month(rts)
-month_grouped.to_csv('data/month_sentiment_rt.csv', index = False)
+month_grouped = group_by_month(replies)
+month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
 del(month_grouped)
 
-day_grouped = group_by_day(rts)
-day_grouped.to_csv('data/day_sentiment_rt.csv', index = False)
-del(day_grouped)
+# day_grouped = group_by_day(replies)
+# day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
+# del(day_grouped)
 
-state_years_grouped = group_by_both(rts)
-state_years_grouped.to_csv('data/state_year_sentiment_rt.csv', index = False)
+state_years_grouped = group_by_both(replies)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
 del(state_years_grouped)
 
-year_grouped = group_by_year(rts)
-year_grouped.to_csv('data/year_sentiment_rt.csv', index = False)
+year_grouped = group_by_year(replies)
+year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
 del(year_grouped)
 
-state_grouped = group_by_state(rts)
-state_grouped.to_csv('data/state_sentiment_rt.csv', index = False)
+state_grouped = group_by_state(replies)
+state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
 del(state_grouped)
 
 
@@ -726,23 +731,23 @@ del(state_grouped)
 print('Beginning unique tweets only\n')
     
 month_grouped = group_by_month(unique)
-month_grouped.to_csv('data/month_sentiment_unique.csv', index = False)
+month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
 del(month_grouped)
 
-day_grouped = group_by_day(unique)
-day_grouped.to_csv('data/day_sentiment_unique.csv', index = False)
-del(day_grouped)
+# day_grouped = group_by_day(unique)
+# day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
+# del(day_grouped)
 
 state_years_grouped = group_by_both(unique)
-state_years_grouped.to_csv('data/state_year_sentiment_unique.csv', index = False)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
 del(state_years_grouped)
 
 year_grouped = group_by_year(unique)
-year_grouped.to_csv('data/year_sentiment_unique.csv', index = False)
+year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
 del(year_grouped)
 
 state_grouped = group_by_state(unique)
-state_grouped.to_csv('data/state_sentiment_unique.csv', index = False)
+state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
 del(state_grouped)
 
 

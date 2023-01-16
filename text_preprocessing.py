@@ -13,7 +13,14 @@ from collections import Counter
 
 
 # read in the original data file of tweets
-geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
+# geotagged_tweets = pd.read_csv('data/geotagged_cleaned.csv', dtype=str)
+geotagged_tweets = pd.read_csv('data/tweets_cleaned.csv', dtype=str)
+geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
+
+# for debugging
+# geotagged_tweets = geotagged_tweets.iloc[:1000][:]
+
+
 
 # sample = "TeSTINg tweet so i can @username make sUre thi's work\"s! what? @another_username else. can} i& put* here$"
 # sample += ' str8 gtfo bby https://google.com/testing/this_is_a_url/ you &amp; I '
@@ -58,7 +65,7 @@ retweets = []
 
 # loop through every tweet in the data set
 for row in range(len(geotagged_tweets)):
-    new_tweet = str(geotagged_tweets.iloc[row]['text'])
+    new_tweet = str(geotagged_tweets.iloc[row]['tweet_text'])
 
     # split hashtags by camelcase
     
@@ -94,18 +101,32 @@ for row in range(len(geotagged_tweets)):
     new_tweet = new_tweet.lower()
     
     # check if retweet
-    if new_tweet.rfind('rt @') > -1:
-        # if it is, append either RT or QRT
-        if new_tweet.rfind('rt @') == 0:
-            retweets.append('RT')
-        else:
-            retweets.append('QRT')
-        # remove everything that is being retweeted (aka, the text that is not unique to this user)
-        new_tweet = new_tweet[:new_tweet.rfind('rt @')]
+    # if new_tweet.rfind('rt @') > -1:
+    #     # if it is, append either RT or QRT
+    #     if new_tweet.rfind('rt @') == 0:
+    #         retweets.append('RT')
+    #     else:
+    #         retweets.append('QRT')
+    #     # remove everything that is being retweeted (aka, the text that is not unique to this user)
+    #     new_tweet = new_tweet[:new_tweet.rfind('rt @')]
         
-    # if not a retweet, append no and do nothing else
+    # # if not a retweet, append no and do nothing else
+    # else:
+    #     retweets.append('No')
+    
+    
+    # Check for retweets
+    start = geotagged_tweets.iloc[row]['referenced_tweets'].find('type')
+    if start > -1:
+        end = geotagged_tweets.iloc[row]['referenced_tweets'].find('>')
+        retweets.append(geotagged_tweets.iloc[row]['referenced_tweets'][start+5:end])
+        
     else:
-        retweets.append('No')
+        retweets.append('unique')
+        
+        
+    
+    
     
     # first filter out usernames (any substring starting with @ and ending in a space)
     while new_tweet.rfind('@') > -1:
@@ -152,7 +173,7 @@ for row in range(len(geotagged_tweets)):
         
     # after looping through all characters, overwrite the tweet with the 
     # contents of filtered_tweet
-    geotagged_tweets.iloc[row]['text'] = filtered_tweet
+    geotagged_tweets.iloc[row]['tweet_text'] = filtered_tweet
     
     # print update every 100,000 tweets
     if row > 0 and row % 100000 == 0:  
@@ -163,25 +184,27 @@ for row in range(len(geotagged_tweets)):
     
     
 # add the retweets as a column to the dataframe
-geotagged_tweets['retweet_type'] = retweets
+geotagged_tweets['tweet_type'] = retweets
 
     
 # write the preprocessed data set to a file
-geotagged_tweets.to_csv('data/geotagged_processed.csv', index=False)
+# geotagged_tweets.to_csv('data/geotagged_processed.csv', index=False)
+geotagged_tweets.to_csv('data/tweets_processed.csv', index=False)
 
 print('Completed all ' + str(len(geotagged_tweets)) + ' rows!')
 e = datetime.datetime.now()
 print("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 retweet_counter = Counter(retweets)
-print('Table of retweet counts')
-print()
-print('Type            |    Count  |  Percent')
-print('----------------+-----------+----------')
-print('Simple retweets |  %7d  |  %6.2f%%' % (retweet_counter['RT'], retweet_counter['RT'] / len(geotagged_tweets) * 100))
-print('Quote retweets  |  %7d  |  %6.2f%%' % (retweet_counter['QRT'], retweet_counter['QRT'] / len(geotagged_tweets) * 100))
-print('Not a retweet   |  %7d  |  %6.2f%%' % (retweet_counter['No'], retweet_counter['No'] / len(geotagged_tweets) * 100))
-print()
+print(retweet_counter)
+# print('Table of retweet counts')
+# print()
+# print('Type            |    Count  |  Percent')
+# print('----------------+-----------+----------')
+# print('Simple retweets |  %7d  |  %6.2f%%' % (retweet_counter['RT'], retweet_counter['RT'] / len(geotagged_tweets) * 100))
+# print('Quote retweets  |  %7d  |  %6.2f%%' % (retweet_counter['QRT'], retweet_counter['QRT'] / len(geotagged_tweets) * 100))
+# print('Not a retweet   |  %7d  |  %6.2f%%' % (retweet_counter['Uniquqe'], retweet_counter['unique'] / len(geotagged_tweets) * 100))
+# print()
 
 
 
