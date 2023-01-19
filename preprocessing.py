@@ -74,19 +74,27 @@ print()
 
 
 names = state_abbrevs['full_name'].tolist()
-for i in range(len(geotagged_tweets)):
-    # check if the state value matches any of our state, USA entries
-    # but only check those that haven't been fixed yet!
-    if len(geotagged_tweets.loc[i]['state']) < 2:
-        curr = geotagged_tweets.loc[i]['full_name'][2:-2]
-        if (curr in names):
-            for j in range(len(state_abbrevs)):
-                # if it does, set to the corresponding abbrev from the data frame
-                if state_abbrevs.loc[j]['full_name'] == curr:
-                    geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
+
+with open('data/states_expanded.json','r') as f:
+    more_states = json.load(f)
+    
+locations = list(more_states.keys())
+
+
+
+# for i in range(len(geotagged_tweets)):
+#     # check if the state value matches any of our state, USA entries
+#     # but only check those that haven't been fixed yet!
+#     if len(geotagged_tweets.loc[i]['state']) < 2:
+#         curr = geotagged_tweets.loc[i]['full_name'][2:-2]
+#         if (curr in names):
+#             for j in range(len(state_abbrevs)):
+#                 # if it does, set to the corresponding abbrev from the data frame
+#                 if state_abbrevs.loc[j]['full_name'] == curr:
+#                     geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
                     
-        else:
-            geotagged_tweets.at[i, 'state'] = 'Unknown'
+#         else:
+#             geotagged_tweets.at[i, 'state'] = 'Unknown'
 
 
     
@@ -99,44 +107,36 @@ print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
 
-
-# Now work on the unknowns to see what else we can fix!
-
-with open('data/states_expanded.json','r') as f:
-    more_states = json.load(f)
+# only look at tweets with a blank state value 
+if len(geotagged_tweets.loc[i]['state']) < 2:
+        
+    fixed = False
     
-locations = list(more_states.keys())
-
-for i in range(len(geotagged_tweets)):
-    # only move forward with those that have unknown states
-    if geotagged_tweets.iloc[i]['state'] == 'Unknown':
-        geo = geotagged_tweets.iloc[i]['geo']
-        
-        # if geo isn't a dictionary yet, make it one
-        try:
-            geo = geo.replace("'",'"')
-            geo = json.loads(geo)
+    # first check for "state, USA" format
+    curr = geotagged_tweets.loc[i]['full_name'][2:-3]
+    if (curr in names):
+        for j in range(len(state_abbrevs)):
+            # if it matches, set to the corresponding abbrev from the data frame
+            if state_abbrevs.loc[j]['full_name'] == curr:
+                geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
+                # since we assigned a value, set fixed to True
+                fixed = True  
+                break
             
-        # if it's already a dictionary, don't do anything
-        except (AttributeError, json.JSONDecodeError):
-            pass
-        
-        
-        try:
-            # get the full name data, if it exists
-            curr = geo['full_name']
-            
-            # loop through and look for a connection to the JSON data            
-            for loc in locations:
-                if loc in curr:
-                    # if found, overwrite to the corresponding state
-                    geotagged_tweets.at[i, 'state'] = more_states[loc]
-                    break
-                
-        # if full name doesn't exist, move on and do nothing               
-        except:
-            pass
-        
+    # if that didn't work let's try something else that' s a bit more expensive
+    else:
+        # check for other clues,such as city names (from states_expanded.json)
+        for loc in locations:
+            if loc in curr:
+                # if found, overwrite to the corresponding state
+                geotagged_tweets.at[i, 'state'] = more_states[loc]
+                # since we assigned a value, set fixed to Truef
+                fixed = True
+                break
+    
+    # if the prior two methods couldn't assign a state, then set it as "Unknown"
+    if not fixed:
+        geotagged_tweets.at[i, 'state'] = 'Unknown'
 
 
 print('Before fixing years:')

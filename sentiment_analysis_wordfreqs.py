@@ -623,7 +623,11 @@ def group_by_day(df):
 
 
 # filter out some unneeded values 
-df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "GU") & (geotagged_tweets["state"]!= "AS") & (geotagged_tweets["state"] != "Unknown") & (geotagged_tweets['year'] != "Unknown")])
+df = pd.DataFrame(geotagged_tweets.loc[(geotagged_tweets["state"]!= "GU") & 
+                                       (geotagged_tweets["state"]!= "AS") & 
+                                       (geotagged_tweets["state"] != "PR") & 
+                                       (geotagged_tweets["state"] != "Unknown") & 
+                                       (geotagged_tweets['year'] != "Unknown")])
 
 # filter by retweet type
 unique = df[df['tweet_type'] == 'unique']           # only unique tweets
@@ -642,9 +646,9 @@ print()
 # First do for total data set
 print('Beginning total data set\n')
 
-# month_grouped = group_by_month(df)
-# month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
-# del(month_grouped)
+month_grouped = group_by_month(df)
+month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
+del(month_grouped)
 
 # day_grouped = group_by_day(df)
 # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
