@@ -20,7 +20,7 @@ rm(list = ls(all.names = TRUE))
 
 ## normalized total homelessness data
 homelessness <- read.csv('data/normalized_total.csv')
-names(homelessness) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019')
+names(homelessness) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
 
 homelessness_long <- data.frame(matrix(ncol = 3, nrow = 0))   # dataframe to hold long form data
 
@@ -43,7 +43,7 @@ homelessness_long$total_homeless_norm <- as.numeric(homelessness_long$total_home
 
 ## normalized tweet counts
 tweet_counts <- read.csv("data/percapita_tweets.csv")
-names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019')
+names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
 
 
 # rework tweet counts to get in long format
@@ -68,28 +68,28 @@ tweet_counts_long$tweets_norm <- as.numeric(tweet_counts_long$tweets_norm)
 ## sentiment data
 
 # all 
-day_sent_all <- read.csv('data/day_sentiment.csv')
-month_sent_all <- read.csv('data/month_sentiment.csv')
-year_sent_all <- read.csv('data/year_sentiment.csv')
-state_year_sent_all <- read.csv('data/state_year_sentiment.csv')
+day_sent_all <- read.csv('data/sentiment/day_sentiment.csv')
+month_sent_all <- read.csv('data/sentiment/month_sentiment.csv')
+year_sent_all <- read.csv('data/sentiment/year_sentiment.csv')
+state_year_sent_all <- read.csv('data/sentiment/state_year_sentiment.csv')
 
 # unique tweets only
-day_sent_unique <- read.csv('data/day_sentiment_unique.csv')
-month_sent_unique <- read.csv('data/month_sentiment_unique.csv')
-year_sent_unique <- read.csv('data/year_sentiment_unique.csv')
-state_year_sent_unique <- read.csv('data/state_year_sentiment_unique.csv')
+day_sent_unique <- read.csv('data/sentiment/day_sentiment_unique.csv')
+month_sent_unique <- read.csv('data/sentiment/month_sentiment_unique.csv')
+year_sent_unique <- read.csv('data/sentiment/year_sentiment_unique.csv')
+state_year_sent_unique <- read.csv('data/sentiment/state_year_sentiment_unique.csv')
 
 # qrts
-day_sent_qrt <- read.csv('data/day_sentiment_qrt.csv')
-month_sent_qrt <- read.csv('data/month_sentiment_qrt.csv')
-year_sent_qrt <- read.csv('data/year_sentiment_qrt.csv')
-state_year_sent_qrt <- read.csv('data/state_year_sentiment_qrt.csv')
+day_sent_qrt <- read.csv('data/sentiment/day_sentiment_qrt.csv')
+month_sent_qrt <- read.csv('data/sentiment/month_sentiment_qrt.csv')
+year_sent_qrt <- read.csv('data/sentiment/year_sentiment_qrt.csv')
+state_year_sent_qrt <- read.csv('data/sentiment/state_year_sentiment_qrt.csv')
 
-# rts
-day_sent_rt <- read.csv('data/day_sentiment_rt.csv')
-month_sent_rt <- read.csv('data/month_sentiment_rt.csv')
-year_sent_rt <- read.csv('data/year_sentiment_rt.csv')
-state_year_sent_rt <- read.csv('data/state_year_sentiment_rt.csv')
+# replies
+day_sent_replies <- read.csv('data/sentiment/day_sentiment_replies.csv')
+month_sent_replies <- read.csv('data/sentiment/month_sentiment_replies.csv')
+year_sent_replies <- read.csv('data/sentiment/year_sentiment_replies.csv')
+state_year_sent_replies <- read.csv('data/sentiment/state_year_sentiment_replies.csv')
 
 
 
@@ -131,17 +131,17 @@ year_sent_qrt$sentiment <- year_sent_qrt$sentiment / 4
 state_year_sent_qrt$sentiment <- state_year_sent_qrt$sentiment - 5
 state_year_sent_qrt$sentiment <- state_year_sent_qrt$sentiment / 4
 #
-day_sent_rt$sentiment <- day_sent_rt$sentiment - 5
-day_sent_rt$sentiment <- day_sent_rt$sentiment / 4
+day_sent_replies$sentiment <- day_sent_replies$sentiment - 5
+day_sent_replies$sentiment <- day_sent_replies$sentiment / 4
 
-month_sent_rt$sentiment <- month_sent_rt$sentiment - 5
-month_sent_rt$sentiment <- month_sent_rt$sentiment / 4
+month_sent_replies$sentiment <- month_sent_replies$sentiment - 5
+month_sent_replies$sentiment <- month_sent_replies$sentiment / 4
 
-year_sent_rt$sentiment <- year_sent_rt$sentiment - 5
-year_sent_rt$sentiment <- year_sent_rt$sentiment / 4
+year_sent_replies$sentiment <- year_sent_replies$sentiment - 5
+year_sent_replies$sentiment <- year_sent_replies$sentiment / 4
 
-state_year_sent_rt$sentiment <- state_year_sent_rt$sentiment - 5
-state_year_sent_rt$sentiment <- state_year_sent_rt$sentiment / 4
+state_year_sent_replies$sentiment <- state_year_sent_replies$sentiment - 5
+state_year_sent_replies$sentiment <- state_year_sent_replies$sentiment / 4
 
 
 
@@ -149,7 +149,7 @@ state_year_sent_rt$sentiment <- state_year_sent_rt$sentiment / 4
 
 ## Homelessness changes
 homeless_changes <- read.csv("data/percapita_changes_totalhomeless.csv")
-og_names <- c('state','2011','2012','2013','2014','2015','2016','2017','2018','2019')
+og_names <- c('state','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
 names(homeless_changes) <- og_names
 
 # empty dataframe to hold the long form data
@@ -188,6 +188,7 @@ for (st in states) {
 
 ## sentiment changes - all
 years <- seq(2010,2019)
+years <- append(years, 2022)
 states <- unlist(homelessness_long %>% distinct(state))
 
 yr_col <- c()
@@ -196,7 +197,7 @@ sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010) {
+    if (yr == 2010 | yr == 2022) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -216,16 +217,13 @@ names(sentiment_changes_all) <- c('state','year','all_sent_change')
 
 
 ## sentiment changes - unique
-years <- seq(2010,2019)
-states <- unlist(homelessness_long %>% distinct(state))
-
 yr_col <- c()
 st_col <- c()
 sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010) {
+    if (yr == 2010 | yr == 2022) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -246,16 +244,13 @@ names(sentiment_changes_unique) <- c('state','year','unique_sent_change')
 
 
 ## sentiment changes - qrts
-years <- seq(2010,2019)
-states <- unlist(homelessness_long %>% distinct(state))
-
 yr_col <- c()
 st_col <- c()
 sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010) {
+    if (yr == 2010 | yr == 2022) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -282,22 +277,19 @@ names(sentiment_changes_qrt) <- c('state','year','qrt_sent_change')
 
 
 ## sentiment changes - rts
-years <- seq(2010,2019)
-states <- unlist(homelessness_long %>% distinct(state))
-
 yr_col <- c()
 st_col <- c()
 sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010) {
+    if (yr == 2010 | yr == 2022) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
     } else {
-      prev <- state_year_sent_rt$sentiment[state_year_sent_rt$state == st & state_year_sent_rt$year == yr - 1]
-      curr <- state_year_sent_rt$sentiment[state_year_sent_rt$state == st & state_year_sent_rt$year == yr]
+      prev <- state_year_sent_replies$sentiment[state_year_sent_replies$state == st & state_year_sent_replies$year == yr - 1]
+      curr <- state_year_sent_replies$sentiment[state_year_sent_replies$state == st & state_year_sent_replies$year == yr]
       
       if (length(prev) == 0 | length(curr) == 0) {
         sent_change <- append(sent_change, NA)
@@ -311,21 +303,18 @@ for (st in states) {
   }
 }
 
-sentiment_changes_rt <- data.frame(st_col, yr_col, sent_change)
-names(sentiment_changes_rt) <- c('state','year','rt_sent_change')
+sentiment_changes_replies <- data.frame(st_col, yr_col, sent_change)
+names(sentiment_changes_replies) <- c('state','year','rt_sent_change')
 
 
 ## tweet count changes
-years <- seq(2010,2019)
-states <- unlist(tweet_counts_long %>% distinct(state))
-
 yr_col <- c()
 st_col <- c()
 twt_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010) {
+    if (yr == 2010 | yr == 2022) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       twt_change <- append(twt_change, NA)
@@ -345,8 +334,6 @@ names(tweet_count_changes) <- c('state','year','tweet_count_change')
 
 
 ## Loop through sentiments to ensure we have an entry for every state year
-years <- seq(2010,2019)
-states <- unlist(tweet_counts_long %>% distinct(state))
 for (st in states) {
   for (yr in years) {
     temp <- state_year_sent_qrt$sentiment[state_year_sent_qrt$state == st & state_year_sent_qrt$year == yr]
@@ -354,9 +341,9 @@ for (st in states) {
       state_year_sent_qrt <- rbind(state_year_sent_qrt, c(st, yr, NA, NA))
     }
     
-    temp <- state_year_sent_rt$sentiment[state_year_sent_rt$state == st & state_year_sent_rt$year == yr]
+    temp <- state_year_sent_replies$sentiment[state_year_sent_replies$state == st & state_year_sent_replies$year == yr]
     if (length(temp) == 0){
-      state_year_sent_rt <- rbind(state_year_sent_rt, c(st, yr, NA, NA))
+      state_year_sent_replies <- rbind(state_year_sent_replies, c(st, yr, NA, NA))
     }
   }
 }
@@ -386,7 +373,7 @@ state_year_master <- merge(state_year_master, state_year_sent_qrt, by = c('state
 state_year_master <- state_year_master %>% rename(qrt_sent = sentiment, qrt_raw_sent = raw_sent)
 
 # add rt sentiment data
-state_year_master <- merge(state_year_master, state_year_sent_rt, by = c('state', 'year'))
+state_year_master <- merge(state_year_master, state_year_sent_replies, by = c('state', 'year'))
 state_year_master <- state_year_master %>% rename(rt_sent = sentiment, rt_raw_sent = raw_sent)
 
 ##
@@ -401,7 +388,7 @@ state_year_master <- merge(state_year_master, sentiment_changes_unique, by = c('
 state_year_master <- merge(state_year_master, sentiment_changes_qrt, by = c('state', 'year'))
 
 # rt sent changes
-state_year_master <- merge(state_year_master, sentiment_changes_rt, by = c('state', 'year'))
+state_year_master <- merge(state_year_master, sentiment_changes_replies, by = c('state', 'year'))
 
 ##
 
@@ -412,7 +399,7 @@ state_year_master <- merge(state_year_master, homeless_changes, by = c('state', 
 state_year_master <- merge(state_year_master, tweet_count_changes, by = c('state', 'year'))
 
 # write master data set to file
-write.csv(state_year_master, 'data/state_year_master.csv', row.names = FALSE)
+write.csv(state_year_master, 'data/master/state_year_master.csv', row.names = FALSE)
 
 ###############################################################################################################
 
