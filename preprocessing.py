@@ -48,6 +48,7 @@ states = state_abbrevs['abbrev'].tolist()
 
 # ensure that all entries in the state column of the tweet dataframe are strings
 geotagged_tweets['full_name'] = geotagged_tweets['full_name'].apply(str)
+geotagged_tweets['referenced_tweets'] = geotagged_tweets['referenced_tweets'].apply(str)
 
 
 # sanity check
@@ -108,35 +109,37 @@ print()
 
 
 # only look at tweets with a blank state value 
-if len(geotagged_tweets.loc[i]['state']) < 2:
-        
-    fixed = False
-    
-    # first check for "state, USA" format
-    curr = geotagged_tweets.loc[i]['full_name'][2:-3]
-    if (curr in names):
-        for j in range(len(state_abbrevs)):
-            # if it matches, set to the corresponding abbrev from the data frame
-            if state_abbrevs.loc[j]['full_name'] == curr:
-                geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
-                # since we assigned a value, set fixed to True
-                fixed = True  
-                break
+for i in range(len(geotagged_tweets)):
+    if len(geotagged_tweets.loc[i]['state']) < 2:
             
-    # if that didn't work let's try something else that' s a bit more expensive
-    else:
-        # check for other clues,such as city names (from states_expanded.json)
-        for loc in locations:
-            if loc in curr:
-                # if found, overwrite to the corresponding state
-                geotagged_tweets.at[i, 'state'] = more_states[loc]
-                # since we assigned a value, set fixed to Truef
-                fixed = True
-                break
-    
-    # if the prior two methods couldn't assign a state, then set it as "Unknown"
-    if not fixed:
-        geotagged_tweets.at[i, 'state'] = 'Unknown'
+        fixed = False
+        
+        # first check for "state, USA" format
+        curr = geotagged_tweets.loc[i]['full_name'][2:-3]
+        if (curr in names):
+            for j in range(len(state_abbrevs)):
+                # if it matches, set to the corresponding abbrev from the data frame
+                if state_abbrevs.loc[j]['full_name'] == curr:
+                    geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
+                    # since we assigned a value, set fixed to True
+                    fixed = True  
+                    break
+                
+        # if that didn't work let's try something else that' s a bit more expensive
+        else:
+            # check for other clues,such as city names (from states_expanded.json)
+            for loc in locations:
+                if loc in curr:
+                    # if found, overwrite to the corresponding state
+                    geotagged_tweets.at[i, 'state'] = more_states[loc]
+                    # since we assigned a value, set fixed to Truef
+                    fixed = True
+                    break
+        
+        # if the prior two methods couldn't assign a state, then set it as "Unknown"
+        # this also ensure we are hitting every relevant row in the data set
+        if not fixed:
+            geotagged_tweets.at[i, 'state'] = 'Unknown'
 
 
 print('Before fixing years:')
