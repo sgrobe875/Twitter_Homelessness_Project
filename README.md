@@ -1,7 +1,14 @@
 # Twitter Homelessness Project
 
+## Project Overview
+
+## Methods
+
+## Conclusions
 
 ## File hierarchy
+
+### To build the master data files:
 - preprocessing.py
   - **inputs:** tweets.csv
   - **outputs:** tweets_processed.csv
@@ -13,7 +20,9 @@
   - takes in the preprocessed data set created by *preprocessing.py* and outputs files of sentiment results according to various groupings
   - running the daily sentiment analysis functions are not recommended, as they are particularly computationally expensive; running all functions in the script except for the daily sentiment functions takes roughly 6 hours
   - function calls at the end of the script should be commented/uncommented as needed to save on time and space complexity
-- creating_datafiles.R
+- build_master_files.R
+
+### Once master data files have been created:
 - eda.R 
 - Any and all of the graphing/plotting R files 
   - Note that unshelt_homelessness_plotting.R is no longer compatible with the available data, which is fine
