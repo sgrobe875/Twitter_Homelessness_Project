@@ -19,7 +19,7 @@ rm(list = ls(all.names = TRUE))
 
 
 ## normalized total homelessness data
-homelessness <- read.csv('data/normalized_total.csv')
+homelessness <- read.csv('data/percapita_estimates_total.csv')
 names(homelessness) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
 
 homelessness_long <- data.frame(matrix(ncol = 3, nrow = 0))   # dataframe to hold long form data
@@ -47,7 +47,7 @@ names(tweet_counts) <- c('state','2010','2011','2012','2013','2014','2015','2016
 
 
 # rework tweet counts to get in long format
-tweet_counts_long <- data.frame(matrix(ncol = 3, nrow = 0))   # dataframe to hold long form data
+tweet_counts_long <- data.frame(matrix(ncol = 3, nrow = 0))   # data frame to hold long form data
 
 for (row in seq(1,nrow(tweet_counts))) {
   st <- tweet_counts[row,'state']
@@ -304,7 +304,7 @@ for (st in states) {
 }
 
 sentiment_changes_replies <- data.frame(st_col, yr_col, sent_change)
-names(sentiment_changes_replies) <- c('state','year','rt_sent_change')
+names(sentiment_changes_replies) <- c('state','year','replies_sent_change')
 
 
 ## tweet count changes
