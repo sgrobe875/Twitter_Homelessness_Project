@@ -221,6 +221,9 @@ print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
 
+### Moving on to the years column
+
+# print update
 print('Before fixing years:')
 print(geotagged_tweets['year'].unique())
 print()
@@ -241,7 +244,7 @@ for i in range(len(geotagged_tweets)):
 
 
 
-
+# sanity check for years column
 print('After fixing years:')
 print(geotagged_tweets['year'].unique())
 print()
@@ -250,7 +253,7 @@ print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
 
-
+# print update
 print('Cleaning done! Beginning text preprocessing')
 e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
@@ -285,7 +288,6 @@ slang = {'foh': 'fuck outta here', 'gtfo': 'get the fuck out', 'str8': 'straight
          'bby': 'baby', 'hon': 'hun', '&amp;': 'and', '&lt;': '<', '&gt;': '>'}
 
 
-#### TEXT PREPROCESSING ######################################################
 
 # print update
 print('Beginning text preprocessing')
