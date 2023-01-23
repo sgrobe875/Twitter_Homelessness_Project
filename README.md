@@ -8,6 +8,23 @@
 
 ## File hierarchy
 
+### Gathering the tweets
+
+First, tweets were pulled from the Twitter API using the following parameters:
+
+``query = 'homeless lang:en has:geo place_country:US'``\
+``start_time = '2010-01-01T00:00:00Z'``\
+``end_time = '2020-01-01T00:00:00Z'``
+
+and
+
+``start_time = '2022-01-01T00:00:00Z'``\
+``end_time = '2023-01-01T00:00:00Z'``
+
+In plain English, this provided us with all English US-based tweets containing the substring "homeless" from 2010 through 2019, and additionally, 2022. Note that the entirety of 2020 and 2021 were ommitted due to the impacts of the coronavirus pandemic on homelessness counts and data during those years. The tweets were pulled using Python code in 6 month chunks across the entirety of the aforementioned period. These data files spanning 6 months at a time were then amalgamated into a single data file containing all tweets in the specified period, which was saved as *tweets.csv*.
+
+A big thank you to Sean Rogers for providing the Python code used to access tweets from the Twitter API. Note that that code is not included in this repository.
+
 ### To build the master data files:
 - preprocessing.py
   - **inputs:** tweets.csv
