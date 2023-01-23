@@ -30,7 +30,7 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
   - **inputs:** tweets.csv
   - **outputs:** tweets_processed.csv
   - takes in raw tweet data (slightly modified from the Twitter API) and creates a preprocessed data set which includes: state in which the tweet was posted; year in which the tweet was posted; tweet type (unique, quote retweet, or reply); and preprocessed tweet text in which any nonalphabetic or nonnumeric characters have been removed
-  - the cleaning portion of this script takes several hours to run (estimated 9-10 hours) while the preprocessing portion takes about 3 minutes
+  - On the most recent execution, this file took about 10.5 hours for the cleaning portion, and about 7 minutes for the text preprocessing portion. While optimization is certainly possible, it is not considered a priority for this project since this script is not being executed repeatedly.
 - sentiment_analysis_wordfreqs.py
   - **inputs:** tweets_processed.csv
   - **outputs:** month_sentiment.csv; day_sentiment.csv; state_year_sentiment.csv; year_sentiment.csv; state_sentiment.csv; month_sentiment_qrt.csv; day_sentiment_qrt.csv; state_year_sentiment_qrt.csv; year_sentiment_qrt.csv; state_sentiment_qrt.csv; month_sentiment_replies.csv; day_sentiment_replies.csv; state_year_sentiment_replies.csv; year_sentiment_replies.csv; state_sentiment_replies.csv
