@@ -4,21 +4,77 @@ import datetime
 from collections import Counter
 import warnings
 warnings.filterwarnings("ignore")
+from geopy.geocoders import Nominatim
 
 
+### load some useful data to help with building the state column
+
+# state in "stateName, USA" format
+state_USA = {"Alabama, USA":"AL", "Alaska, USA":"AK", "Arizona, USA":"AZ",
+             "Arkansas, USA":"AR", "American Samoa, USA":"AS", "California, USA":"CA",
+             "Colorado, USA":"CO", "Connecticut, USA":"CT", "Delaware, USA":"DE",
+             "District of Columbia, USA":"DC", "Florida, USA":"FL",
+             "Georgia, USA":"GA", "Guam, USA":"GU", "Hawaii, USA":"HI",
+             "Idaho, USA":"ID", "Illinois, USA":"IL", "Indiana, USA":"IN",
+             "Iowa, USA":"IA", "Kansas, USA":"KS", "Kentucky, USA":"KY",
+             "Louisiana, USA":"LA", "Maine, USA":"ME", "Maryland, USA":"MD",
+             "Massachusetts, USA":"MA", "Michigan, USA":"MI", "Minnesota, USA":"MN", 
+             "Mississippi, USA":"MS", "Missouri, USA":"MO", "Montana, USA":"MT", 
+             "Nebraska, USA":"NE", "Nevada, USA":"NV", "New Hampshire, USA":"NH", 
+             "New Jersey, USA":"NJ", "New Mexico, USA":"NM", "New York, USA":"NY", 
+             "North Carolina, USA":"NC", "North Dakota, USA":"ND", "Ohio, USA":"OH", 
+             "Oklahoma, USA":"OK", "Oregon, USA":"OR", "Pennsylvania, USA":"PA", 
+             "Puerto Rico, USA":"PR", "Rhode Island, USA":"RI", "South Carolina, USA":"SC", 
+             "South Dakota, USA":"SD", "Tennessee, USA":"TN", "Texas, USA":"TX",
+             "Utah, USA":"UT", "Vermont, USA":"VT", "Virginia, USA":"VA",
+             "Washington, USA":"WA", "West Virginia, USA":"WV",
+             "Wisconsin, USA":"WI","Wyoming, USA":"WY"}
+
+# additional clear indicators of state (add to this as needed)
+states_expanded = {"Arkansas": "AR", "Dallas": "TX", "California": "CA", 
+                   "Pennsylvania": "PA", "Los Angeles": "CA", "Minnesota": "MN", 
+                   "Indiana": "IN", "Fresno": "CA", "Illinois": "IL", 
+                   "Nashville": "TN", "Austin": "TX", "Sacramento": "CA", 
+                   "Philadelphia": "PA", "Yale University": "CT", 
+                   "Charleston": "SC", "Massachusetts": "MA", "Las Vegas": "NV", 
+                   "Indianapolis": "IN", "Columbus": "OH", "Ann Arbor": "MI", 
+                   "Orlando": "FL", "Cleveland": "OH", "Madison": "WI", 
+                   "Texas": "TX", "Santa Cruz": "CA", "Atlanta": "GA", 
+                   "Harrisburg": "PA", "Nevada": "NV", "Queens": "NY", 
+                   "Arizona": "AZ", "Oregon": "OR", "San Diego": "CA", 
+                   "Oakland": "CA", "San Jose": "CA", "Miami": "FL", 
+                   "Coney Island": "NY", "Albany": "NY", "Iowa": "IA", 
+                   "Twin Cities": "MN", "Detroit": "MI", "Seattle": "WA", 
+                   "Boston": "MA", "Fort Worth": "TX", "Chicago": "IL", 
+                   "New York": "NY", "Washington DC": "DC", "Brooklyn": "NY", 
+                   "Georgia": "GA", "Delaware": "DE", "New Orleans": "LA", 
+                   "Denver": "CO", "NYPD": "NY", "LAPD": "CA", "NYU": "NY", 
+                   "Vanderbilt": "TN", "LA ": "CA", "Hollywood": "CA", 
+                   "Houston": "TX", "Santa Monica": "CA", "Connecticut": "CT", 
+                   "Florida": "FL", "Capitol Hill": "DC", "Green Bay": "WI", 
+                   "Hoboken": "NJ", "Pasadena": "CA", "Manhattan": "NY", 
+                   "NJ ": "NJ", "CA ": "CA", "NY ": "NY", "MA ": "MA", 
+                   "TX ": "TX", "San Fran": "CA", "Rochester": "NY", 
+                   "Colorado": "CO", "Worcester": "MA", "Hawaii": "HI", 
+                   "Bronx": "NY", "Utah": "UT", "L.A.": "CA", "White House": "DC", 
+                   "Saint Paul": "MN", "Puerto Rico": "PR", "Times Square": "NY", 
+                   "Statue of Liberty": "NY"}
+
+
+# print an update
 print('Beginning cleaning')
 e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
 
-
+# read in the raw tweets
 def read_geotagged_data(filepath):
     geotagged_tweets = pd.read_csv(filepath, engine = 'c', encoding = 'latin1')
     return geotagged_tweets
 
-
-
+# initialize the geolocator
+geolocator = Nominatim(user_agent="geoapiExercises")
 
 # read in the data
 geotagged_tweets = read_geotagged_data('data/tweets.csv')
@@ -35,16 +91,11 @@ for col in cols:
     if 'place_' in col:
         geotagged_tweets.rename(columns={col: col[6:]}, inplace=True)
 
+
 # initialize columns (to be filled in in a moment!)
 geotagged_tweets['state'] = ''
 geotagged_tweets['year'] = ''
 
-
-# read in state abbreviations dataframe
-state_abbrevs = pd.read_csv('data/state_abbrevs.csv')
-
-# get list of state two letter abbreviations
-states = state_abbrevs['abbrev'].tolist()
 
 # ensure that all entries in the state column of the tweet dataframe are strings
 geotagged_tweets['full_name'] = geotagged_tweets['full_name'].apply(str)
@@ -57,11 +108,21 @@ print(geotagged_tweets['state'].unique())
 print()
 
 
+# First, try just doing the last two letters of the location
 for i in range(len(geotagged_tweets)):
+    
+    # print update every 100,000 tweets
+    if i > 0 and i % 100000 == 0:  
+        print('Completed row ' + str(i) + ' out of ' + str(len(geotagged_tweets)))
+        e = datetime.datetime.now()
+        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        print()
+    
     test = geotagged_tweets.loc[i]['full_name'][-5:-3]
+    
     # if last two letters match a state abbreviation, set the state to just
     # being those two letters
-    if (test in states):
+    if (test in list(state_USA.values())):
         geotagged_tweets.at[i, 'state'] = test
 
 
@@ -73,32 +134,84 @@ e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
-
-names = state_abbrevs['full_name'].tolist()
-
-with open('data/states_expanded.json','r') as f:
-    more_states = json.load(f)
     
-locations = list(more_states.keys())
+locations = list(states_expanded.keys())
 
+# Make more attempts at defining the state
 
-
-# for i in range(len(geotagged_tweets)):
-#     # check if the state value matches any of our state, USA entries
-#     # but only check those that haven't been fixed yet!
-#     if len(geotagged_tweets.loc[i]['state']) < 2:
-#         curr = geotagged_tweets.loc[i]['full_name'][2:-2]
-#         if (curr in names):
-#             for j in range(len(state_abbrevs)):
-#                 # if it does, set to the corresponding abbrev from the data frame
-#                 if state_abbrevs.loc[j]['full_name'] == curr:
-#                     geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
-                    
-#         else:
-#             geotagged_tweets.at[i, 'state'] = 'Unknown'
-
-
+# loop through all tweets, only look at tweets with a blank state value 
+for i in range(len(geotagged_tweets)):
     
+    # print update every 100,000 tweets
+    if i > 0 and i % 100000 == 0:  
+        print('Completed row ' + str(i) + ' out of ' + str(len(geotagged_tweets)))
+        e = datetime.datetime.now()
+        print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        print()
+         
+    # check if state field is still blank
+    if len(geotagged_tweets.loc[i]['state']) < 2:
+        
+        # flag for whether one of these solutions has worked
+        fixed = False
+        
+        # first check for "state, USA" format
+        curr = geotagged_tweets.loc[i]['full_name'][2:-3]
+        # check for a match in the dictionary
+        if (curr in list(state_USA.keys())):
+            # if match, set the state field to the corresponding value
+            geotagged_tweets.at[i, 'state'] = state_USA[curr]
+            # since we assigned a value, set fixed to True
+            fixed = True  
+                
+        # if that didn't work, let's try looking for cities, landmarks, etc.
+        if not fixed:
+            # check for other clues, such as city names 
+            for loc in locations:
+                if loc in curr:
+                    # if found, overwrite to the corresponding state
+                    geotagged_tweets.at[i, 'state'] = states_expanded[loc]
+                    # since we assigned a value, set fixed to True
+                    fixed = True
+                    break
+        
+        # if still not fixed after prior two methods, try using coordinates
+        # (with some help from Yoshi here!)
+        if not fixed:
+            try:
+                # get geo field and convert from string to dict
+                geo = geotagged_tweets.loc[i]['geo']
+                geo = geo[1:-2].replace("'",'"')
+                geo = json.loads(geo)
+                
+                # get coordinate values
+                long = geo['bbox'][0]
+                lat  = geo['bbox'][1]
+                
+                # use the geolocator to get a state value
+                location = geolocator.reverse(str(lat) + "," + str(long))
+                address = location.raw['address']['state']
+                
+                # append ', USA' to the state value
+                address += ', USA'
+                
+                # use the state_USA dict to get the correct state abbreviation
+                abbrev = state_USA[address]
+                
+                # put value into the dataframe and mark as fixed
+                geotagged_tweets.at[i, 'state'] = abbrev
+                fixed = True
+            
+            # any errors --> coordinates are invalid in some way, so just skip
+            except:
+                pass
+        
+        # if the prior methods couldn't assign a state, then change from '' to "Unknown"
+        # this also ensures we are hitting every relevant row in the data set
+        if not fixed:
+            geotagged_tweets.at[i, 'state'] = 'Unknown'
+            
+            
 # guess what! more sanity checks!
 print('After Step 2:')
 print(geotagged_tweets['state'].unique())
@@ -106,40 +219,6 @@ print()
 e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
-
-
-# only look at tweets with a blank state value 
-for i in range(len(geotagged_tweets)):
-    if len(geotagged_tweets.loc[i]['state']) < 2:
-            
-        fixed = False
-        
-        # first check for "state, USA" format
-        curr = geotagged_tweets.loc[i]['full_name'][2:-3]
-        if (curr in names):
-            for j in range(len(state_abbrevs)):
-                # if it matches, set to the corresponding abbrev from the data frame
-                if state_abbrevs.loc[j]['full_name'] == curr:
-                    geotagged_tweets.at[i, 'state'] = state_abbrevs.loc[j]['abbrev']
-                    # since we assigned a value, set fixed to True
-                    fixed = True  
-                    break
-                
-        # if that didn't work let's try something else that' s a bit more expensive
-        else:
-            # check for other clues,such as city names (from states_expanded.json)
-            for loc in locations:
-                if loc in curr:
-                    # if found, overwrite to the corresponding state
-                    geotagged_tweets.at[i, 'state'] = more_states[loc]
-                    # since we assigned a value, set fixed to Truef
-                    fixed = True
-                    break
-        
-        # if the prior two methods couldn't assign a state, then set it as "Unknown"
-        # this also ensure we are hitting every relevant row in the data set
-        if not fixed:
-            geotagged_tweets.at[i, 'state'] = 'Unknown'
 
 
 print('Before fixing years:')
@@ -185,7 +264,7 @@ print()
 
 
 
-# list of acceptable characters (what we DON'T want filtered out)
+# lists of acceptable characters (what we DON'T want filtered out)
 letters =    ['a','b','c','d','e','f','g','h','i','j','k','l','m',
               'n','o','p','q','r','s','t','u','v','w','x','y','z']
 
@@ -214,13 +293,16 @@ e = datetime.datetime.now()
 print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
 print()
 
+# list to hold the tweet type column to be added to the dataframe
 retweets = []
 
 # loop through every tweet in the data set
 for row in range(len(geotagged_tweets)):
+    
+    # extract the tweet text
     new_tweet = str(geotagged_tweets.iloc[row]['tweet_text'])
 
-    # split hashtags by camelcase
+    ### First step: split hashtags by camelcase
     
     # search for pound symbol
     while new_tweet.rfind('#') > -1:
@@ -250,11 +332,11 @@ for row in range(len(geotagged_tweets)):
             new_tweet = new_tweet[:-1]
                         
     
-    #  set all characters in tweet to lowercase
+    # set all characters in tweet to lowercase
     new_tweet = new_tweet.lower()
     
     
-    # Check for retweets
+    # Check for retweets and fill in the retweets list
     start = geotagged_tweets.iloc[row]['referenced_tweets'].find('type')
     if start > -1:
         end = geotagged_tweets.iloc[row]['referenced_tweets'].find('>')
@@ -265,7 +347,7 @@ for row in range(len(geotagged_tweets)):
         
         
 
-    # first filter out usernames (any substring starting with @ and ending in a space)
+    # next filter out usernames (any substring starting with @ and ending in a space)
     while new_tweet.rfind('@') > -1:
         username_start = new_tweet.rfind('@')
         i = 1
