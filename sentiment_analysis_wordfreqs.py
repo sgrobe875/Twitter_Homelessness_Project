@@ -643,80 +643,80 @@ print()
 
 
 
-# First do for total data set
-print('Beginning total data set\n')
+# # First do for total data set
+# print('Beginning total data set\n')
 
-month_grouped = group_by_month(df)
-month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
-del(month_grouped)
+# month_grouped = group_by_month(df)
+# month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
+# del(month_grouped)
 
-# day_grouped = group_by_day(df)
-# day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
-# del(day_grouped)
+# # day_grouped = group_by_day(df)
+# # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+# # del(day_grouped)
 
-state_years_grouped = group_by_both(df)
-state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
-del(state_years_grouped)
+# state_years_grouped = group_by_both(df)
+# state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
+# del(state_years_grouped)
 
-year_grouped = group_by_year(df)
-year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
-del(year_grouped)
+# year_grouped = group_by_year(df)
+# year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
+# del(year_grouped)
 
-state_grouped = group_by_state(df)
-state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
-del(state_grouped)
-
-    
-    
-    
-# For QRTs only:
-print('Beginning QRTs\n')
-    
-month_grouped = group_by_month(qrts)
-month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
-del(month_grouped)
-
-# day_grouped = group_by_day(qrts)
-# day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
-# del(day_grouped)
-
-state_years_grouped = group_by_both(qrts)
-state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
-del(state_years_grouped)
-
-year_grouped = group_by_year(qrts)
-year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
-del(year_grouped)
-
-state_grouped = group_by_state(qrts)
-state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
-del(state_grouped)
-    
+# state_grouped = group_by_state(df)
+# state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
+# del(state_grouped)
 
     
     
-# For RTs only:
-print('Beginning replies\n')
     
-month_grouped = group_by_month(replies)
-month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
-del(month_grouped)
+# # For QRTs only:
+# print('Beginning QRTs\n')
+    
+# month_grouped = group_by_month(qrts)
+# month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
+# del(month_grouped)
 
-# day_grouped = group_by_day(replies)
-# day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
-# del(day_grouped)
+# # day_grouped = group_by_day(qrts)
+# # day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
+# # del(day_grouped)
 
-state_years_grouped = group_by_both(replies)
-state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
-del(state_years_grouped)
+# state_years_grouped = group_by_both(qrts)
+# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
+# del(state_years_grouped)
 
-year_grouped = group_by_year(replies)
-year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
-del(year_grouped)
+# year_grouped = group_by_year(qrts)
+# year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
+# del(year_grouped)
 
-state_grouped = group_by_state(replies)
-state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
-del(state_grouped)
+# state_grouped = group_by_state(qrts)
+# state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
+# del(state_grouped)
+    
+
+    
+    
+# # For RTs only:
+# print('Beginning replies\n')
+    
+# month_grouped = group_by_month(replies)
+# month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
+# del(month_grouped)
+
+# # day_grouped = group_by_day(replies)
+# # day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
+# # del(day_grouped)
+
+# state_years_grouped = group_by_both(replies)
+# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
+# del(state_years_grouped)
+
+# year_grouped = group_by_year(replies)
+# year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
+# del(year_grouped)
+
+# state_grouped = group_by_state(replies)
+# state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
+# del(state_grouped)
 
 
 
