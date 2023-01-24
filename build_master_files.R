@@ -19,7 +19,7 @@ rm(list = ls(all.names = TRUE))
 
 
 ## normalized total homelessness data
-homelessness <- read.csv('data/percapita_estimates_total.csv')
+homelessness <- read.csv('data/percapita_total.csv')
 names(homelessness) <- c('state','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
 
 homelessness_long <- data.frame(matrix(ncol = 3, nrow = 0))   # dataframe to hold long form data
@@ -68,25 +68,25 @@ tweet_counts_long$tweets_norm <- as.numeric(tweet_counts_long$tweets_norm)
 ## sentiment data
 
 # all 
-day_sent_all <- read.csv('data/sentiment/day_sentiment.csv')
+# day_sent_all <- read.csv('data/sentiment/day_sentiment.csv')
 month_sent_all <- read.csv('data/sentiment/month_sentiment.csv')
 year_sent_all <- read.csv('data/sentiment/year_sentiment.csv')
 state_year_sent_all <- read.csv('data/sentiment/state_year_sentiment.csv')
 
 # unique tweets only
-day_sent_unique <- read.csv('data/sentiment/day_sentiment_unique.csv')
+# day_sent_unique <- read.csv('data/sentiment/day_sentiment_unique.csv')
 month_sent_unique <- read.csv('data/sentiment/month_sentiment_unique.csv')
 year_sent_unique <- read.csv('data/sentiment/year_sentiment_unique.csv')
 state_year_sent_unique <- read.csv('data/sentiment/state_year_sentiment_unique.csv')
 
 # qrts
-day_sent_qrt <- read.csv('data/sentiment/day_sentiment_qrt.csv')
+# day_sent_qrt <- read.csv('data/sentiment/day_sentiment_qrt.csv')
 month_sent_qrt <- read.csv('data/sentiment/month_sentiment_qrt.csv')
 year_sent_qrt <- read.csv('data/sentiment/year_sentiment_qrt.csv')
 state_year_sent_qrt <- read.csv('data/sentiment/state_year_sentiment_qrt.csv')
 
 # replies
-day_sent_replies <- read.csv('data/sentiment/day_sentiment_replies.csv')
+# day_sent_replies <- read.csv('data/sentiment/day_sentiment_replies.csv')
 month_sent_replies <- read.csv('data/sentiment/month_sentiment_replies.csv')
 year_sent_replies <- read.csv('data/sentiment/year_sentiment_replies.csv')
 state_year_sent_replies <- read.csv('data/sentiment/state_year_sentiment_replies.csv')
@@ -95,61 +95,85 @@ state_year_sent_replies <- read.csv('data/sentiment/state_year_sentiment_replies
 
 ### rescale all of the sentiment columns
 
-day_sent_all$sentiment <- day_sent_all$sentiment - 5
-day_sent_all$sentiment <- day_sent_all$sentiment / 4
+# day_sent_all$sentiment <- day_sent_all$sentiment - 5
+# day_sent_all$sentiment <- day_sent_all$sentiment / 4
 
 month_sent_all$sentiment <- month_sent_all$sentiment - 5
 month_sent_all$sentiment <- month_sent_all$sentiment / 4
+month_sent_all$sentiment <- as.numeric(month_sent_all$sentiment)
+month_sent_all$sentiment[month_sent_all$sentiment < -1] <- NA
 
 year_sent_all$sentiment <- year_sent_all$sentiment - 5
 year_sent_all$sentiment <- year_sent_all$sentiment / 4
+year_sent_all$sentiment <- as.numeric(year_sent_all$sentiment)
+year_sent_all$sentiment[year_sent_all$sentiment < -1] <- NA
 
 state_year_sent_all$sentiment <- state_year_sent_all$sentiment - 5
 state_year_sent_all$sentiment <- state_year_sent_all$sentiment / 4
+state_year_sent_all$sentiment <- as.numeric(state_year_sent_all$sentiment)
+state_year_sent_all$sentiment[state_year_sent_all$sentiment < -1] <- NA
 #
-day_sent_unique$sentiment <- day_sent_unique$sentiment - 5
-day_sent_unique$sentiment <- day_sent_unique$sentiment / 4
+# day_sent_unique$sentiment <- day_sent_unique$sentiment - 5
+# day_sent_unique$sentiment <- day_sent_unique$sentiment / 4
 
 month_sent_unique$sentiment <- month_sent_unique$sentiment - 5
 month_sent_unique$sentiment <- month_sent_unique$sentiment / 4
+month_sent_unique$sentiment <- as.numeric(month_sent_unique$sentiment)
+month_sent_unique$sentiment[month_sent_unique$sentiment < -1] <- NA
 
 year_sent_unique$sentiment <- year_sent_unique$sentiment - 5
 year_sent_unique$sentiment <- year_sent_unique$sentiment / 4
+year_sent_unique$sentiment <- as.numeric(year_sent_unique$sentiment)
+year_sent_unique$sentiment[year_sent_unique$sentiment < -1] <- NA
 
 state_year_sent_unique$sentiment <- state_year_sent_unique$sentiment - 5
 state_year_sent_unique$sentiment <- state_year_sent_unique$sentiment / 4
+state_year_sent_unique$sentiment <- as.numeric(state_year_sent_unique$sentiment)
+state_year_sent_unique$sentiment[state_year_sent_unique$sentiment < -1] <- NA
 #
-day_sent_qrt$sentiment <- day_sent_qrt$sentiment - 5
-day_sent_qrt$sentiment <- day_sent_qrt$sentiment / 4
+# day_sent_qrt$sentiment <- day_sent_qrt$sentiment - 5
+# day_sent_qrt$sentiment <- day_sent_qrt$sentiment / 4
 
 month_sent_qrt$sentiment <- month_sent_qrt$sentiment - 5
 month_sent_qrt$sentiment <- month_sent_qrt$sentiment / 4
+month_sent_qrt$sentiment <- as.numeric(month_sent_qrt$sentiment)
+month_sent_qrt$sentiment[month_sent_qrt$sentiment < -1] <- NA
 
 year_sent_qrt$sentiment <- year_sent_qrt$sentiment - 5
 year_sent_qrt$sentiment <- year_sent_qrt$sentiment / 4
+year_sent_qrt$sentiment <- as.numeric(year_sent_qrt$sentiment)
+year_sent_qrt$sentiment[year_sent_qrt$sentiment < -1] <- NA
 
 state_year_sent_qrt$sentiment <- state_year_sent_qrt$sentiment - 5
 state_year_sent_qrt$sentiment <- state_year_sent_qrt$sentiment / 4
+state_year_sent_qrt$sentiment <- as.numeric(state_year_sent_qrt$sentiment)
+state_year_sent_qrt$sentiment[state_year_sent_qrt$sentiment < -1] <- NA
 #
-day_sent_replies$sentiment <- day_sent_replies$sentiment - 5
-day_sent_replies$sentiment <- day_sent_replies$sentiment / 4
+# day_sent_replies$sentiment <- day_sent_replies$sentiment - 5
+# day_sent_replies$sentiment <- day_sent_replies$sentiment / 4
 
 month_sent_replies$sentiment <- month_sent_replies$sentiment - 5
 month_sent_replies$sentiment <- month_sent_replies$sentiment / 4
+month_sent_replies$sentiment <- as.numeric(month_sent_replies$sentiment)
+month_sent_replies$sentiment[month_sent_replies$sentiment < -1] <- NA
 
 year_sent_replies$sentiment <- year_sent_replies$sentiment - 5
 year_sent_replies$sentiment <- year_sent_replies$sentiment / 4
+year_sent_replies$sentiment <- as.numeric(year_sent_replies$sentiment)
+year_sent_replies$sentiment[year_sent_replies$sentiment < -1] <- NA
 
 state_year_sent_replies$sentiment <- state_year_sent_replies$sentiment - 5
 state_year_sent_replies$sentiment <- state_year_sent_replies$sentiment / 4
+state_year_sent_replies$sentiment <- as.numeric(state_year_sent_replies$sentiment)
+state_year_sent_replies$sentiment[state_year_sent_replies$sentiment < -1] <- NA
 
 
 
 ### Changes in values from previous year
 
 ## Homelessness changes
-homeless_changes <- read.csv("data/percapita_changes_totalhomeless.csv")
-og_names <- c('state','2011','2012','2013','2014','2015','2016','2017','2018','2019','2022')
+homeless_changes <- read.csv("data/percapita_annual_changes_total.csv")
+og_names <- c('state','2011','2012','2013','2014','2015','2016','2017','2018','2019')
 names(homeless_changes) <- og_names
 
 # empty dataframe to hold the long form data
@@ -177,10 +201,13 @@ homeless_changes$total_homeless_change <- as.numeric(homeless_changes$total_home
 homeless_changes$year <- as.integer(homeless_changes$year)
 
 
-# append NA for 2010
+# append NA for 2010 and 2022
 states <- unlist(homeless_changes %>% distinct(state))
 for (st in states) {
   row <- c(st, 2010, NA)
+  homeless_changes <- rbind(homeless_changes, row)
+  
+  row <- c(st, 2022, NA)
   homeless_changes <- rbind(homeless_changes, row)
 }
 
@@ -204,10 +231,15 @@ for (st in states) {
     } else {
       prev <- state_year_sent_all$sentiment[state_year_sent_all$state == st & state_year_sent_all$year == yr - 1]
       curr <- state_year_sent_all$sentiment[state_year_sent_all$state == st & state_year_sent_all$year == yr]
-      
-      yr_col <- append(yr_col, yr)
-      st_col <- append(st_col, st)
-      sent_change <- append(sent_change, curr - prev)
+      if (is.na(prev) | is.na(curr)) {
+        yr_col <- append(yr_col, yr)
+        st_col <- append(st_col, st)
+        sent_change <- append(sent_change, NA)
+      } else {
+        yr_col <- append(yr_col, yr)
+        st_col <- append(st_col, st)
+        sent_change <- append(sent_change, curr - prev)
+      }
     }
   }
 }
