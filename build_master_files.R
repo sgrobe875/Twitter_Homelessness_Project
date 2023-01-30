@@ -404,9 +404,9 @@ state_year_master <- state_year_master %>% rename(unique_sent = sentiment, uniqu
 state_year_master <- merge(state_year_master, state_year_sent_qrt, by = c('state', 'year'))
 state_year_master <- state_year_master %>% rename(qrt_sent = sentiment, qrt_raw_sent = raw_sent)
 
-# add rt sentiment data
+# add reply sentiment data
 state_year_master <- merge(state_year_master, state_year_sent_replies, by = c('state', 'year'))
-state_year_master <- state_year_master %>% rename(rt_sent = sentiment, rt_raw_sent = raw_sent)
+state_year_master <- state_year_master %>% rename(reply_sent = sentiment, reply_raw_sent = raw_sent)
 
 ##
 

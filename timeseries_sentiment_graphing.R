@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 rm(list = ls(all.names = TRUE)) 
 
 
-# use this R file to automatically read in the data and rescale the sentiment values
-source('rescale_sentiment.R')
+# use this R file to automatically read in the relevant data files all at once
+source('load_data.R')
 
 
 
@@ -42,14 +42,14 @@ sentiment_daily <- function(st = NULL, yr = NULL) {
 
 
 # plot the sentiment over all years and states with monthly averages
-sentiment_monthly <- function(st = NULL, yr = NULL) {
+sentiment_monthly <- function(df, title = NULL, st = NULL, yr = NULL) {
   # convert strings to Dates
-  month_sent$month <- as.Date(paste(month_sent$month, '-01', sep=''))
+  df$month <- as.Date(paste(df$month, '-01', sep=''))
   
   # plot
-  ggplot(data = month_sent, mapping = aes(x = month, y = sentiment)) + 
+  ggplot(data = df, mapping = aes(x = month, y = sentiment)) + 
     geom_line() + 
-    ggtitle('Monthly Mean Sentiment Over Time') + 
+    ggtitle(paste('Monthly Mean Sentiment Over Time', title)) + 
     xlab('Time') + 
     ylab('Compound Sentiment') + 
     theme_bw() +
@@ -59,11 +59,11 @@ sentiment_monthly <- function(st = NULL, yr = NULL) {
 
 
 # plot the sentiment over all years and states with monthly averages
-sentiment_yearly <- function() {
+sentiment_yearly <- function(df = year_sent_all, title = NULL) {
   # plot
-  ggplot(data = year_sent, mapping = aes(x = year, y = sentiment)) + 
+  ggplot(data = df, mapping = aes(x = year, y = sentiment)) + 
     geom_line() + 
-    ggtitle('Yearly Mean Sentiment Over Time') + 
+    ggtitle(paste('Yearly Mean Sentiment Over Time', title)) + 
     xlab('Time') + 
     ylab('Compound Sentiment') + 
     theme_bw() +
@@ -102,11 +102,34 @@ sentiment_daily()               # all sentiment
 # Monthly averages
 
 png(filename="figures/sentiment/monthly_sentiment.png", width=600, height=400)
-p <- sentiment_monthly()
+p <- sentiment_monthly(month_sent_all)
 p
 dev.off()
 
-sentiment_monthly()               # all sentiment
+
+png(filename="figures/sentiment/monthly_sentiment_unique.png", width=600, height=400)
+p <- sentiment_monthly(month_sent_unique, 'Across All Unique Tweets')
+p
+dev.off()
+
+
+png(filename="figures/sentiment/monthly_sentiment_replies.png", width=600, height=400)
+p <- sentiment_monthly(month_sent_replies, 'Across All Reply Tweets')
+p
+dev.off()
+
+
+png(filename="figures/sentiment/monthly_sentiment_qrt.png", width=600, height=400)
+p <- sentiment_monthly(month_sent_qrt, 'Across All Quote Tweets')
+p
+dev.off()
+
+
+
+sentiment_monthly(month_sent_all)                # all sentiment
+sentiment_monthly(month_sent_unique, 'Across All Unique Tweets')
+sentiment_monthly(month_sent_replies, 'Across All Reply Tweets')
+sentiment_monthly(month_sent_qrt, 'Across All Quote Tweets')
 # sentiment_monthly('CA')           # only California
 # sentiment_monthly(2017)           # only 2017
 # sentiment_monthly('CA', 2017)     # only California in 2017
@@ -121,6 +144,9 @@ p
 dev.off()
 
 sentiment_yearly()
+sentiment_yearly(year_sent_unique, '(Unique Tweets Only)')
+sentiment_yearly(year_sent_qrt, '(Quote Tweets Only)')
+sentiment_yearly(year_sent_replies, '(Reply Tweets Only)')
 
 
 
@@ -157,7 +183,7 @@ ggplot() +
 #### Boxplot of state sentiment per year
 
 
-p <- ggplot(all_data, aes(x = year, y = sentiment, group = year)) + 
+p <- ggplot(state_year_master, aes(x = year, y = all_sent, group = year)) + 
   geom_boxplot(fill = 'lightgray') +
   scale_x_continuous(breaks = pretty_breaks(n = 10)) +
   xlab('Year') + 
@@ -173,6 +199,56 @@ png(filename="figures/sentiment/boxplot_per_year.png", width=600, height=400)
 p
 dev.off()
 
+
+p <- ggplot(state_year_master, aes(x = year, y = unique_sent, group = year)) + 
+  geom_boxplot(fill = 'lightgray') +
+  scale_x_continuous(breaks = pretty_breaks(n = 10)) +
+  xlab('Year') + 
+  ylab('Sentiment') + 
+  ggtitle('Statewide Sentiment Per Year (Unique Tweets Only)') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 15), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+print(p)
+
+png(filename="figures/sentiment/boxplot_per_year_unique.png", width=600, height=400)
+p
+dev.off()
+
+
+p <- ggplot(state_year_master, aes(x = year, y = reply_sent, group = year)) + 
+  geom_boxplot(fill = 'lightgray') +
+  scale_x_continuous(breaks = pretty_breaks(n = 10)) +
+  xlab('Year') + 
+  ylab('Sentiment') + 
+  ggtitle('Statewide Sentiment Per Year (Reply Tweets Only)') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 15), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+print(p)
+
+png(filename="figures/sentiment/boxplot_per_year_replies.png", width=600, height=400)
+p
+dev.off()
+
+
+p <- ggplot(state_year_master, aes(x = year, y = qrt_sent, group = year)) + 
+  geom_boxplot(fill = 'lightgray') +
+  scale_x_continuous(breaks = pretty_breaks(n = 10)) +
+  xlab('Year') + 
+  ylab('Sentiment') + 
+  ggtitle('Statewide Sentiment Per Year (Quote Tweets Only)') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 15), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+
+print(p)
+
+png(filename="figures/sentiment/boxplot_per_year_qrt.png", width=600, height=400)
+p
+dev.off()
 
 
 

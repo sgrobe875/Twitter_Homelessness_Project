@@ -15,7 +15,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 rm(list = ls(all.names = TRUE)) 
 
 # read in the data
-source('rescale_sentiment.R')
+source('load_data.R')
 
 
 
@@ -24,75 +24,75 @@ source('rescale_sentiment.R')
 #### Histograms of variable distributions ####
 
 
-# tweet_count
-p <- ggplot(data = all_data, mapping = aes(x = tweet_count)) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Tweet Counts per State/Year Pair') + 
-  xlab('Number of Tweets') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/tweet_count_hist.png", width=600, height=450)
-p
-dev.off()
-
-
-# log10(tweet_count)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweet_count))) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Tweet Counts per State/Year Pair') + 
-  xlab('Log10(Number of Tweets)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(tweet_count)_hist.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# tweet_percent
-p <- ggplot(data = all_data, mapping = aes(x = tweet_percent)) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Percentage of Yearly Tweets per State/Year Pair') + 
-  xlab('Percentage of Tweets') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/tweet_percent_hist.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# log10(tweet_percent)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweet_percent))) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Percentage of Yearly Tweets per State/Year Pair') + 
-  xlab('Log10(Percentage of Tweets)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(tweet_percent)_hist.png", width=600, height=450)
-p
-dev.off()
+# # tweet_count
+# p <- ggplot(data = state_year_master, mapping = aes(x = tweet_count)) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Tweet Counts per State/Year Pair') + 
+#   xlab('Number of Tweets') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/tweet_count_hist.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# # log10(tweet_count)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweet_count))) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Tweet Counts per State/Year Pair') + 
+#   xlab('Log10(Number of Tweets)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(tweet_count)_hist.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # tweet_percent
+# p <- ggplot(data = state_year_master, mapping = aes(x = tweet_percent)) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Percentage of Yearly Tweets per State/Year Pair') + 
+#   xlab('Percentage of Tweets') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/tweet_percent_hist.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # log10(tweet_percent)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweet_percent))) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Percentage of Yearly Tweets per State/Year Pair') + 
+#   xlab('Log10(Percentage of Tweets)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(tweet_percent)_hist.png", width=600, height=450)
+# p
+# dev.off()
 
 
 
 # tweets_norm
-p <- ggplot(data = all_data, mapping = aes(x = tweets_norm)) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = tweets_norm)) + 
   geom_histogram(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Per Capita Tweet Counts per State/Year Pair') + 
   xlab('Tweets Per Capita') + 
@@ -109,7 +109,7 @@ dev.off()
 
 
 # log10(tweets_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweets_norm))) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweets_norm))) + 
   geom_histogram(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Log Per Capita Tweet Counts per State/Year Pair') + 
   xlab('Log10(Tweets Per Capita)') + 
@@ -127,7 +127,7 @@ dev.off()
 
 
 # total_homeless_norm
-p <- ggplot(data = all_data, mapping = aes(x = total_homeless_norm)) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = total_homeless_norm)) + 
   geom_histogram(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Per Capita Total Homeless Counts per State/Year Pair') + 
   xlab('Total Homeless Per Capita') + 
@@ -144,10 +144,10 @@ dev.off()
 
 
 # log10(total_homeless_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(total_homeless_norm))) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = log10(total_homeless_norm))) + 
   geom_histogram(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Log Per Capita Total Homeless Counts per State/Year Pair') + 
-  xlab('Total Homeless Per Capita') + 
+  xlab('Log10(Total Homeless Per Capita)') + 
   ylab('Frequency') +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
@@ -160,43 +160,43 @@ dev.off()
 
 
 
-# unshelt_homeless_norm
-p <- ggplot(data = all_data, mapping = aes(x = unshelt_homeless_norm)) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
-  xlab('Unsheltered Homeless Per Capita') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/unshelt_homeless_norm_hist.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# log10(unshelt_homeless_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(unshelt_homeless_norm))) + 
-  geom_histogram(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
-  xlab('Log10(Unsheltered Homeless Per Capita)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(unshelt_homeless_norm)_hist.png", width=600, height=450)
-p
-dev.off()
-
-
+# # unshelt_homeless_norm
+# p <- ggplot(data = state_year_master, mapping = aes(x = unshelt_homeless_norm)) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
+#   xlab('Unsheltered Homeless Per Capita') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/unshelt_homeless_norm_hist.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # log10(unshelt_homeless_norm)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(unshelt_homeless_norm))) + 
+#   geom_histogram(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
+#   xlab('Log10(Unsheltered Homeless Per Capita)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(unshelt_homeless_norm)_hist.png", width=600, height=450)
+# p
+# dev.off()
 
 
-# sentiment
-p <- ggplot(data = all_data, mapping = aes(x = sentiment)) + 
+
+
+# total sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = all_sent)) + 
   geom_histogram(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair') + 
   xlab('Sentiment') + 
@@ -211,6 +211,54 @@ p
 dev.off()
 
 
+# unique sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = unique_sent)) + 
+  geom_histogram(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Unique Tweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_hist_unique.png", width=600, height=450)
+p
+dev.off()
+
+
+# qrt sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = all_sent)) + 
+  geom_histogram(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Quote Retweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_hist_qrt.png", width=600, height=450)
+p
+dev.off()
+
+
+# reply sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = reply_sent)) + 
+  geom_histogram(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Reply Tweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_hist_replies.png", width=600, height=450)
+p
+dev.off()
+
+
 
 
 
@@ -218,75 +266,75 @@ dev.off()
 #### Density plots of variable distributions ####
 
 
-# tweet_count
-p <- ggplot(data = all_data, mapping = aes(x = tweet_count)) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Tweet Counts per State/Year Pair') + 
-  xlab('Number of Tweets') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/tweet_count_dens.png", width=600, height=450)
-p
-dev.off()
-
-
-# log10(tweet_count)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweet_count))) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Tweet Counts per State/Year Pair') + 
-  xlab('Log10(Number of Tweets)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(tweet_count)_dens.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# tweet_percent
-p <- ggplot(data = all_data, mapping = aes(x = tweet_percent)) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Percentage of Yearly Tweets per State/Year Pair') + 
-  xlab('Percentage of Tweets') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/tweet_percent_dens.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# log10(tweet_percent)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweet_percent))) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Percentage of Yearly Tweets per State/Year Pair') + 
-  xlab('Log10(Percentage of Tweets)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(tweet_percent)_dens.png", width=600, height=450)
-p
-dev.off()
+# # tweet_count
+# p <- ggplot(data = state_year_master, mapping = aes(x = tweet_count)) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Tweet Counts per State/Year Pair') + 
+#   xlab('Number of Tweets') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/tweet_count_dens.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# # log10(tweet_count)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweet_count))) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Tweet Counts per State/Year Pair') + 
+#   xlab('Log10(Number of Tweets)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(tweet_count)_dens.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # tweet_percent
+# p <- ggplot(data = state_year_master, mapping = aes(x = tweet_percent)) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Percentage of Yearly Tweets per State/Year Pair') + 
+#   xlab('Percentage of Tweets') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/tweet_percent_dens.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # log10(tweet_percent)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweet_percent))) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Percentage of Yearly Tweets per State/Year Pair') + 
+#   xlab('Log10(Percentage of Tweets)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(tweet_percent)_dens.png", width=600, height=450)
+# p
+# dev.off()
 
 
 
 # tweets_norm
-p <- ggplot(data = all_data, mapping = aes(x = tweets_norm)) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = tweets_norm)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Per Capita Tweet Counts per State/Year Pair') + 
   xlab('Tweets Per Capita') + 
@@ -303,7 +351,7 @@ dev.off()
 
 
 # log10(tweets_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(tweets_norm))) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = log10(tweets_norm))) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Log Per Capita Tweet Counts per State/Year Pair') + 
   xlab('Log10(Tweets Per Capita)') + 
@@ -321,7 +369,7 @@ dev.off()
 
 
 # total_homeless_norm
-p <- ggplot(data = all_data, mapping = aes(x = total_homeless_norm)) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = total_homeless_norm)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Per Capita Total Homeless Counts per State/Year Pair') + 
   xlab('Total Homeless Per Capita') + 
@@ -338,7 +386,7 @@ dev.off()
 
 
 # log10(total_homeless_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(total_homeless_norm))) + 
+p <- ggplot(data = state_year_master, mapping = aes(x = log10(total_homeless_norm))) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Log Per Capita Total Homeless Counts per State/Year Pair') + 
   xlab('Total Homeless Per Capita') + 
@@ -354,43 +402,43 @@ dev.off()
 
 
 
-# unshelt_homeless_norm
-p <- ggplot(data = all_data, mapping = aes(x = unshelt_homeless_norm)) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
-  xlab('Unsheltered Homeless Per Capita') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/unshelt_homeless_norm_dens.png", width=600, height=450)
-p
-dev.off()
-
-
-
-# log10(unshelt_homeless_norm)
-p <- ggplot(data = all_data, mapping = aes(x = log10(unshelt_homeless_norm))) + 
-  geom_density(color = 'black', fill = 'gray') + 
-  ggtitle('Distribution of Log Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
-  xlab('Log10(Unsheltered Homeless Per Capita)') + 
-  ylab('Frequency') +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
-        axis.title.y = element_text(size = 9.5))
-print(p)
-
-png(filename="figures/eda/log(unshelt_homeless_norm)_dens.png", width=600, height=450)
-p
-dev.off()
-
-
+# # unshelt_homeless_norm
+# p <- ggplot(data = state_year_master, mapping = aes(x = unshelt_homeless_norm)) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
+#   xlab('Unsheltered Homeless Per Capita') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/unshelt_homeless_norm_dens.png", width=600, height=450)
+# p
+# dev.off()
+# 
+# 
+# 
+# # log10(unshelt_homeless_norm)
+# p <- ggplot(data = state_year_master, mapping = aes(x = log10(unshelt_homeless_norm))) + 
+#   geom_density(color = 'black', fill = 'gray') + 
+#   ggtitle('Distribution of Log Per Capita Unsheltered Homeless Counts per State/Year Pair') + 
+#   xlab('Log10(Unsheltered Homeless Per Capita)') + 
+#   ylab('Frequency') +
+#   theme_bw() + 
+#   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+#         axis.title.y = element_text(size = 9.5))
+# print(p)
+# 
+# png(filename="figures/eda/log(unshelt_homeless_norm)_dens.png", width=600, height=450)
+# p
+# dev.off()
 
 
-# sentiment
-p <- ggplot(data = all_data, mapping = aes(x = sentiment)) + 
+
+
+# total sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = all_sent)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair') + 
   xlab('Sentiment') + 
@@ -405,8 +453,56 @@ p
 dev.off()
 
 
+# unique sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = unique_sent)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Unique Tweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_dens_unique.png", width=600, height=450)
+p
+dev.off()
+
+
+# qrt sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = all_sent)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Quote Retweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_dens_qrt.png", width=600, height=450)
+p
+dev.off()
+
+
+# reply sentiment
+p <- ggplot(data = state_year_master, mapping = aes(x = reply_sent)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Average Tweet Sentiment per State/Year Pair\nFor All Reply Tweets') + 
+  xlab('Sentiment') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_dens_replies.png", width=600, height=450)
+p
+dev.off()
+
+
 # change in per capita total homelessness
-p <- ggplot(data = changes, aes(x = total_homeless_change)) + 
+p <- ggplot(data = state_year_master, aes(x = total_homeless_change)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Per Capita Homelessness\nper State/Year Pair') + 
   xlab('Homelessness Change') + 
@@ -423,7 +519,7 @@ dev.off()
 
 
 # change in per capita tweets
-p <- ggplot(data = changes, aes(x = tweet_norm_changes)) + 
+p <- ggplot(data = state_year_master, aes(x = tweet_count_change)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Per Capita Tweets\nper State/Year Pair') + 
   xlab('Tweet Volume Change') + 
@@ -439,7 +535,7 @@ dev.off()
 
 
 # change in sentiment
-p <- ggplot(data = changes, aes(x = sent_change)) + 
+p <- ggplot(data = state_year_master, aes(x = all_sent_change)) + 
   geom_density(color = 'black', fill = 'gray') + 
   ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair') + 
   xlab('Sentiment Change') + 
@@ -454,6 +550,53 @@ p
 dev.off()
 
 
+# change in sent - unique
+p <- ggplot(data = state_year_master, aes(x = unique_sent_change)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair (Unique Tweets Only)') + 
+  xlab('Sentiment Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_change_dens_unique.png", width=600, height=450)
+p
+dev.off()
+
+
+# change in sent - qrt
+p <- ggplot(data = state_year_master, aes(x = qrt_sent_change)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair (Quote Retweets Only)') + 
+  xlab('Sentiment Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_change_dens_qrt.png", width=600, height=450)
+p
+dev.off()
+
+
+# change in sent - reply
+p <- ggplot(data = state_year_master, aes(x = replies_sent_change)) + 
+  geom_density(color = 'black', fill = 'gray') + 
+  ggtitle('Distribution of Change From Previous Year in Tweet Sentiment\nper State/Year Pair (Reply Tweets Only)') + 
+  xlab('Sentiment Change') + 
+  ylab('Frequency') +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/eda/sentiment_change_dens_replies.png", width=600, height=450)
+p
+dev.off()
+
 
 
 
@@ -462,7 +605,7 @@ dev.off()
 
 
 # all log variables
-temp <- all_data %>% mutate(state_year = paste(state, year)) %>% 
+temp <- state_year_master %>% mutate(state_year = paste(state, year)) %>% 
   select(-state, -year, -sentiment, -raw_sent)
 temp <- temp[, c('state_year','tweet_count','tweet_percent','total_homeless_norm','tweets_norm')]
 names(temp) <- c('state_year','Number of Tweets','Percentage of Tweets',
@@ -566,7 +709,7 @@ for (st in states) {
 # overlaying multiple distributions 
 # Note these don't have axis labels because the axes are kind of meaningless
 # the takeaway here is the shape of the distribution, not its values!
-p <- all_data %>% mutate(total_homeless_norm = total_homeless_norm / max(total_homeless_norm)) %>% 
+p <- state_year_master %>% mutate(total_homeless_norm = total_homeless_norm / max(total_homeless_norm)) %>% 
   mutate(tweets_norm = tweets_norm / max(tweets_norm)) %>% 
   ggplot() +
   geom_density(mapping = aes(x = log10(total_homeless_norm), fill = 'Homelessness'), color = 'black', alpha = 0.3) + 
@@ -592,25 +735,25 @@ dev.off()
 # overlaid distributions for homelessness by year
 # The unicorn vomit plot!
 ggplot() + 
-  geom_density(data = all_data %>% filter(year == 2010), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2010), mapping = aes(x = total_homeless_norm,
                fill = '2010'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2011), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2011), mapping = aes(x = total_homeless_norm,
                fill = '2011'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2012), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2012), mapping = aes(x = total_homeless_norm,
                fill = '2012'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2013), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2013), mapping = aes(x = total_homeless_norm,
                fill = '2013'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2014), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2014), mapping = aes(x = total_homeless_norm,
                fill = '2014'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2015), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2015), mapping = aes(x = total_homeless_norm,
                fill = '2015'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2016), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2016), mapping = aes(x = total_homeless_norm,
                fill = '2016'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2017), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2017), mapping = aes(x = total_homeless_norm,
                fill = '2017'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2018), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2018), mapping = aes(x = total_homeless_norm,
                fill = '2018'), color = 'black', alpha = 0.2) +
-  geom_density(data = all_data %>% filter(year == 2019), mapping = aes(x = total_homeless_norm,
+  geom_density(data = state_year_master %>% filter(year == 2019), mapping = aes(x = total_homeless_norm,
                fill = '2019'), color = 'black', alpha = 0.2) +
   labs(fill="Year") +
   scale_fill_manual(values = c('red','orange','yellow','green','blue','purple','gray','brown','magenta','cyan')) +
@@ -639,7 +782,7 @@ ggplot() +
 
 # normed tweet counts and homelessness counts per state
 # ggplot() + 
-#   geom_histogram(data = all_data %>% filter(state == 'CA'), mapping = aes(x = tweets_norm),
+#   geom_histogram(data = state_year_master %>% filter(state == 'CA'), mapping = aes(x = tweets_norm),
 #                fill = 'darkblue', alpha = 0.8) +
 #   geom_histogram(data = homeless_changes %>% filter(state == 'CA'), mapping = aes(x = total_homeless_change),
 #                fill = 'lightblue', alpha = 0.8) +
