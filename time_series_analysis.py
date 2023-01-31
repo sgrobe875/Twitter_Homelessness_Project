@@ -13,7 +13,7 @@ import matplotlib.ticker as mticker
 
 
 
-# reference for analysis: 
+# reference for general analysis (detrending, seasonality, etc.): 
 # https://towardsdatascience.com/time-series-decomposition-in-python-8acac385a5b2
 
 
@@ -23,6 +23,8 @@ month_sent = pd.read_csv('data/sentiment/month_sentiment.csv')
 month_sent_unique = pd.read_csv('data/sentiment/month_sentiment_unique.csv')
 month_sent_replies = pd.read_csv('data/sentiment/month_sentiment_replies.csv')
 month_sent_qrt = pd.read_csv('data/sentiment/month_sentiment_qrt.csv')
+
+# tweets = pd.read_csv('data/tweets_processed.csv')
 
 
 
@@ -56,7 +58,44 @@ for df in dataframes:
     
     df['year'] = years
     df['raw_month'] = raw_month
-    
+
+
+
+# # basically same as above, but slightly modified for the tweets dataframe
+# tweets['tweet_created_at'] = tweets['tweet_created_at'].apply(str)
+
+# # the data we want in the cleaned dataframe
+# day = []
+# raw_day = []
+# month = []
+# raw_month = []
+# years = []
+# text = []
+
+# # loop through every tweet
+# for row in range(len(tweets)):
+#     # get month data as dates, and gather other relevant info too
+#     try:
+#         day.append(datetime.datetime.strptime(tweets.iloc[row]['tweet_created_at'][:10], "%Y-%m-%d"))
+#         raw_day.append(tweets.iloc[row]['tweet_created_at'][:10])
+#         month.append(datetime.datetime.strptime(tweets.iloc[row]['tweet_created_at'][:7], "%Y-%m"))
+#         raw_month.append(tweets.iloc[row]['tweet_created_at'][:7])
+#         years.append(tweets.iloc[row]['year'])
+#         text.append(tweets.iloc[row]['tweet_text'])
+#     # ignore any tweets that don't have a valid date
+#     except ValueError:
+#         pass
+
+# # essentially overwrite the tweets dataframe with this new, smaller one
+# tweets = pd.DataFrame({'day_dt':day, 'day':raw_day, 'month_dt':month, 
+#                        'month':raw_month, 'year':years, 'tweet_text':text})
+
+# # sort by date (ascending)
+# tweets.sort_values(by = ['day_dt'], inplace = True, ignore_index = True)
+
+
+# read in the data to save time
+tweets = pd.read_csv('data/tweets_datetimes.csv')
 
 
 
@@ -64,20 +103,29 @@ for df in dataframes:
 # performs detrending on the inputted dataframe sentiment data and plots it vs.
 # the original data
 def detrend(df, t2):
+    
+    ### detrending the data ###
+    
     fig_trend, ax_trend = plt.subplots()
     
+    # extract data to be plotted (in this case, sentiment by month)
     x = df['month']
     y = df['sentiment']
     
+    # make a smaller dataframe of just this plotting data w/ relevant column names
     data = pd.DataFrame({"time" : x, "original" : y})
     
+    # add a column of detrended data
     data["detrended"] = data["original"].diff()
+    
+    # set up the plot
     ax_trend = data.plot()
     ax_trend.legend(ncol=5, 
               loc='lower center',
               # bbox_to_anchor=(0.5, 1.0),
               bbox_transform=plt.gcf().transFigure)
     
+    # set title and labels
     title = "Monthly Sentiment Over Time " + t2
     ax_trend.set_title(title)
     mLabels = []
@@ -86,7 +134,8 @@ def detrend(df, t2):
             mLabels.append("Jan " + x[i][0:4])
         else:
             mLabels.append("")
-            
+    
+    # set x axis ticks
     x2 = np.arange(len(x))
     distance_between_ticks = 12
     # reduced_xticks = x2[np.arange(0, len(x2), distance_between_ticks)]
@@ -101,8 +150,12 @@ def detrend(df, t2):
     
     plt.xticks(rotation = 45)
     plt.title(title)
+    
+    # plot detrended vs original
     plt.show()
     
+    
+    ### Autocorrelation ###
     
     data["detrended"].iloc[0] = 0
     plt.acorr(data["detrended"], maxlags = 12)
@@ -126,7 +179,6 @@ def detrend(df, t2):
     
 def seasonality(df, t2):
     x = df['month']
-
     
     result = sm.seasonal_decompose(df["sentiment"], model='additive', period=12)
         
@@ -400,18 +452,18 @@ def freq_time(dates, time_segment='hour', freq=True, continious=True):
 # def base_periodic_fig(dates, freq, bottom=0, ymax=1,
 #                       rescale=True, figsize=(8, 8),
 #                       time_segment='hour', fig=None, ax1=None):
-def base_periodic_fig(dates, sentiment, bottom=0, ymax=1,
+def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
                       rescale=True, figsize=(8, 8),
-                      time_segment='hour', fig=None, ax1=None):
+                      time_segment='hour', fig=None, ax1=None, freq=[], isFreq=False):
 
-    # if rescale:
-    #     freq = freq / freq.max()
-    #     ymax = 1.
     if rescale:
-        # sentiment = sentiment + sentiment.min()
-        # sentiment = sentiment / sentiment.max()
-        ymax = sentiment.max()
-        bottom = sentiment.min()
+        if isFreq:
+            freq = freq / freq.max()
+            ymax = 1.
+        else:
+            ymax = sentiment.max() + 0.05 * sentiment.max()
+            bottom = sentiment.min() - 0.05 * sentiment.min()
+
 
 
     angles = date2rad(dates, time_segment)
@@ -464,16 +516,18 @@ def base_periodic_fig(dates, sentiment, bottom=0, ymax=1,
         angles=[i-(width) for i in angles]
     ##########################################
 
-
-    # ax1.bar(angles, freq, width=width, bottom=bottom, alpha=0.5, label="Dates")
-    ax1.plot(angles, sentiment)
+    if isFreq:
+        ax1.bar(angles, freq, width=width, bottom=bottom, alpha=0.5, label="Dates")
+    
+    else:
+        if time_segment == 'monthyear':
+            # ax1.set_xticklabels(['January','February','March','April','May','June','July',
+            #                      'August','September','October','November','December'])
+            ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
+                                 'Aug','Sep','Oct','Nov','Dec'])
+        ax1.plot(angles, sentiment)
 
     ax1.set_ylim([bottom, ymax])
-
-    # ax1.set_xticklabels(['January','February','March','April','May','June','July',
-    #                      'August','September','October','November','December'])
-    ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
-                         'Aug','Sep','Oct','Nov','Dec'])
     
     ax1.set_yticklabels([])
     ax1.tick_params(axis='both', which='major', labelsize=12)
@@ -482,11 +536,18 @@ def base_periodic_fig(dates, sentiment, bottom=0, ymax=1,
 
 
 
-def circular(df, t2):
-    time_segment = 'monthyear'
+def circular(df, t2='', isFreq=False, time_segment='monthyear'):
     # freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment)
-    freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=False)
-    fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, sentiment=df['sentiment'])
+    if time_segment=='monthyear':
+        freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=isFreq)
+    else:
+        freq_arr, times = freq_time(df['day_dt'] , time_segment=time_segment, freq=isFreq)
+    if not isFreq:
+        fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, sentiment=df['sentiment'])
+    else:
+        # fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, isFreq=True)
+        fig, ax1 = base_periodic_fig(dates=freq_arr[:, 0], freq=freq_arr[:, 1], 
+                                     time_segment=time_segment, isFreq=True)
     # ax1.legend(bbox_to_anchor=(-0.3, 0.05), loc="upper left", borderaxespad=0)
     plt.title('Monthly Tweet Sentiment, 2010-2022 ' + t2 + '\n', fontdict={'fontsize':22})
     plt.show()
@@ -512,10 +573,15 @@ def circular(df, t2):
 
 
 
-circular(month_sent, '(All Tweets)')
-circular(month_sent_unique, '(Unique Tweets)')
-circular(month_sent_replies, '(Reply Tweets)')
-circular(month_sent_qrt, '(Quote Tweets)')
+# circular(month_sent, '(All Tweets)')
+# circular(month_sent_unique, '(Unique Tweets)')
+# circular(month_sent_replies, '(Reply Tweets)')
+# circular(month_sent_qrt, '(Quote Tweets)')
+
+
+# circular(tweets, isFreq=True, time_segment='daymonth')
+# circular(tweets, isFreq=True, time_segment='dayweek')
+
 
 
 
