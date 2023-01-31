@@ -213,9 +213,9 @@ def seasonality(df, t2):
     
     # ax1.set_xticklabels(x)
     ax1.set_xticklabels(mLabels)
-    plt.xlabel("Time")
+    # plt.xlabel("Time")
     
-    plt.xticks(rotation = 45)
+    # plt.xticks(rotation = 45)
 
     
     plt.show()
@@ -258,12 +258,10 @@ def seasonality(df, t2):
         for date in x:
             if year == date:
                 plt.axvline(x = date, color = 'red', linestyle = 'dashed')
-                
-            
 
     plt.show()
     
-def overlaid_by_year(og_df):
+def overlaid_by_year(og_df, title=''):
     
     df = og_df.copy()
     
@@ -281,44 +279,73 @@ def overlaid_by_year(og_df):
     # lay all years on top of each other
     fig, ax2 = plt.subplots()
     
-    for yr in range(2011, 2023):
+    months = ['01','02','03','04','05','06','07','08','09','10','11','12']
+    
+    for yr in range(2010, 2023):
+        sent = []
         yr = str(yr)
         df_slice = df[df.year == yr]
         
-        plt.plot(df_slice['raw_month'], df_slice['sentiment'])
+        for mon in months:
+            try:
+                slice2 = df_slice[df_slice.raw_month == mon]
+                sent.append(float(slice2['sentiment']))
+            except:
+                sent.append(float('nan'))
         
+        # plt.plot(df_slice['raw_month'], df_slice['sentiment'])
+        plt.plot(months, sent)
+        
+    ax2.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
+                                 'Aug','Sep','Oct','Nov','Dec'])
+    
     plt.xticks(rotation = 45)
     
-    labels = list(range(2011, 2023))
-    ax2.legend(labels, loc='center left', bbox_to_anchor=(1, 0.5))
-
+    labels = list(range(2010, 2023))
+    ax2.legend(labels, loc='center left', bbox_to_anchor=(1, 0.5), title='Year')
     
+    plt.title(title)
+    ax2.set_ylabel('Sentiment')
+    ax2.set_xlabel('Month')
+
     plt.show()
+
+
     
     
     # zoom in on September - December
     zoom_months = {'01':'January', '02':'February', '03':'March',
                    '04':'April', '05':'May', '06':'June'}
-    for yr in range(2011, 2023):
+    for yr in range(2010, 2023):
         # zoom_df = pd.DataFrame(columns = list(df_slice.columns))
         # zoom_df.columns = list(df_slice.columns)
         yr = str(yr)
         df_slice = df[df.year == yr]
         sent = []
-        for i in range(len(df_slice)):
-            if df_slice.iloc[i]['raw_month'] in zoom_months.keys():
-                # temp = pd.DataFrame(df_slice.iloc[i])
-                # zoom_df.append(temp)
-                sent.append(df_slice.iloc[i]['sentiment'])
+        # for i in range(len(df_slice)):
+        #     if df_slice.iloc[i]['raw_month'] in zoom_months.keys():
+        #         # temp = pd.DataFrame(df_slice.iloc[i])
+        #         # zoom_df.append(temp)
+        #         sent.append(df_slice.iloc[i]['sentiment'])
+        
+        for mon in zoom_months.keys():
+            try:
+                slice2 = df_slice[df_slice.raw_month == mon]
+                sent.append(float(slice2['sentiment']))
+            except:
+                sent.append(float('nan'))
         
         # plt.plot(zoom_months, zoom_df['sentiment'])
         plt.plot(zoom_months.values(), sent)
         
     # plt.xticks(rotation = 45)
     
-    labels = list(range(2011, 2023))
+    labels = list(range(2010, 2023))
     ax2.legend(labels, loc='center left', bbox_to_anchor=(1, 0.5))
 
+    plt.title(title + ',\nJanuary - June')
+    ax2.set_ylabel('Sentiment')
+    ax2.set_xlabel('Month')
     
     plt.show()
     
@@ -326,26 +353,34 @@ def overlaid_by_year(og_df):
     # zoom in on September - December
     zoom_months = {'07':'July', '08':'August', '09':'September','10':'October',
                    '11':'November','12':'December'}
-    for yr in range(2011, 2023):
+    for yr in range(2010, 2023):
         # zoom_df = pd.DataFrame(columns = list(df_slice.columns))
         # zoom_df.columns = list(df_slice.columns)
         yr = str(yr)
         df_slice = df[df.year == yr]
         sent = []
-        for i in range(len(df_slice)):
-            if df_slice.iloc[i]['raw_month'] in zoom_months.keys():
+        # for i in range(len(df_slice)):
+            # if df_slice.iloc[i]['raw_month'] in zoom_months.keys():
                 # temp = pd.DataFrame(df_slice.iloc[i])
                 # zoom_df.append(temp)
-                sent.append(df_slice.iloc[i]['sentiment'])
+        for mon in zoom_months.keys():
+            try:
+                slice2 = df_slice[df_slice.raw_month == mon]
+                sent.append(float(slice2['sentiment']))
+            except:
+                sent.append(float('nan'))
         
         # plt.plot(zoom_months, zoom_df['sentiment'])
         plt.plot(zoom_months.values(), sent)
         
     # plt.xticks(rotation = 45)
     
-    labels = list(range(2011, 2023))
+    labels = list(range(2010, 2023))
     ax2.legend(labels, loc='center left', bbox_to_anchor=(1, 0.5))
 
+    plt.title(title + ',\nJuly - December')
+    ax2.set_ylabel('Sentiment')
+    ax2.set_xlabel('Month')
     
     plt.show()
     
@@ -462,7 +497,7 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
             ymax = 1.
         else:
             ymax = sentiment.max() + 0.05 * sentiment.max()
-            bottom = sentiment.min() - 0.05 * sentiment.min()
+            bottom = sentiment.min() - abs(0.5 * sentiment.min())
 
 
 
@@ -479,7 +514,7 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
         width /= 30
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-        ax1.set_xticklabels(['6h', '3h', '0h', '21h', '18h', '15h', '12h', '9h'])
+        ax1.set_xticklabels(['6am', '3am', '12am', '9pm', '6pm', '3pm', '12pm', '9am'])
         angles=[i+(width/2) for i in angles]
 
     elif time_segment == 'dayweek':
@@ -512,21 +547,23 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
         ax1.set_xticks(temp_xticks)
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-        ax1.set_xticklabels(range(1, 13))
+        # ax1.set_xticklabels(range(1, 13))
         angles=[i-(width) for i in angles]
+        ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
+                                 'Aug','Sep','Oct','Nov','Dec'])
     ##########################################
 
     if isFreq:
         ax1.bar(angles, freq, width=width, bottom=bottom, alpha=0.5, label="Dates")
     
     else:
-        if time_segment == 'monthyear':
-            # ax1.set_xticklabels(['January','February','March','April','May','June','July',
-            #                      'August','September','October','November','December'])
-            ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
-                                 'Aug','Sep','Oct','Nov','Dec'])
+        # if time_segment == 'monthyear':
+        #     # ax1.set_xticklabels(['January','February','March','April','May','June','July',
+        #     #                      'August','September','October','November','December'])
+        #     ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
+        #                          'Aug','Sep','Oct','Nov','Dec'])
         ax1.plot(angles, sentiment)
-
+    
     ax1.set_ylim([bottom, ymax])
     
     ax1.set_yticklabels([])
@@ -536,12 +573,15 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
 
 
 
-def circular(df, t2='', isFreq=False, time_segment='monthyear'):
+def circular(df, isFreq=False, time_segment='monthyear', title=''):
     # freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment)
     if time_segment=='monthyear':
         freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=isFreq)
+    elif time_segment=='hour':
+        freq_arr, times = freq_time(df['hour_dt'] , time_segment=time_segment, freq=isFreq)
     else:
         freq_arr, times = freq_time(df['day_dt'] , time_segment=time_segment, freq=isFreq)
+        
     if not isFreq:
         fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, sentiment=df['sentiment'])
     else:
@@ -549,38 +589,57 @@ def circular(df, t2='', isFreq=False, time_segment='monthyear'):
         fig, ax1 = base_periodic_fig(dates=freq_arr[:, 0], freq=freq_arr[:, 1], 
                                      time_segment=time_segment, isFreq=True)
     # ax1.legend(bbox_to_anchor=(-0.3, 0.05), loc="upper left", borderaxespad=0)
-    plt.title('Monthly Tweet Sentiment, 2010-2022 ' + t2 + '\n', fontdict={'fontsize':22})
+    plt.title(title + '\n', fontdict={'fontsize':22})
     plt.show()
         
         
     
+
+
+
+
+
+
+
+
+
+
+
+### COMMENT/UNCOMMENT AS NEEDED TO GENERATE PLOTS ###
+
+
     
-    
-    
+
+# Detrending the sentiment data
 # detrend(month_sent, '(All Tweets)')
 # detrend(month_sent_unique, '(Unique Tweets Only)')
 # detrend(month_sent_replies, '(Reply Tweets Only)')
 # detrend(month_sent_qrt, '(Quote Tweets Only)')
 
 
+# evaluating seasonality
 # seasonality(month_sent, '(All Tweets)')
 
 
-# overlaid_by_year(month_sent)
+# overlay monthly sentiment each year (linear)
+# overlaid_by_year(month_sent, 'Monthly Tweet Sentiment By Year (All Tweets)')
 # overlaid_by_year(month_sent_unique)
 # overlaid_by_year(month_sent_replies)
 # overlaid_by_year(month_sent_qrt)
 
 
+# overlay monthly sentiment each year (circular)
+# circular(month_sent, title='Monthly Tweet Sentiment, 2010-2022 (All Tweets)')
+# circular(month_sent_unique, title='Monthly Tweet Sentiment, 2010-2022 (Unique Tweets)')
+# circular(month_sent_replies, title='Monthly Tweet Sentiment, 2010-2022 (Reply Tweets)')
+# circular(month_sent_qrt, title='Monthly Tweet Sentiment, 2010-2022 (Quote Tweets)')
 
-# circular(month_sent, '(All Tweets)')
-# circular(month_sent_unique, '(Unique Tweets)')
-# circular(month_sent_replies, '(Reply Tweets)')
-# circular(month_sent_qrt, '(Quote Tweets)')
 
-
-# circular(tweets, isFreq=True, time_segment='daymonth')
-# circular(tweets, isFreq=True, time_segment='dayweek')
+# circular tweet counts
+# circular(tweets, isFreq=True, time_segment='hour', title='Tweet Counts by Hour')
+# circular(tweets, isFreq=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
+# circular(tweets, isFreq=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
+# circular(tweets, isFreq=True, time_segment='monthyear', title='Tweet Counts by Month')
 
 
 
