@@ -65,6 +65,8 @@ for df in dataframes:
 # tweets['tweet_created_at'] = tweets['tweet_created_at'].apply(str)
 
 # # the data we want in the cleaned dataframe
+# hour = []
+# raw_hour = []
 # day = []
 # raw_day = []
 # month = []
@@ -76,6 +78,9 @@ for df in dataframes:
 # for row in range(len(tweets)):
 #     # get month data as dates, and gather other relevant info too
 #     try:
+#         s = tweets.iloc[row]['tweet_created_at'][11:13] + ':00:00'
+#         hour.append(datetime.datetime.strptime(s, "%H:%M:%S"))
+#         raw_hour.append(tweets.iloc[row]['tweet_created_at'][11:13])
 #         day.append(datetime.datetime.strptime(tweets.iloc[row]['tweet_created_at'][:10], "%Y-%m-%d"))
 #         raw_day.append(tweets.iloc[row]['tweet_created_at'][:10])
 #         month.append(datetime.datetime.strptime(tweets.iloc[row]['tweet_created_at'][:7], "%Y-%m"))
@@ -87,11 +92,8 @@ for df in dataframes:
 #         pass
 
 # # essentially overwrite the tweets dataframe with this new, smaller one
-# tweets = pd.DataFrame({'day_dt':day, 'day':raw_day, 'month_dt':month, 
-#                        'month':raw_month, 'year':years, 'tweet_text':text})
-
-# # sort by date (ascending)
-# tweets.sort_values(by = ['day_dt'], inplace = True, ignore_index = True)
+# tweets = pd.DataFrame({'hour_dt':hour, 'hour':raw_hour, 'day_dt':day, 'day':raw_day, 
+#                        'month_dt':month, 'month':raw_month, 'year':years, 'tweet_text':text})
 
 
 # read in the data to save time
