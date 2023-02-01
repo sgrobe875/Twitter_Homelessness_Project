@@ -5,6 +5,8 @@ from collections import Counter
 import warnings
 warnings.filterwarnings("ignore")
 from geopy.geocoders import Nominatim
+from timezonefinder import TimezoneFinder
+import pytz
 
 
 ### load some useful data to help with building the state column
@@ -76,8 +78,12 @@ def read_geotagged_data(filepath):
 # initialize the geolocator
 geolocator = Nominatim(user_agent="geoapiExercises")
 
+# initialize timezone finder
+tf = TimezoneFinder()
+
 # read in the data
 geotagged_tweets = read_geotagged_data('data/tweets.csv')
+
 
 
 
@@ -90,7 +96,9 @@ cols = list(geotagged_tweets.columns)
 for col in cols:
     if 'place_' in col:
         geotagged_tweets.rename(columns={col: col[6:]}, inplace=True)
+        
 
+geotagged_tweets.rename(columns={'tweet_created_at': 'tweet_created_at_GMT'}, inplace=True)
 
 # initialize columns (to be filled in in a moment!)
 geotagged_tweets['state'] = ''
@@ -137,10 +145,45 @@ print()
     
 locations = list(states_expanded.keys())
 
+local_time_column = []
+
 # Make more attempts at defining the state
 
 # loop through all tweets, only look at tweets with a blank state value 
 for i in range(len(geotagged_tweets)):
+    
+    # first fix the time
+    try:
+        # get geo field and convert from string to dict
+        geo = geotagged_tweets.loc[i]['geo']
+        geo = geo[1:-2].replace("'",'"')
+        geo = json.loads(geo)
+        
+        # get coordinate values
+        long = geo['bbox'][0]
+        lat  = geo['bbox'][1]
+        
+        ###### COURTESY OF ZacharyST ON GITHUB ################################
+        # slight modifications to the original code were made to suit these data
+        # https://github.com/ZacharyST/Twitter_AdjustTimeCorrectly
+        
+        # Get timezones
+        zone = tf.timezone_at(lng=long, lat=lat)
+        timezone = pytz.timezone(zone)
+
+		# Make local time 
+        # utc_time = datetime.datetime.strptime(geotagged_tweets.loc[i]['tweet_created_at'], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC)
+        utc_time = datetime.datetime.strptime(geotagged_tweets.loc[i]['tweet_created_at_GMT'], '%Y-%m-%d %H:%M:%S+00:00').replace(tzinfo=pytz.UTC)
+        local_time = utc_time.replace(tzinfo=pytz.utc).astimezone(timezone)  # Get local time as datetime object
+
+        # tweet['local_time_twitterStyle'] = local_time.strftime(format='%a %b %d %H:%M:%S +0000 %Y')
+        
+        # tweet['local_time_nice'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+        local_time_column.append(local_time.strftime('%Y-%m-%d %H:%M:%S'))
+    except:
+        local_time_column.append('nan')
+        
+        #######################################################################
     
     # print update every 100,000 tweets
     if i > 0 and i % 100000 == 0:  
@@ -211,7 +254,8 @@ for i in range(len(geotagged_tweets)):
         if not fixed:
             geotagged_tweets.at[i, 'state'] = 'Unknown'
             
-            
+geotagged_tweets['tweet_created_at'] = local_time_column
+
 # guess what! more sanity checks!
 print('After Step 2:')
 print(geotagged_tweets['state'].unique())
