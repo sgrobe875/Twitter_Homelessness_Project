@@ -177,6 +177,12 @@ def detrend(df, t2):
     plt.show()
     
     
+    # TODO: calculate strength of trend - overall
+    # TODO: calculate strength of trend - year < 2018
+    # TODO: calculate strength of trend - year >= 2018
+    
+    
+    
     
     
 def seasonality(df, t2):
@@ -198,7 +204,7 @@ def seasonality(df, t2):
         
     mLabels = []
     for i in range(len(x)): 
-        if i%12 == 0:
+        if '-01' in x[i]:
             mLabels.append("Jan " + x[i][0:4])
         else:
             mLabels.append("")
@@ -262,6 +268,48 @@ def seasonality(df, t2):
                 plt.axvline(x = date, color = 'red', linestyle = 'dashed')
 
     plt.show()
+    
+    
+    # TODO: calculate strength of seasonality
+    remainderSeries = result.resid
+    trendSeries = result.trend
+    seasonSeries = result.seasonal
+    
+    remainder = []
+    trend = []
+    season = []
+    for num in remainderSeries:
+        if math.isnan(num):
+            pass
+        else:
+            remainder.append(num)
+            
+    for num in trendSeries:
+        if math.isnan(num):
+            pass
+        else:
+            trend.append(num)
+            
+    for num in seasonSeries:
+        if math.isnan(num):
+            pass
+        else:
+            season.append(num)
+    
+    #covariance = np.cov(season,remainder)[0,1]
+    value = var(remainder) / (var(season) + var(remainder))# + 2 * covariance)
+    Fseason = max(0, 1 - value)
+    print('Seasonality F statistic: %.5f' % Fseason)
+    if Fseason > 0:
+        print('Some evidence of seasonality present')
+    else:
+        print('No evidence of seasonality present')
+    
+    
+    
+    
+    
+    
     
 def overlaid_by_year(og_df, title=''):
     
@@ -390,6 +438,7 @@ def overlaid_by_year(og_df, title=''):
 
 
 # reference: https://towardsdatascience.com/introducing-pycircular-a-python-library-for-circular-data-analysis-bfd696a6a42b
+# original code: https://github.com/albahnsen/pycircular
 def date2rad(dates, time_segment='hour'):
 
     if time_segment == 'hour':
@@ -491,10 +540,10 @@ def freq_time(dates, time_segment='hour', freq=True, continious=True):
 #                       time_segment='hour', fig=None, ax1=None):
 def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
                       rescale=True, figsize=(8, 8),
-                      time_segment='hour', fig=None, ax1=None, freq=[], isFreq=False):
+                      time_segment='hour', fig=None, ax1=None, freq=[], counts=False):
 
     if rescale:
-        if isFreq:
+        if counts:
             freq = freq / freq.max()
             ymax = 1.
         else:
@@ -555,15 +604,10 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
                                  'Aug','Sep','Oct','Nov','Dec'])
     ##########################################
 
-    if isFreq:
+    if counts:
         ax1.bar(angles, freq, width=width, bottom=bottom, alpha=0.5, label="Dates")
     
     else:
-        # if time_segment == 'monthyear':
-        #     # ax1.set_xticklabels(['January','February','March','April','May','June','July',
-        #     #                      'August','September','October','November','December'])
-        #     ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
-        #                          'Aug','Sep','Oct','Nov','Dec'])
         ax1.plot(angles, sentiment)
     
     ax1.set_ylim([bottom, ymax])
@@ -575,21 +619,21 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
 
 
 
-def circular(df, isFreq=False, time_segment='monthyear', title=''):
+def circular(df, counts=False, time_segment='monthyear', title=''):
     # freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment)
     if time_segment=='monthyear':
-        freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=isFreq)
+        freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=counts)
     elif time_segment=='hour':
-        freq_arr, times = freq_time(df['hour_dt'] , time_segment=time_segment, freq=isFreq)
+        freq_arr, times = freq_time(df['hour_dt'] , time_segment=time_segment, freq=counts)
     else:
-        freq_arr, times = freq_time(df['day_dt'] , time_segment=time_segment, freq=isFreq)
+        freq_arr, times = freq_time(df['day_dt'] , time_segment=time_segment, freq=counts)
         
-    if not isFreq:
+    if not counts:
         fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, sentiment=df['sentiment'])
     else:
-        # fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, isFreq=True)
+        # fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, counts=True)
         fig, ax1 = base_periodic_fig(dates=freq_arr[:, 0], freq=freq_arr[:, 1], 
-                                     time_segment=time_segment, isFreq=True)
+                                     time_segment=time_segment, counts=True)
     # ax1.legend(bbox_to_anchor=(-0.3, 0.05), loc="upper left", borderaxespad=0)
     plt.title(title + '\n', fontdict={'fontsize':22})
     plt.show()
@@ -620,7 +664,7 @@ def circular(df, isFreq=False, time_segment='monthyear', title=''):
 
 
 # evaluating seasonality
-# seasonality(month_sent, '(All Tweets)')
+# seasonality(month_sent[month_sent.year != '2010'].reset_index(), '(All Tweets)')
 
 
 # overlay monthly sentiment each year (linear)
@@ -638,10 +682,10 @@ def circular(df, isFreq=False, time_segment='monthyear', title=''):
 
 
 # circular tweet counts
-# circular(tweets, isFreq=True, time_segment='hour', title='Tweet Counts by Hour')
-# circular(tweets, isFreq=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
-# circular(tweets, isFreq=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
-# circular(tweets, isFreq=True, time_segment='monthyear', title='Tweet Counts by Month')
+circular(tweets, counts=True, time_segment='hour', title='Tweet Counts by Hour')
+circular(tweets, counts=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
+circular(tweets, counts=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
+circular(tweets, counts=True, time_segment='monthyear', title='Tweet Counts by Month')
 
 
 
