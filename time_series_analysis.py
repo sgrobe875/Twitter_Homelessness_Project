@@ -484,6 +484,7 @@ def date2rad(dates, time_segment='hour'):
     return radians1
 
 
+# slightly modified function from https://github.com/albahnsen/pycircular
 def freq_time(dates, time_segment='hour', freq=True, continious=True):
     # Get frequency per time_segment
     dates_index = pd.DatetimeIndex(dates)
@@ -533,11 +534,7 @@ def freq_time(dates, time_segment='hour', freq=True, continious=True):
         return freq_arr, time_temp
 
 
-
-
-# def base_periodic_fig(dates, freq, bottom=0, ymax=1,
-#                       rescale=True, figsize=(8, 8),
-#                       time_segment='hour', fig=None, ax1=None):
+# slightly modified function from https://github.com/albahnsen/pycircular
 def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
                       rescale=True, figsize=(8, 8),
                       time_segment='hour', fig=None, ax1=None, freq=[], counts=False):
@@ -566,40 +563,42 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
         ax1.set_xticklabels(['6am', '3am', '12am', '9pm', '6pm', '3pm', '12pm', '9am'])
-        angles=[i+(width/2) for i in angles]
+        angles=[i for i in angles]
 
     elif time_segment == 'dayweek':
-        width /= 30
+        width /= 9
         temp_xticks = np.linspace(np.pi/2, 2*np.pi+np.pi/2, 7, endpoint=False)
         temp_xticks[-1] -= 2 * np.pi
         ax1.set_xticks(temp_xticks)
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-        ax1.set_xticklabels(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
-        angles=[i-(width) for i in angles]
+        ax1.set_xticklabels(['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'])
+        angles=[i for i in angles]
         # TO DO: check the shift amount for good visualization
         # angles=[i-(width/2) for i in angles] ?
 
     elif time_segment == 'daymonth':
-        width /= 31
+        bar_width_factor = 32
+        width /= bar_width_factor
         temp_xticks = np.linspace(np.pi/2, 2*np.pi+np.pi/2, 31, endpoint=False)
         temp_xticks[temp_xticks>2*np.pi] -= 2 * np.pi
         ax1.set_xticks(temp_xticks)
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
         ax1.set_xticklabels(range(1, 32))
-        angles=[i-(width/2) for i in angles]
+        angles=[i-width-(width/bar_width_factor) for i in angles]
         
     #### MODIFIED BY SG ######################
     elif time_segment == 'monthyear':
-        width /= 12
+        bar_width_factor = 13
+        width /= bar_width_factor
         temp_xticks = np.linspace(np.pi/2, 2*np.pi+np.pi/2, 12, endpoint=False)
         temp_xticks[temp_xticks>2*np.pi] -= 2 * np.pi
         ax1.set_xticks(temp_xticks)
         ticks_loc = ax1.get_xticks().tolist()
         ax1.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
         # ax1.set_xticklabels(range(1, 13))
-        angles=[i-(width) for i in angles]
+        angles=[i-width-(width/bar_width_factor) for i in angles]
         ax1.set_xticklabels(['Jan','Feb','Mar','Apr','May','Jun','Jul',
                                  'Aug','Sep','Oct','Nov','Dec'])
     ##########################################
@@ -620,7 +619,6 @@ def base_periodic_fig(dates, sentiment = [], bottom=0, ymax=1,
 
 
 def circular(df, counts=False, time_segment='monthyear', title=''):
-    # freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment)
     if time_segment=='monthyear':
         freq_arr, times = freq_time(df['month_dt'] , time_segment=time_segment, freq=counts)
     elif time_segment=='hour':
@@ -631,10 +629,8 @@ def circular(df, counts=False, time_segment='monthyear', title=''):
     if not counts:
         fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, sentiment=df['sentiment'])
     else:
-        # fig, ax1 = base_periodic_fig(dates = times, time_segment=time_segment, counts=True)
         fig, ax1 = base_periodic_fig(dates=freq_arr[:, 0], freq=freq_arr[:, 1], 
                                      time_segment=time_segment, counts=True)
-    # ax1.legend(bbox_to_anchor=(-0.3, 0.05), loc="upper left", borderaxespad=0)
     plt.title(title + '\n', fontdict={'fontsize':22})
     plt.show()
         
@@ -682,10 +678,10 @@ def circular(df, counts=False, time_segment='monthyear', title=''):
 
 
 # circular tweet counts
-circular(tweets, counts=True, time_segment='hour', title='Tweet Counts by Hour')
+# circular(tweets, counts=True, time_segment='hour', title='Tweet Counts by Hour')
 circular(tweets, counts=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
-circular(tweets, counts=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
-circular(tweets, counts=True, time_segment='monthyear', title='Tweet Counts by Month')
+# circular(tweets, counts=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
+# circular(tweets, counts=True, time_segment='monthyear', title='Tweet Counts by Month')
 
 
 
