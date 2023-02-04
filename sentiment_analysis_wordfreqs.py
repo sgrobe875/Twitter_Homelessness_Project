@@ -613,10 +613,123 @@ def group_by_day(df):
 
 
 
+def group_by_region(df):
+    
+    # print update
+    print('Beginning grouping by region')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    
+    # define states in each region
+    regions = {'Northeast':['ME','VT','NH','MA','CT','RI','NY','NJ','PA'], 
+               'Southeast':['WV','MD','DC','DE','VA','KY','TN','NC','SC','AR','LA','MS','AL','GA','FL'], 
+               'Midwest':['ND','SD','MN','WI','MI','NE','IA','KS','MO','IL','IN','OH'],
+               'West':['WA','OR','ID','MT','WY','CA','NV','UT','CO','AK','HI'],
+               'Southwest':['AZ','NM','TX','OK']}
+    
+    # add a column for the region and sort each tweet into the appropriate one
+    region_column = []
+    for i in range(len(df)):
+        state = df.iloc[i]['state']
+        for region in list(regions.keys()):
+            if state in regions[region]:
+                region_column.append(region)
+                
+    df['region'] = region_column
+    
+    # now slice by each region and find sentiment
+    
+    # initialize lists to use as columns in the final dataframe
+    sentiment_column = []
+    raw_sent_column = []
+    
+    regions = list(regions.keys())
+    
+    # loop through all days
+    for r in regions:
+        # filter by the current day
+        temp_tweets = df[df['region'] == r]
+            
+        # concatenate all these tweets into one large string
+        region_tweets = ''
+        for index in range(0, len(temp_tweets)):
+            region_tweets += str(temp_tweets.iloc[index]['text'])
+            region_tweets += ' '  # add a space onto the end to avoid tweets merging together
+
+        # garbage collection
+        del(temp_tweets)
+        
+        # get the frequency for each unique word
+        freqs = get_frequencies(region_tweets)
+        
+        del(region_tweets)
+        
+        # initialize lists for averaging the sentiment
+        this_group_sent = []
+        this_group_raw = []
+        
+        # need this line to avoid a ValueError in the for loop 
+        keys = list(freqs.keys())
+        
+        # loop through each unique word in the mega string
+        for key in keys:
+            # calculate the sentiment for the individual word
+            raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
+            temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
+            sentiment = emotionV(temp,labMTvector)
+            
+            # negative sentiment means cannot be sentimentized, so let's remove it
+            if raw_sent < 0 or sentiment < 0:
+                freqs.pop(key)
+            
+            # if it was successfully sentimentized, append to the list so we can calc the avg
+            else:
+                # multiply the sentiment by the number of times the word appears
+                this_group_sent.append(sentiment * freqs[key])
+                this_group_raw.append(raw_sent * freqs[key]) 
+
+        
+        # get the total number of words in the mega_sting (must be done after the for loop!)
+        num_words = sum(freqs.values())
+        
+        # calculate the average sentiment per word
+        try:
+            sentiment = sum(this_group_sent)/num_words
+            raw_sent = sum(this_group_raw)/num_words
+        except ZeroDivisionError:
+            sentiment = 0
+            raw_sent = 0
+        
+        # add to the dataframe column list
+        sentiment_column.append(sentiment)
+        raw_sent_column.append(raw_sent)
+        
+        # print('Completed:', d)
+        # e = datetime.datetime.now()
+        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+        # print()
+    
+    # convert to dictionary and then to dataframe
+    region_grouped = {'region':regions, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
+    region_grouped = pd.DataFrame(region_grouped)
+
+    
+    # save the results to a file to move to R
+    # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+    
+    # del(day_grouped)
+    
+    print('Completed sentiment analysis for grouping by region')
+    e = datetime.datetime.now()
+    print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    print()
+    
+    return region_grouped
+    
+
 
 
 ####################################
-
 
 
 
@@ -666,6 +779,9 @@ print()
 # state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
 # del(state_grouped)
 
+region_grouped = group_by_region(df)
+region_grouped.to_csv('data/sentiment/region_sentiment.csv', index = False)
+del(region_grouped)
     
     
     
@@ -721,27 +837,31 @@ print()
 
 
 
-# For unique tweets:
-print('Beginning unique tweets only\n')
+# # For unique tweets:
+# print('Beginning unique tweets only\n')
     
-month_grouped = group_by_month(unique)
-month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
-del(month_grouped)
+# month_grouped = group_by_month(unique)
+# month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
+# del(month_grouped)
 
-# day_grouped = group_by_day(unique)
-# day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
-# del(day_grouped)
+# # day_grouped = group_by_day(unique)
+# # day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
+# # del(day_grouped)
 
-state_years_grouped = group_by_both(unique)
-state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
-del(state_years_grouped)
+# state_years_grouped = group_by_both(unique)
+# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
+# del(state_years_grouped)
 
-year_grouped = group_by_year(unique)
-year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
-del(year_grouped)
+# year_grouped = group_by_year(unique)
+# year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
+# del(year_grouped)
 
-state_grouped = group_by_state(unique)
-state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
-del(state_grouped)
+# state_grouped = group_by_state(unique)
+# state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
+# del(state_grouped)
+
+
+
+
 
 
