@@ -29,6 +29,11 @@ state_sent_qrt <- read.csv('data/sentiment/state_sentiment_qrt.csv')
 
 
 
+# regional sentiment
+region_sent_all <- read.csv('data/sentiment/region_sentiment.csv')
+
+
+
 
 ### rescale all of the sentiment columns
 
@@ -85,6 +90,15 @@ year_sent_replies$sentiment <- year_sent_replies$sentiment - 5
 year_sent_replies$sentiment <- year_sent_replies$sentiment / 4
 year_sent_replies$sentiment <- as.numeric(year_sent_replies$sentiment)
 year_sent_replies$sentiment[year_sent_replies$sentiment < -1] <- NA
+
+
+
+region_sent_all$sentiment <- region_sent_all$sentiment - 5
+region_sent_all$sentiment <- region_sent_all$sentiment / 4
+region_sent_all$sentiment <- as.numeric(region_sent_all$sentiment)
+region_sent_all$sentiment[region_sent_all$sentiment < -1] <- NA
+
+
 
 
 
