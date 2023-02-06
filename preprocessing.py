@@ -84,6 +84,8 @@ tf = TimezoneFinder()
 # read in the data
 geotagged_tweets = read_geotagged_data('data/tweets.csv')
 
+geotagged_tweets = geotagged_tweets.iloc[:100]
+
 
 
 
@@ -438,7 +440,7 @@ for row in range(len(geotagged_tweets)):
         
     # after looping through all characters, overwrite the tweet with the 
     # contents of filtered_tweet
-    geotagged_tweets.iloc[row]['tweet_text'] = filtered_tweet
+    geotagged_tweets.at[row, 'tweet_text'] = filtered_tweet
     
     # print update every 100,000 tweets
     if row > 0 and row % 100000 == 0:  
@@ -453,7 +455,7 @@ geotagged_tweets['tweet_type'] = retweets
 
     
 # write the preprocessed data set to a file
-geotagged_tweets.to_csv('data/tweets_processed.csv', index=False)
+geotagged_tweets.to_csv('data/tweets_processed_sub.csv', index=False)
 
 # print a final update
 print('Completed all ' + str(len(geotagged_tweets)) + ' rows!')
