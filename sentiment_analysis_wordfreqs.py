@@ -612,7 +612,9 @@ def group_by_day(df):
 
 
 
-
+# takes in dataframe of preprocessed tweets; groups them by region
+# within each region, groups by year and calculates sentiment, adding everything
+# to a dataframe and returning the result
 def group_by_region(df):
     
     # print update
@@ -620,7 +622,7 @@ def group_by_region(df):
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     
-    # define states in each region
+    # define states in each region (https://education.nationalgeographic.org/resource/united-states-regions)
     regions = {'Northeast':['ME','VT','NH','MA','CT','RI','NY','NJ','PA'], 
                'Southeast':['WV','MD','DC','DE','VA','KY','TN','NC','SC','AR','LA','MS','AL','GA','FL'], 
                'Midwest':['ND','SD','MN','WI','MI','NE','IA','KS','MO','IL','IN','OH'],
@@ -629,102 +631,119 @@ def group_by_region(df):
     
     # add a column for the region and sort each tweet into the appropriate one
     region_column = []
+    # loop through each tweet
     for i in range(len(df)):
+        # extract the state it was posted in
         state = df.iloc[i]['state']
+        # search for that state in the regions dict and append the region to the list
         for region in list(regions.keys()):
             if state in regions[region]:
                 region_column.append(region)
                 
+    # add as a column to the dataframe
     df['region'] = region_column
     
     # now slice by each region and find sentiment
     
-    # initialize lists to use as columns in the final dataframe
-    sentiment_column = []
-    raw_sent_column = []
+    # set up some variables for the final result
+    master_df = pd.DataFrame()
+    master_region_col = []
     
-    regions = list(regions.keys())
-    
-    # loop through all days
-    for r in regions:
-        # filter by the current day
+    # loop through all regions
+    for r in list(regions.keys()):
+        # filter by the current region
         temp_tweets = df[df['region'] == r]
+        
+        # within each region, group by year and get the sentiment
+        region_year_subset = group_by_year(temp_tweets)
+        
+        # append a column of region (just r repeated over all rows)
+        for i in range(len(region_year_subset)):
+            master_region_col.append(r)
+        
+        # append result to the master data frame
+        master_df = pd.concat([master_df, region_year_subset])
+        
+        
+    # return the master data frame
             
-        # concatenate all these tweets into one large string
-        region_tweets = ''
-        for index in range(0, len(temp_tweets)):
-            region_tweets += str(temp_tweets.iloc[index]['text'])
-            region_tweets += ' '  # add a space onto the end to avoid tweets merging together
+    #     # concatenate all these tweets into one large string
+    #     region_tweets = ''
+    #     for index in range(0, len(temp_tweets)):
+    #         region_tweets += str(temp_tweets.iloc[index]['text'])
+    #         region_tweets += ' '  # add a space onto the end to avoid tweets merging together
 
-        # garbage collection
-        del(temp_tweets)
+    #     # garbage collection
+    #     del(temp_tweets)
         
-        # get the frequency for each unique word
-        freqs = get_frequencies(region_tweets)
+    #     # get the frequency for each unique word
+    #     freqs = get_frequencies(region_tweets)
         
-        del(region_tweets)
+    #     del(region_tweets)
         
-        # initialize lists for averaging the sentiment
-        this_group_sent = []
-        this_group_raw = []
+    #     # initialize lists for averaging the sentiment
+    #     this_group_sent = []
+    #     this_group_raw = []
         
-        # need this line to avoid a ValueError in the for loop 
-        keys = list(freqs.keys())
+    #     # need this line to avoid a ValueError in the for loop 
+    #     keys = list(freqs.keys())
         
-        # loop through each unique word in the mega string
-        for key in keys:
-            # calculate the sentiment for the individual word
-            raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
-            temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
-            sentiment = emotionV(temp,labMTvector)
+    #     # loop through each unique word in the mega string
+    #     for key in keys:
+    #         # calculate the sentiment for the individual word
+    #         raw_sent, vec = emotion(key, labMT, shift=True, happsList=labMTvector)
+    #         temp = stopper(vec,labMTvector,labMTwordList,stopVal=1.0)
+    #         sentiment = emotionV(temp,labMTvector)
             
-            # negative sentiment means cannot be sentimentized, so let's remove it
-            if raw_sent < 0 or sentiment < 0:
-                freqs.pop(key)
+    #         # negative sentiment means cannot be sentimentized, so let's remove it
+    #         if raw_sent < 0 or sentiment < 0:
+    #             freqs.pop(key)
             
-            # if it was successfully sentimentized, append to the list so we can calc the avg
-            else:
-                # multiply the sentiment by the number of times the word appears
-                this_group_sent.append(sentiment * freqs[key])
-                this_group_raw.append(raw_sent * freqs[key]) 
+    #         # if it was successfully sentimentized, append to the list so we can calc the avg
+    #         else:
+    #             # multiply the sentiment by the number of times the word appears
+    #             this_group_sent.append(sentiment * freqs[key])
+    #             this_group_raw.append(raw_sent * freqs[key]) 
 
         
-        # get the total number of words in the mega_sting (must be done after the for loop!)
-        num_words = sum(freqs.values())
+    #     # get the total number of words in the mega_sting (must be done after the for loop!)
+    #     num_words = sum(freqs.values())
         
-        # calculate the average sentiment per word
-        try:
-            sentiment = sum(this_group_sent)/num_words
-            raw_sent = sum(this_group_raw)/num_words
-        except ZeroDivisionError:
-            sentiment = 0
-            raw_sent = 0
+    #     # calculate the average sentiment per word
+    #     try:
+    #         sentiment = sum(this_group_sent)/num_words
+    #         raw_sent = sum(this_group_raw)/num_words
+    #     except ZeroDivisionError:
+    #         sentiment = 0
+    #         raw_sent = 0
         
-        # add to the dataframe column list
-        sentiment_column.append(sentiment)
-        raw_sent_column.append(raw_sent)
+    #     # add to the dataframe column list
+    #     sentiment_column.append(sentiment)
+    #     raw_sent_column.append(raw_sent)
         
-        # print('Completed:', d)
-        # e = datetime.datetime.now()
-        # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
-        # print()
+    #     # print('Completed:', d)
+    #     # e = datetime.datetime.now()
+    #     # print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
+    #     # print()
     
-    # convert to dictionary and then to dataframe
-    region_grouped = {'region':regions, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
-    region_grouped = pd.DataFrame(region_grouped)
+    # # convert to dictionary and then to dataframe
+    # region_grouped = {'region':regions, 'sentiment':sentiment_column, 'raw_sent':raw_sent_column}
+    # region_grouped = pd.DataFrame(region_grouped)
 
     
-    # save the results to a file to move to R
-    # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+    # # save the results to a file to move to R
+    # # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
     
-    # del(day_grouped)
+    # # del(day_grouped)
+    
+    master_df['region'] = master_region_col
     
     print('Completed sentiment analysis for grouping by region')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
-    return region_grouped
+    return master_df
     
 
 
@@ -780,7 +799,7 @@ print()
 # del(state_grouped)
 
 region_grouped = group_by_region(df)
-region_grouped.to_csv('data/sentiment/region_sentiment.csv', index = False)
+region_grouped.to_csv('data/sentiment/region_sentiment2.csv', index = False)
 del(region_grouped)
     
     
