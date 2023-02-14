@@ -120,6 +120,10 @@ def group_by_both(df):
                 # negative sentiment means cannot be sentimentized, so let's remove it
                 if raw_sent < 0 or sentiment < 0:
                     freqs.pop(key)
+                    
+                # also remove any neutral words
+                elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
+                    freqs.pop(key)
                 
                 # if it was successfully sentimentized, append to the list so we can calc the avg
                 else:
@@ -220,6 +224,10 @@ def group_by_state(df):
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
                 freqs.pop(key)
+                
+            # also remove any neutral words
+            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
+                freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
@@ -317,6 +325,10 @@ def group_by_year(df):
             
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
+                freqs.pop(key)
+                
+            # also remove any neutral words
+            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
                 freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
@@ -460,6 +472,10 @@ def group_by_month(df):
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
                 freqs.pop(key)
+                
+            # also remove any neutral words
+            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
+                freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
@@ -564,6 +580,10 @@ def group_by_day(df):
             
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
+                freqs.pop(key)
+                
+            # also remove any neutral words
+            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
                 freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
@@ -736,13 +756,16 @@ def group_by_region(df):
     
     # # del(day_grouped)
     
+    # add the region column to the master dataframe
     master_df['region'] = master_region_col
     
+    # print final update
     print('Completed sentiment analysis for grouping by region')
     e = datetime.datetime.now()
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
+    # return the result
     return master_df
     
 
@@ -775,28 +798,28 @@ print()
 
 
 
-# # First do for total data set
-# print('Beginning total data set\n')
+# First do for total data set
+print('Beginning total data set\n')
 
-# month_grouped = group_by_month(df)
-# month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
-# del(month_grouped)
+month_grouped = group_by_month(df)
+month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
+del(month_grouped)
 
-# # day_grouped = group_by_day(df)
-# # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(df)
+# day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+# del(day_grouped)
 
-# state_years_grouped = group_by_both(df)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped = group_by_both(df)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
+del(state_years_grouped)
 
-# year_grouped = group_by_year(df)
-# year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
-# del(year_grouped)
+year_grouped = group_by_year(df)
+year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
+del(year_grouped)
 
-# state_grouped = group_by_state(df)
-# state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
-# del(state_grouped)
+state_grouped = group_by_state(df)
+state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
+del(state_grouped)
 
 region_grouped = group_by_region(df)
 region_grouped.to_csv('data/sentiment/region_sentiment2.csv', index = False)
@@ -804,80 +827,80 @@ del(region_grouped)
     
     
     
-# # For QRTs only:
-# print('Beginning QRTs\n')
+# For QRTs only:
+print('Beginning QRTs\n')
     
-# month_grouped = group_by_month(qrts)
-# month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
-# del(month_grouped)
+month_grouped = group_by_month(qrts)
+month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
+del(month_grouped)
 
-# # day_grouped = group_by_day(qrts)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(qrts)
+# day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
+# del(day_grouped)
 
-# state_years_grouped = group_by_both(qrts)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped = group_by_both(qrts)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
+del(state_years_grouped)
 
-# year_grouped = group_by_year(qrts)
-# year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
-# del(year_grouped)
+year_grouped = group_by_year(qrts)
+year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
+del(year_grouped)
 
-# state_grouped = group_by_state(qrts)
-# state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
-# del(state_grouped)
+state_grouped = group_by_state(qrts)
+state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
+del(state_grouped)
     
 
     
     
-# # For RTs only:
-# print('Beginning replies\n')
+# For RTs only:
+print('Beginning replies\n')
     
-# month_grouped = group_by_month(replies)
-# month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
-# del(month_grouped)
+month_grouped = group_by_month(replies)
+month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
+del(month_grouped)
 
-# # day_grouped = group_by_day(replies)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(replies)
+# day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
+# del(day_grouped)
 
-# state_years_grouped = group_by_both(replies)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped = group_by_both(replies)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
+del(state_years_grouped)
 
-# year_grouped = group_by_year(replies)
-# year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
-# del(year_grouped)
+year_grouped = group_by_year(replies)
+year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
+del(year_grouped)
 
-# state_grouped = group_by_state(replies)
-# state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
-# del(state_grouped)
-
-
+state_grouped = group_by_state(replies)
+state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
+del(state_grouped)
 
 
-# # For unique tweets:
-# print('Beginning unique tweets only\n')
+
+
+# For unique tweets:
+print('Beginning unique tweets only\n')
     
-# month_grouped = group_by_month(unique)
-# month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
-# del(month_grouped)
+month_grouped = group_by_month(unique)
+month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
+del(month_grouped)
 
-# # day_grouped = group_by_day(unique)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(unique)
+# day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
+# del(day_grouped)
 
-# state_years_grouped = group_by_both(unique)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped = group_by_both(unique)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
+del(state_years_grouped)
 
-# year_grouped = group_by_year(unique)
-# year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
-# del(year_grouped)
+year_grouped = group_by_year(unique)
+year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
+del(year_grouped)
 
-# state_grouped = group_by_state(unique)
-# state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
-# del(state_grouped)
+state_grouped = group_by_state(unique)
+state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
+del(state_grouped)
 
 
 
