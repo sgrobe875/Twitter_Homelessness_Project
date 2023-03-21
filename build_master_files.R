@@ -214,8 +214,8 @@ for (st in states) {
 
 
 ## sentiment changes - all
-years <- seq(2010,2019)
-years <- append(years, 2022)
+years <- seq(2010,2022)
+# years <- append(years, 2022)
 states <- unlist(homelessness_long %>% distinct(state))
 
 yr_col <- c()
@@ -224,7 +224,7 @@ sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010 | yr == 2022) {
+    if (yr == 2010) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -255,7 +255,7 @@ sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010 | yr == 2022) {
+    if (yr == 2010) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -282,7 +282,7 @@ sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010 | yr == 2022) {
+    if (yr == 2010) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -315,7 +315,7 @@ sent_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010 | yr == 2022) {
+    if (yr == 2010) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       sent_change <- append(sent_change, NA)
@@ -346,7 +346,7 @@ twt_change <- c()
 
 for (st in states) {
   for (yr in years) {
-    if (yr == 2010 | yr == 2022) {
+    if (yr == 2010) {
       yr_col <- append(yr_col, yr)
       st_col <- append(st_col, st)
       twt_change <- append(twt_change, NA)

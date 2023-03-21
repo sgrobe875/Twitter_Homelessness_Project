@@ -23,9 +23,9 @@ year_sent_qrt <- read.csv('data/sentiment/year_sentiment_qrt.csv')
 
 # state sentiment
 state_sent_all <- read.csv('data/sentiment/state_sentiment.csv')
-state_sent_unique <- read.csv('data/sentiment/state_sentiment_unique.csv')
-state_sent_replies <- read.csv('data/sentiment/state_sentiment_replies.csv')
-state_sent_qrt <- read.csv('data/sentiment/state_sentiment_qrt.csv')
+# state_sent_unique <- read.csv('data/sentiment/state_sentiment_unique.csv')
+# state_sent_replies <- read.csv('data/sentiment/state_sentiment_replies.csv')
+# state_sent_qrt <- read.csv('data/sentiment/state_sentiment_qrt.csv')
 
 
 
@@ -44,6 +44,13 @@ month_sent_all$sentiment <- month_sent_all$sentiment - 5
 month_sent_all$sentiment <- month_sent_all$sentiment / 4
 month_sent_all$sentiment <- as.numeric(month_sent_all$sentiment)
 month_sent_all$sentiment[month_sent_all$sentiment < -1] <- NA
+
+
+state_sent_all$sentiment <- state_sent_all$sentiment - 5
+state_sent_all$sentiment <- state_sent_all$sentiment / 4
+state_sent_all$sentiment <- as.numeric(state_sent_all$sentiment)
+state_sent_all$sentiment[state_sent_all$sentiment < -1] <- NA
+
 
 year_sent_all$sentiment <- year_sent_all$sentiment - 5
 year_sent_all$sentiment <- year_sent_all$sentiment / 4
@@ -99,6 +106,13 @@ region_sent_all$sentiment <- as.numeric(region_sent_all$sentiment)
 region_sent_all$sentiment[region_sent_all$sentiment < -1] <- NA
 
 
+
+state_year_sent_only <- read.csv('data/sentiment/state_year_sentiment.csv')
+
+state_year_sent_only$sentiment <- state_year_sent_only$sentiment - 5
+state_year_sent_only$sentiment <- state_year_sent_only$sentiment / 4
+state_year_sent_only$sentiment <- as.numeric(state_year_sent_only$sentiment)
+state_year_sent_only$sentiment[state_year_sent_only$sentiment < -1] <- NA
 
 
 

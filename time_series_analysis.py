@@ -660,7 +660,7 @@ def circular(df, counts=False, time_segment='monthyear', title=''):
 
 
 # evaluating seasonality
-# seasonality(month_sent[month_sent.year != '2010'].reset_index(), '(All Tweets)')
+seasonality(month_sent[month_sent.year != '2010'].reset_index(), '(All Tweets)')
 
 
 # overlay monthly sentiment each year (linear)
@@ -679,7 +679,7 @@ def circular(df, counts=False, time_segment='monthyear', title=''):
 
 # circular tweet counts
 # circular(tweets, counts=True, time_segment='hour', title='Tweet Counts by Hour')
-circular(tweets, counts=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
+# circular(tweets, counts=True, time_segment='dayweek', title='Tweet Counts by Day of Week')
 # circular(tweets, counts=True, time_segment='daymonth', title='Tweet Counts by Day of Month')
 # circular(tweets, counts=True, time_segment='monthyear', title='Tweet Counts by Month')
 

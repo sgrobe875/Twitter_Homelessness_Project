@@ -15,7 +15,7 @@ rm(list = ls(all.names = TRUE))
 
 
 # use this R file to automatically read in the data and rescale the sentiment values
-source('rescale_sentiment.R')
+source('load_data.R')
 
 
 
@@ -24,7 +24,7 @@ source('rescale_sentiment.R')
 
 state_barplot <- function() {
   # sort by mean sentiment (descending)
-  df <- state_sent %>% arrange(sentiment)
+  df <- state_sent_all %>% arrange(sentiment)
   
   # convert state to a factor so the dataframe holds this ordering
   df <- within(df, state <- factor(state, levels = factor(df$state)))
@@ -42,7 +42,7 @@ state_barplot <- function() {
 
 year_barplot <- function() {
   # sort by mean sentiment (descending)
-  df <- year_sent %>% arrange(year, desc = TRUE)
+  df <- year_sent_all %>% arrange(year, desc = TRUE)
   
   # convert year to a factor so the dataframe holds this ordering
   df <- within(df, year <- factor(year, levels = factor(df$year)))
@@ -60,7 +60,7 @@ year_barplot <- function() {
 
 sent_barplot_by_year <- function(yr) {
   # filter by the inputted year
-  df <- state_year_sent %>% filter(year == yr)
+  df <- state_year_sent_only %>% filter(year == yr)
 
   # sort by mean sentiment (descending)
   df <- df %>% arrange(sentiment)
@@ -82,7 +82,7 @@ sent_barplot_by_year <- function(yr) {
 
 sent_barplot_by_year_facet <- function(yr) {
   # filter by the inputted year
-  df <- state_year_sent %>% filter(year == yr)
+  df <- state_year_sent_only %>% filter(year == yr)
 
   # sort by mean sentiment (descending)
   df <- df %>% arrange(sentiment)
@@ -103,7 +103,7 @@ sent_barplot_by_year_facet <- function(yr) {
 
 sent_by_state <- function(st) { 
   # filter by the inputted state
-  df <- state_year_sent %>% filter(state == st)
+  df <- state_year_sent_only %>% filter(state == st)
   
   df <- df %>% arrange(year, desc = TRUE)
   
@@ -123,7 +123,7 @@ sent_by_state <- function(st) {
 
 sent_change_by_state <- function(st) {
   # filter by the inputted state
-  df <- state_year_sent %>% filter(state == st)
+  df <- state_year_sent_only %>% filter(state == st)
   df <- df %>% arrange(year, desc = FALSE)
   
   # loop through and calculate differences; add to a dataframe
@@ -171,9 +171,12 @@ facet_year <- function() {
   p7 <- sent_barplot_by_year_facet(2017)
   p8 <- sent_barplot_by_year_facet(2018)
   p9 <- sent_barplot_by_year_facet(2019)
+  p10 <- sent_barplot_by_year_facet(2020)
+  p11 <- sent_barplot_by_year_facet(2021)
+  p12 <- sent_barplot_by_year_facet(2022)
   
-  grid.arrange(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=4, 
-               top=textGrob('Mean Compound Sentiment Per State, 2010 - 2018', gp=gpar(fontsize=20,font=8)))
+  grid.arrange(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, ncol=3, nrow=5, 
+               top=textGrob('Mean Compound Sentiment Per State, 2010 - 2022', gp=gpar(fontsize=20,font=8)))
 }
 
 
@@ -226,6 +229,9 @@ sent_barplot_by_year(2016)
 sent_barplot_by_year(2017)
 sent_barplot_by_year(2018)
 sent_barplot_by_year(2019)
+sent_barplot_by_year(2020)
+sent_barplot_by_year(2021)
+sent_barplot_by_year(2022)
 
 png(filename="figures/sentiment/sentiment_facet_year.png", width=550, height=700)
 p <- facet_year()

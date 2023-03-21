@@ -58,7 +58,7 @@ sentiment_monthly <- function(df, title = NULL, st = NULL, yr = NULL) {
   
 
 
-# plot the sentiment over all years and states with monthly averages
+# plot the sentiment over all years and states with yearly averages
 sentiment_yearly <- function(df = year_sent_all, title = NULL) {
   # plot
   ggplot(data = df, mapping = aes(x = year, y = sentiment)) + 
@@ -72,6 +72,40 @@ sentiment_yearly <- function(df = year_sent_all, title = NULL) {
 
 
 
+# plot the sentiment over all years and states with yearly averages
+sentiment_yearly_bar <- function(df = year_sent_all, title = NULL) {
+  # plot
+  ggplot(data = df, mapping = aes(x = year, y = sentiment)) + 
+    geom_col() + 
+    ggtitle(paste('Yearly Mean Sentiment Over Time', title)) + 
+    xlab('Time') + 
+    ylab('Compound Sentiment') + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+}
+
+
+
+# sentiment over time for each region of the country
+# regions according to: https://education.nationalgeographic.org/resource/united-states-regions
+regional_sentiment <- function(df, title = NULL) {
+  ne <- df %>% filter(region == 'Northeast')
+  se <- df %>% filter(region == 'Southeast')
+  mw <- df %>% filter(region == 'Midwest')
+  we <- df %>% filter(region == 'West')
+  sw <- df %>% filter(region == 'Southwest')
+  
+  ggplot(data = df, mapping = aes(x = year, y = sentiment, color = region)) + 
+    geom_line() + 
+    ggtitle(paste('Yearly Mean Sentiment Over Time', title)) + 
+    xlab('Time') + 
+    ylab('Compound Sentiment') + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+}
+
+
+regional_sentiment(region_sent_all)
 
 
 
