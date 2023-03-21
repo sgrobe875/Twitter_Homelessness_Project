@@ -14,14 +14,10 @@ First, tweets were pulled from the Twitter API using the following parameters:
 
 ``query = 'homeless lang:en has:geo place_country:US'``\
 ``start_time = '2010-01-01T00:00:00Z'``\
-``end_time = '2020-01-01T00:00:00Z'``
-
-and
-
-``start_time = '2022-01-01T00:00:00Z'``\
 ``end_time = '2023-01-01T00:00:00Z'``
 
-In plain English, this provided us with all English US-based tweets containing the substring "homeless" from 2010 through 2019, and additionally, 2022. Note that the entirety of 2020 and 2021 were ommitted due to the impacts of the coronavirus pandemic on homelessness counts and data during those years. The tweets were pulled using Python code in 6 month chunks across the entirety of the aforementioned period. These data files spanning 6 months at a time were then amalgamated into a single data file containing all tweets in the specified period, which was saved as *tweets.csv*.
+
+In plain English, this provided us with all English US-based tweets containing the substring "homeless" from 2010 through 2022. Note that while we do pull tweets from 2020 and 2021, we do not utilize any homelessness counts during these years due to their inaccuracies resulting from the coronavirus pandemic. The tweets were pulled using Python code in 6 month chunks across the entirety of the aforementioned period. These data files spanning 6 months at a time were then amalgamated into a single data file containing all tweets in the specified period, which was saved as *tweets.csv*.
 
 A big thank you to Sean Rogers for providing the Python code used to access tweets from the Twitter API. Note that that code is not included in this repository.
 
@@ -38,6 +34,10 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
   - running the daily sentiment analysis functions are not recommended, as they are particularly computationally expensive; running all functions in the script except for the daily sentiment functions takes roughly 6 hours
   - function calls at the end of the script should be commented/uncommented as needed to save on time and space complexity
 - build_master_files.R
+  - **inputs:** percapita_total.csv, percapita_tweets.csv, percapita_annual_changes_total.csv; all *sentiment_analysis_wordfreqs.py* outputs
+  - **outputs:** state_year_master.csv
+  - joins all data recorded in state-years into a single file, which can then be used for a majority of subsequent graphs and analyses
+  - since some of the data is missing for 2020 and 2021 (e.g., homelessness rates), this data file only contains state-year data for 2010-2019 and 2022; for state-year sentiment during these two missing years, the data file *state_year_sentiment.csv* should be used
 
 ### Once master data files have been created:
 - eda.R 
@@ -45,3 +45,9 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
   - Note that unshelt_homelessness_plotting.R is no longer compatible with the available data, which is fine
   for the purposes of this project
 - hypothesis_testing.R
+
+### Miscellaneous files
+- load_data.R
+  - This file is nested within all graphing R files as a cleaner way to load in all necessary data files at once in a single line
+  - Reads in relevant data files and rescales the sentiment columns from the default [1,9] to a more accessible [-1,1]
+
