@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(grid)
+library(scales)
 
 
 
@@ -18,7 +19,11 @@ source('load_data.R')
 
 
 
+### Declare functions ###
 
+
+# Produces a line graph of monthly sentiment with one line for each of the three tweet types
+# Quote RTs, Unique, and Replies
 sentiment_monthly_types <- function() {
   # convert strings to Dates
   month_sent_qrt$month <- as.Date(paste(month_sent_qrt$month, '-01', sep=''))
@@ -41,6 +46,8 @@ sentiment_monthly_types <- function() {
 }
 
 
+
+# Same as the above function, but also includes a line of the overall sentiment each month
 sentiment_monthly_types_baseline <- function() {
   # convert strings to Dates
   month_sent_all$month <- as.Date(paste(month_sent_all$month, '-01', sep=''))
@@ -65,7 +72,8 @@ sentiment_monthly_types_baseline <- function() {
 }
 
 
-
+# Creates grouped bar plot with average sentiment each year, 2014-2022
+# Each year has three bars, one for each of the three tweet types
 yearly_bar_types <- function() {
   width_value <- 0.25
   
@@ -89,12 +97,44 @@ yearly_bar_types <- function() {
 }
 
 
+# Same as above, but uses the passed in parameter to "zoom in" by starting the plot at a certain year
+# Allows us to filter out the weirdness in the early years of the data set as a result of small sample sizes
+yearly_bar_types_cutoff <- function(yr) {
+  width_value <- 0.25
+  
+  unique_df <- year_sent_unique %>% filter(year >= yr)
+  qrt_df <- year_sent_qrt %>% filter(year >= yr)
+  replies_df <- year_sent_replies %>% filter(year >= yr)
+  
+  ggplot() +
+    # left
+    geom_col(aes(x = year, y = sentiment, fill = 'blue'), data = unique_df,
+             width = width_value, position = position_nudge(-width_value)) +
+    # middle
+    geom_col(aes(x = year, y = sentiment, fill = 'darkblue'), data = qrt_df,
+             width = width_value) +
+    # right
+    geom_col(aes(x = year, y = sentiment, fill = "lightblue"), data = replies_df,
+             width = width_value, position = position_nudge(width_value)) +
+    scale_fill_manual(values = c('blue','darkblue','lightblue'), labels = c('Unique','Quote RTs','Replies')) + 
+    labs(fill="Tweet Type") +
+    ggtitle("Average Sentiment Per Year by Tweet Type") +
+    xlab('Year') + 
+    ylab('Sentiment') +
+    scale_x_continuous(breaks = seq(yr, 2022), labels = seq(yr, 2022)) + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11))
+}
+
+
+
+
+### Function calls ###
+
 sentiment_monthly_types()
-
-
 
 sentiment_monthly_types_baseline()
 
-
-
 yearly_bar_types()
+
+yearly_bar_types_cutoff(2016)
