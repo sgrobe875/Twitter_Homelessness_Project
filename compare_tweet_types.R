@@ -137,4 +137,4 @@ sentiment_monthly_types_baseline()
 
 yearly_bar_types()
 
-yearly_bar_types_cutoff(2016)
+yearly_bar_types_cutoff(2015)
