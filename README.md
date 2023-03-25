@@ -50,4 +50,6 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
 - load_data.R
   - This file is nested within all graphing R files as a cleaner way to load in all necessary data files at once in a single line
   - Reads in relevant data files and rescales the sentiment columns from the default [1,9] to a more accessible [-1,1]
-
+- load_corpus_data.R
+  - This file is nested within all hypothesis testing R files as a cleaner way to load in all necessary data files at once in a single line
+  - Reads in relevant data files and rescales the sentiment columns from the default [1,9] to a more accessible [-1,1]
