@@ -96,6 +96,8 @@ def get_days(date_time_list):
 # takes in a dataframe including state, year, tweet data
 # returns the average sentiment for all tweets in each combination of state and year
 def group_by_both(df):
+    corpus_data = pd.DataFrame(columns = ['state','year','word','frequency','sentiment'])
+    
     # print update
     print('Beginning grouping by both')
     e = datetime.datetime.now()
@@ -157,16 +159,14 @@ def group_by_both(df):
                 # negative sentiment means cannot be sentimentized, so let's remove it
                 if raw_sent < 0 or sentiment < 0:
                     freqs.pop(key)
-                    
-                # also remove any neutral words
-                elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
-                    freqs.pop(key)
                 
                 # if it was successfully sentimentized, append to the list so we can calc the avg
                 else:
                     # when appending, multiply the sentiment by how many times that word appears
                     this_group_sent.append(sentiment * freqs[key])
                     this_group_raw.append(raw_sent * freqs[key]) 
+                    
+                    corpus_data.loc[len(corpus_data)] = [st, yr, key, freqs[key], sentiment]
             
             # get the total number of words in the mega_sting (must be done after the for loop!)
             num_words = sum(freqs.values())
@@ -197,7 +197,7 @@ def group_by_both(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
-    return state_years_grouped
+    return state_years_grouped, corpus_data
 
 
 
@@ -211,6 +211,8 @@ def group_by_state(df):
     
     # get list of all unique states in the data set
     states = df['state'].unique()
+    
+    corpus_data = pd.DataFrame(columns = ['state','word','frequency','sentiment'])
 
     # initialize dataframe column lists
     sentiment_column = []
@@ -252,16 +254,15 @@ def group_by_state(df):
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
                 freqs.pop(key)
-                
-            # also remove any neutral words
-            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
-                freqs.pop(key)
+
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
                 # multiply sentiment by how many times that word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
+     
+                corpus_data.loc[len(corpus_data)] = [st, key, freqs[key], sentiment] 
         
         # get the total number of words in the mega_sting (must be done after the for loop!)
         num_words = sum(freqs.values())
@@ -290,7 +291,7 @@ def group_by_state(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
-    return state_grouped
+    return state_grouped, corpus_data
 
 
 
@@ -304,6 +305,8 @@ def group_by_year(df):
     
     # get list of all unique years 
     years = df['year'].unique()
+
+    corpus_data = pd.DataFrame(columns = ['year','word','frequency','sentiment'])
 
     # initialize dataframe column lists
     sentiment_column = []
@@ -345,16 +348,14 @@ def group_by_year(df):
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
                 freqs.pop(key)
-                
-            # also remove any neutral words
-            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
-                freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
                 # multiply the sentiment by the number of times the word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
+
+                corpus_data.loc[len(corpus_data)] = [yr, key, freqs[key], sentiment]  
 
         
         # get the total number of words in the mega_sting (must be done after the for loop!)
@@ -384,7 +385,7 @@ def group_by_year(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
-    return year_grouped
+    return year_grouped, corpus_data
 
 
 
@@ -404,6 +405,8 @@ def group_by_month(df):
 
     # get list of all unique year-month combos
     months = df['month'].unique()
+    
+    corpus_data = pd.DataFrame(columns = ['month','word','frequency','sentiment'])
 
     # initialize dataframe column lsits
     sentiment_column = []
@@ -445,16 +448,14 @@ def group_by_month(df):
             # negative sentiment means cannot be sentimentized, so let's remove it
             if raw_sent < 0 or sentiment < 0:
                 freqs.pop(key)
-                
-            # also remove any neutral words
-            elif (raw_sent > 4 and raw_sent < 6) or (sentiment > 4 and sentiment < 6):
-                freqs.pop(key)
             
             # if it was successfully sentimentized, append to the list so we can calc the avg
             else:
                 # multiply sentiment by how many times the word appears
                 this_group_sent.append(sentiment * freqs[key])
                 this_group_raw.append(raw_sent * freqs[key]) 
+                
+                corpus_data.loc[len(corpus_data)] = [m, key, freqs[key], sentiment]  
 
         
         # get the total number of words in the mega_sting (must be done after the for loop!)
@@ -484,7 +485,7 @@ def group_by_month(df):
     print ("The current time is %s:%s:%s" % (e.hour, e.minute, e.second))
     print()
     
-    return month_grouped
+    return month_grouped, corpus_data
 
 
 
@@ -681,28 +682,36 @@ print()
 
 
 
-# # First do for total data set
-# print('Beginning total data set\n')
+# First do for total data set
+print('Beginning total data set\n')
 
-# month_grouped = group_by_meonth(df)
-# month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
-# del(month_grouped)
+month_grouped, corpus_data = group_by_month(df)
+month_grouped.to_csv('data/sentiment/month_sentiment.csv', index = False)
+corpus_data.to_csv('data/corpus_data/month_data.csv', index = False)
+del(month_grouped)
+del(corpus_data)
 
-# # day_grouped = group_by_day(df)
-# # day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(df)
+# day_grouped.to_csv('data/sentiment/day_sentiment.csv', index = False)
+# del(day_grouped)
 
-state_years_grouped = group_by_both(df)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped, corpus_data = group_by_both(df)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_year_data.csv', index = False)
+del(state_years_grouped)
+del(corpus_data)
 
-# year_grouped = group_by_year(df)
-# year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
-# del(year_grouped)
+year_grouped, corpus_data = group_by_year(df)
+year_grouped.to_csv('data/sentiment/year_sentiment.csv', index = False)
+corpus_data.to_csv('data/corpus_data/year_data.csv', index = False)
+del(year_grouped)
+del(corpus_data)
 
-# state_grouped = group_by_state(df)
-# state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
-# del(state_grouped)
+state_grouped, corpus_data = group_by_state(df)
+state_grouped.to_csv('data/sentiment/state_sentiment.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_data.csv', index = False)
+del(state_grouped)
+del(corpus_data)
 
 # region_grouped = group_by_region(df)
 # region_grouped.to_csv('data/sentiment/region_sentiment.csv', index = False)
@@ -710,80 +719,104 @@ state_years_grouped = group_by_both(df)
     
     
     
-# # For QRTs only:
-# print('Beginning QRTs\n')
+# For QRTs only:
+print('Beginning QRTs\n')
     
-# month_grouped = group_by_month(qrts)
-# month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
-# del(month_grouped)
+month_grouped, corpus_data = group_by_month(qrts)
+month_grouped.to_csv('data/sentiment/month_sentiment_qrt.csv', index = False)
+corpus_data.to_csv('data/corpus_data/month_data_qrt.csv', index = False)
+del(month_grouped)
+del(corpus_data)
 
-# # day_grouped = group_by_day(qrts)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
-# # del(day_grouped)
+# day_grouped = group_by_day(qrts)
+# day_grouped.to_csv('data/sentiment/day_sentiment_qrt.csv', index = False)
+# del(day_grouped)
 
-# state_years_grouped = group_by_both(qrts)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
-# del(state_years_grouped)
+state_years_grouped, corpus_data = group_by_both(qrts)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_qrt.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_year_data_qrt.csv', index = False)
+del(state_years_grouped)
+del(corpus_data)
 
-# year_grouped = group_by_year(qrts)
-# year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
-# del(year_grouped)
+year_grouped, corpus_data = group_by_year(qrts)
+year_grouped.to_csv('data/sentiment/year_sentiment_qrt.csv', index = False)
+corpus_data.to_csv('data/corpus_data/year_data_qrt.csv', index = False)
+del(year_grouped)
+del(corpus_data)
 
-# state_grouped = group_by_state(qrts)
-# state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
-# del(state_grouped)
-    
-
-    
-    
-# # For RTs only:
-# print('Beginning replies\n')
-    
-# month_grouped = group_by_month(replies)
-# month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
-# del(month_grouped)
-
-# # day_grouped = group_by_day(replies)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
-# # del(day_grouped)
-
-# state_years_grouped = group_by_both(replies)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
-# del(state_years_grouped)
-
-# year_grouped = group_by_year(replies)
-# year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
-# del(year_grouped)
-
-# state_grouped = group_by_state(replies)
-# state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
-# del(state_grouped)
-
-
-
-
-# # For unique tweets:
-# print('Beginning unique tweets only\n')
-    
-# month_grouped = group_by_month(unique)
-# month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
-# del(month_grouped)
-
-# # day_grouped = group_by_day(unique)
-# # day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
-# # del(day_grouped)
-
-# state_years_grouped = group_by_both(unique)
-# state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
-# del(state_years_grouped)
-
-# year_grouped = group_by_year(unique)
-# year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
-# del(year_grouped)
-
-state_grouped = group_by_state(unique)
-state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
+state_grouped, corpus_data = group_by_state(qrts)
+state_grouped.to_csv('data/sentiment/state_sentiment_qrt.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_data_qrt.csv', index = False)
 del(state_grouped)
+del(corpus_data)
+    
+
+    
+    
+# For RTs only:
+print('Beginning replies\n')
+    
+month_grouped, corpus_data = group_by_month(replies)
+month_grouped.to_csv('data/sentiment/month_sentiment_replies.csv', index = False)
+corpus_data.to_csv('data/corpus_data/month_data_replies.csv', index = False)
+del(month_grouped)
+del(corpus_data)
+
+# day_grouped = group_by_day(replies)
+# day_grouped.to_csv('data/sentiment/day_sentiment_replies.csv', index = False)
+# del(day_grouped)
+
+state_years_grouped, corpus_data = group_by_both(replies)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_replies.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_year_data_replies.csv', index = False)
+del(state_years_grouped)
+del(corpus_data)
+
+year_grouped, corpus_data = group_by_year(replies)
+year_grouped.to_csv('data/sentiment/year_sentiment_replies.csv', index = False)
+corpus_data.to_csv('data/corpus_data/year_data_replies.csv', index = False)
+del(year_grouped)
+del(corpus_data)
+
+state_grouped, corpus_data = group_by_state(replies)
+state_grouped.to_csv('data/sentiment/state_sentiment_replies.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_data_replies.csv', index = False)
+del(state_grouped)
+del(corpus_data)
+
+
+
+
+# For unique tweets:
+print('Beginning unique tweets only\n')
+    
+month_grouped, corpus_data = group_by_month(unique)
+month_grouped.to_csv('data/sentiment/month_sentiment_unique.csv', index = False)
+corpus_data.to_csv('data/corpus_data/month_data_unique.csv', index = False)
+del(month_grouped)
+del(corpus_data)
+
+# day_grouped = group_by_day(unique)
+# day_grouped.to_csv('data/sentiment/day_sentiment_unique.csv', index = False)
+# del(day_grouped)
+
+state_years_grouped, corpus_data = group_by_both(unique)
+state_years_grouped.to_csv('data/sentiment/state_year_sentiment_unique.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_year_data_unique.csv', index = False)
+del(state_years_grouped)
+del(corpus_data)
+
+year_grouped, corpus_data = group_by_year(unique)
+year_grouped.to_csv('data/sentiment/year_sentiment_unique.csv', index = False)
+corpus_data.to_csv('data/corpus_data/year_data_unique.csv', index = False)
+del(year_grouped)
+del(corpus_data)
+
+state_grouped, corpus_data = group_by_state(unique)
+state_grouped.to_csv('data/sentiment/state_sentiment_unique.csv', index = False)
+corpus_data.to_csv('data/corpus_data/state_data_unique.csv', index = False)
+del(state_grouped)
+del(corpus_data)
 
 
 
