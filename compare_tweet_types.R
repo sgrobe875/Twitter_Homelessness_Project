@@ -131,10 +131,22 @@ yearly_bar_types_cutoff <- function(yr) {
 
 ### Function calls ###
 
-sentiment_monthly_types()
+png(filename="figures/sentiment/compare_monthly.png", width=700, height=400)
+p <- sentiment_monthly_types()
+p
+dev.off()
 
-sentiment_monthly_types_baseline()
+png(filename="figures/sentiment/compare_monthly_baseline.png", width=700, height=400)
+p <- sentiment_monthly_types_baseline()
+p
+dev.off()
 
-yearly_bar_types()
+png(filename="figures/sentiment/compare_yearly.png", width=700, height=450)
+p <- yearly_bar_types()
+p
+dev.off()
 
-yearly_bar_types_cutoff(2015)
+png(filename="figures/sentiment/compare_yearly_zoomed.png", width=700, height=450)
+p <- yearly_bar_types_cutoff(2015)
+p
+dev.off()

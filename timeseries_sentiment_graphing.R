@@ -179,8 +179,22 @@ dev.off()
 
 sentiment_yearly()
 sentiment_yearly(year_sent_unique, '(Unique Tweets Only)')
+png(filename="figures/sentiment/yearly_sentiment_line_unique.png", width=600, height=400)
+p <- sentiment_yearly(year_sent_unique, '(Unique Tweets Only)')
+p
+dev.off()
+
 sentiment_yearly(year_sent_qrt, '(Quote Tweets Only)')
+png(filename="figures/sentiment/yearly_sentiment_line_qrt.png", width=600, height=400)
+p <- sentiment_yearly(year_sent_qrt, '(Quote Tweets Only)')
+p
+dev.off()
+
 sentiment_yearly(year_sent_replies, '(Reply Tweets Only)')
+png(filename="figures/sentiment/yearly_sentiment_line_replies.png", width=600, height=400)
+p <- sentiment_yearly(year_sent_replies, '(Reply Tweets Only)')
+p
+dev.off()
 
 
 
