@@ -53,3 +53,7 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
 - load_corpus_data.R
   - This file is nested within all hypothesis testing R files as a cleaner way to load in all necessary data files at once in a single line
   - Reads in relevant data files and rescales the sentiment columns from the default [1,9] to a more accessible [-1,1]
+- network.py
+  - Written as a final project for another UVM course (STAT 395) using this same data set
+  - Builds a network of tweet comments within the scope of the data set and calculates some basic network statistics
+  - Provides an additional way of visualizing part of the data set
