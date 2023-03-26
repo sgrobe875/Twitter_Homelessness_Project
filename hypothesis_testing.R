@@ -1,3 +1,6 @@
+library(dplyr)
+
+
 # set working directory to the location of this file
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -132,6 +135,14 @@ t.test(get_sent_vector(year_corpus_unique %>% filter(year == cutoff)),
 t <- t.test(get_sent_vector(year_corpus_replies %>% filter(year == cutoff)), 
        get_sent_vector(year_corpus_qrt %>% filter(year == cutoff)),
        var.equal = FALSE)
+
+
+# check normality
+cutoff <- 2018
+hist(get_sent_vector(year_corpus_all %>% filter(year == cutoff)))
+hist(get_sent_vector(year_corpus_unique %>% filter(year == cutoff)))
+hist(get_sent_vector(year_corpus_qrt %>% filter(year == cutoff)))
+hist(get_sent_vector(year_corpus_replies %>% filter(year == cutoff)))
 
 
 # quick test for a single year
