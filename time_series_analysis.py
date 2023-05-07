@@ -24,6 +24,9 @@ month_sent_unique = pd.read_csv('data/sentiment/month_sentiment_unique.csv')
 month_sent_replies = pd.read_csv('data/sentiment/month_sentiment_replies.csv')
 month_sent_qrt = pd.read_csv('data/sentiment/month_sentiment_qrt.csv')
 
+
+month_counts = pd.read_csv('data/monthly_counts.csv')
+
 # tweets = pd.read_csv('data/tweets_processed.csv')
 
 
@@ -182,6 +185,85 @@ def detrend(df, t2):
     # TODO: calculate strength of trend - year >= 2018
     
     
+    
+# performs detrending on the inputted dataframe sentiment data and plots it vs.
+# the original data
+def detrend_counts(df, t2):
+    
+    ### detrending the data ###
+    
+    fig_trend, ax_trend = plt.subplots()
+    
+    # extract data to be plotted (in this case, sentiment by month)
+    x = df['month']
+    y = df['count']
+    
+    # make a smaller dataframe of just this plotting data w/ relevant column names
+    data = pd.DataFrame({"time" : x, "original" : y})
+    
+    # add a column of detrended data
+    data["detrended"] = data["original"].diff()
+    
+    # set up the plot
+    ax_trend = data.plot()
+    ax_trend.legend(ncol=5, 
+              loc='lower center',
+              # bbox_to_anchor=(0.5, 1.0),
+              bbox_transform=plt.gcf().transFigure)
+    
+    # set title and labels
+    title = "Monthly Tweet Volume Over Time " + t2
+    ax_trend.set_title(title)
+    mLabels = []
+    for i in range(len(x)): 
+        if i%12 == 0:
+            mLabels.append("Jan " + x[i][0:4])
+        else:
+            mLabels.append("")
+    
+    # set x axis ticks
+    x2 = np.arange(len(x))
+    distance_between_ticks = 12
+    # reduced_xticks = x2[np.arange(0, len(x2), distance_between_ticks)]
+    
+    ax_trend.set_xticks(x2)
+    
+    ax_trend.set_title(title)
+    ax_trend.set_ylabel("Number of Tweets")
+    
+    ax_trend.set_xticklabels(mLabels)
+    plt.xlabel("Time")
+    
+    plt.xticks(rotation = 45)
+    plt.title(title)
+    
+    # plot detrended vs original
+    plt.show()
+    
+    
+    ### Autocorrelation ###
+    
+    data["detrended"].iloc[0] = 0
+    plt.acorr(data["detrended"], maxlags = 12)
+    title = "Autocorrelation for Monthly Tweet Volume " + t2 
+    plt.title(title)
+    plt.xlabel("Lags")
+    plt.show()
+    
+    #####
+    
+    fig, ax = plt.subplots()
+    title = "Autocorrelation for Monthly Tweet Volume " + t2 + "\n(detrended)"
+    ax.set_title(title)
+    plt.xlabel("Lags")
+    plot_acf(data["detrended"], bartlett_confint = False, ax = ax, title = title)
+    
+    plt.show()
+    
+    
+    # TODO: calculate strength of trend - overall
+    # TODO: calculate strength of trend - year < 2018
+    # TODO: calculate strength of trend - year >= 2018
     
     
     
@@ -658,6 +740,8 @@ def circular(df, counts=False, time_segment='monthyear', title=''):
 # detrend(month_sent_replies, '(Reply Tweets Only)')
 # detrend(month_sent_qrt, '(Quote Tweets Only)')
 
+detrend_counts(month_counts, '(All Tweets)')
+
 
 # evaluating seasonality
 seasonality(month_sent[month_sent.year != '2010'].reset_index(), '(All Tweets)')
@@ -684,5 +768,73 @@ seasonality(month_sent[month_sent.year != '2010'].reset_index(), '(All Tweets)')
 # circular(tweets, counts=True, time_segment='monthyear', title='Tweet Counts by Month')
 
 
+### detrending the data ###
+    
+# fig_trend, ax_trend = plt.subplots()
 
+# # extract data to be plotted (in this case, sentiment by month)
+# x = month_sent['month']
+# y = month_sent['sentiment']
+
+# # make a smaller dataframe of just this plotting data w/ relevant column names
+# data = pd.DataFrame({"time" : x, "original" : y})
+
+# # add a column of detrended data
+# data["detrended"] = data["original"].diff()
+
+# # set up the plot
+# ax_trend = data.plot()
+# ax_trend.legend(ncol=5, 
+#           loc='lower center',
+#           # bbox_to_anchor=(0.5, 1.0),
+#           bbox_transform=plt.gcf().transFigure)
+
+# # set title and labels
+# title = "Monthly Sentiment Over Time" " + t2"
+# ax_trend.set_title(title)
+# mLabels = []
+# for i in range(len(x)): 
+#     if i%12 == 0:
+#         mLabels.append("Jan " + x[i][0:4])
+#     else:
+#         mLabels.append("")
+
+# # set x axis ticks
+# x2 = np.arange(len(x))
+# distance_between_ticks = 12
+# # reduced_xticks = x2[np.arange(0, len(x2), distance_between_ticks)]
+
+# ax_trend.set_xticks(x2)
+
+# ax_trend.set_title(title)
+# ax_trend.set_ylabel("Sentiment")
+
+# ax_trend.set_xticklabels(mLabels)
+# plt.xlabel("Time")
+
+# plt.xticks(rotation = 45)
+# plt.title(title)
+
+# # plot detrended vs original
+# plt.show()
+
+
+# ### Autocorrelation ###
+
+# data["detrended"].iloc[0] = 0
+# plt.acorr(data["detrended"], maxlags = 12)
+# title = "Autocorrelation for Monthly Sentiment " + t2 
+# plt.title(title)
+# plt.xlabel("Lags")
+# plt.show()
+
+# #####
+
+# fig, ax = plt.subplots()
+# title = "Autocorrelation for Monthly Sentiment " + t2 + "\n(detrended)"
+# ax.set_title(title)
+# plt.xlabel("Lags")
+# plot_acf(data["detrended"], bartlett_confint = False, ax = ax, title = title)
+
+# plt.show()
 
