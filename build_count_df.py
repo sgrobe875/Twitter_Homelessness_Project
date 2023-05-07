@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May  4 13:35:25 2023
-
-@author: sarahgrobe
-"""
 # import Rbeast as rb  
 
 
@@ -22,6 +15,8 @@ Created on Thu May  4 13:35:25 2023
 
 import pandas as pd
 from collections import Counter
+from datetime import datetime
+import matplotlib.pyplot as plt
 
 
 
@@ -59,7 +54,39 @@ counts = pd.DataFrame({'month':list(c.keys()), 'count':list(c.values())})
 
 
 # Finally, convert to datetimes and sort
+months = counts['month']
 
+months = [x + '-01' for x in months]
+
+months = [datetime.strptime(x, '%Y-%m-%d') for x in months]
+
+counts['month'] = months
+
+counts = counts.sort_values(by=['month'])
+
+plt.plot(counts['month'],counts['count'])
+plt.title('Number of Tweets Per Month Containing "Homeless"')
+plt.xlabel('Time')
+plt.ylabel('Number of Tweets')
+plt.show()
+
+# now convert back
+months = counts['month']
+
+months = [datetime.strftime(x, '%Y-%m-%d') for x in months]
+
+months = [x[:-3] for x in months]
+
+counts['month'] = months
+
+
+counts.to_csv('data/monthly_counts.csv', index=False)
+
+
+
+
+
+    
 
 
 
