@@ -91,6 +91,32 @@ p
 dev.off()
 
 
+
+
+test <- cor.test(log10(state_year_master$total_homeless_norm), log10(state_year_master$tweets_norm))
+p <- state_year_master %>% 
+  ggplot(mapping = aes(x = log10(total_homeless_norm), y = log10(tweets_norm), color = all_sent)) + 
+  geom_point(alpha = 0.8, size = 2) + 
+  geom_smooth(method = 'lm', se = FALSE, color = 'black') +
+  annotate("text", x=log10(0.0008), y=log10(0.0015), 
+           label= paste("Correlation coefficient =",format(round(test$estimate, 5)))) + 
+  sent_color_palette + 
+  ggtitle(paste(title)) +
+  xlab(xlabel) + 
+  ylab(ylabel) + 
+  labs(color = legendtitle) + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
+        axis.title.y = element_text(size = 9.5))
+print(p)
+
+png(filename="figures/total_homeless/all_sentiment_percapita_linreg.png", width=600, height=350)
+p
+dev.off()
+
+summary(lm(log10(tweets_norm) ~ log10(total_homeless_norm), data=state_year_master))
+
+
 # percentage tweets --- FIX
 p <- ggplot(data = state_year_master, 
             mapping = aes(x = log10(total_homeless_norm), y = log10(tweet_percent), color = all_sent)) + 
@@ -174,6 +200,9 @@ p <- state_year_master %>% filter(all_sent > 0) %>%
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
 print(p)
+
+summary(lm(log10(tweets_norm) ~ log10(total_homeless_norm), data=state_year_master %>% filter(all_sent > 0)))
+
 
 png(filename="figures/total_homeless/positive_sentiment_regression_percapita.png", width=700, height=450)
 p
@@ -261,6 +290,8 @@ state_year_master %>% filter(all_sent < 0) %>%
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), axis.text=element_text(size=11),
         axis.title.y = element_text(size = 9.5))
+
+summary(lm(log10(tweets_norm) ~ log10(total_homeless_norm), data=state_year_master %>% filter(all_sent < 0)))
 
 # percentage tweets --- FIX
 all_data %>% filter(sentiment < 0) %>%
