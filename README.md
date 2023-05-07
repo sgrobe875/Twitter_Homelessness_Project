@@ -1,10 +1,7 @@
 # Twitter Homelessness Project
 
 ## Project Overview
-
-## Methods
-
-## Conclusions
+The goal of this project is to develop a proxy measure for local homelessness rates in the U.S. using Twitter data. We hope to find a way to leverage relationships between relevant tweets, specifically their sentiment and volume, and total homelessness counts in order to be able to predict homelessness in the future. Much of this project up to this point has been exploratory, with a big focus on refining the preprocessing and sentiment analysis portions, and creating visualizations of many of the variables and their potential relationships with each other. Further analyses on these relationships include hypothesis testing using simple linear regression and two sample t-tests, as well as the BEAST algorithm to help identify and isolate trends and seasonal behavior in time series data.
 
 ## File hierarchy
 
@@ -45,6 +42,8 @@ A big thank you to Sean Rogers for providing the Python code used to access twee
   - Note that unshelt_homelessness_plotting.R is no longer compatible with the available data, which is fine
   for the purposes of this project
 - hypothesis_testing.R
+- time_series_analysis.py
+- time_series_analysis.R
 
 ### Miscellaneous files
 - load_data.R
