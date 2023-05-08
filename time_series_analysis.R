@@ -62,3 +62,16 @@ beast(y = df_counts$count,
       season = 'harmonic',
       period = '12 months'
 )
+
+
+df2_subset <- df2[37:132,]
+beast(y = df2_subset$sentiment,
+      start = df2_subset[1,'month'],
+      deltat = 1/12,
+      season = 'harmonic',
+      period = '12 months'
+)
+
+
+
+
